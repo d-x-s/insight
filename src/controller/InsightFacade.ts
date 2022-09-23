@@ -1,11 +1,6 @@
-import {
-	IInsightFacade,
-	InsightDataset,
-	InsightDatasetKind,
-	InsightError,
-	InsightResult,
-	NotFoundError
-} from "./IInsightFacade";
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
+import {IdValidator} from "./IdValidator";
+import JSZip from "jszip";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -30,6 +25,22 @@ export default class InsightFacade implements IInsightFacade {
     * Any invalid inputs should be rejected.
     * */
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		// parsing dataset
+		let zipped = new JSZip();
+
+
+		// validate id based on EBNF definitions
+		// IdValidator.checkId(id);
+		//
+		// if (kind == InsightDatasetKind.Rooms) {
+		// 	throw InsightError;
+		// }
+
+		// data modelling
+		let datasetToAdd: string[];
+
+		datasetToAdd = [id, content, kind];
+
 		return Promise.reject("Not implemented.");
 	}
 
@@ -53,6 +64,19 @@ export default class InsightFacade implements IInsightFacade {
     then it should reject with a ResultTooLargeError.
     */
 	public performQuery(query: unknown): Promise<InsightResult[]> {
+
+		// validateQueryStructure();
+		//
+		// handleWhere(): {
+		// 	applyComparitor();
+		//
+		// }
+		//
+		// handleOptions(): {
+		//
+		// }
+
+
 		return Promise.reject("Not implemented.");
 	}
 
