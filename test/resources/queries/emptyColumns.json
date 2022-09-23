@@ -1,0 +1,16 @@
+{
+	"title": "emptyColumns",
+	"input": {
+		"WHERE": {
+			"LT": {
+				"sections_year": 1914
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

@@ -1,0 +1,45 @@
+{
+	"title": "workingCaseWithAnd",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"GT": {
+						"sections_avg": 0
+					}
+				},
+				{
+					"LT": {
+						"sections_avg": 5
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "wood",
+			"sections_avg": 1
+		},
+		{
+			"sections_dept": "busi",
+			"sections_avg": 4
+		},
+		{
+			"sections_dept": "busi",
+			"sections_avg": 4
+		},
+		{
+			"sections_dept": "fopr",
+			"sections_avg": 4.5
+		}
+	]
+}
