@@ -1,0 +1,43 @@
+{
+	"title": "badOrder",
+	"input": {
+		"WHERE": {
+			"NOT": {
+				"GT": {
+					"sections_avg": 2
+				}
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_year",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "lfs",
+			"sections_year": 1900,
+			"sections_avg": 0
+		},
+		{
+			"sections_dept": "lfs",
+			"sections_year": 2009,
+			"sections_avg": 0
+		},
+		{
+			"sections_dept": "frst",
+			"sections_year": 1900,
+			"sections_avg": 0
+		},
+		{
+			"sections_dept": "wood",
+			"sections_year": 1900,
+			"sections_avg": 1
+		}
+	]
+}

@@ -1,0 +1,1776 @@
+{
+	"title": "sectionsPass",
+	"input": {
+		"WHERE": {
+			"LT": {
+				"sections_pass": 3
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "lfs",
+			"sections_avg": 0
+		},
+		{
+			"sections_dept": "lfs",
+			"sections_avg": 0
+		},
+		{
+			"sections_dept": "frst",
+			"sections_avg": 0
+		},
+		{
+			"sections_dept": "wood",
+			"sections_avg": 1
+		},
+		{
+			"sections_dept": "busi",
+			"sections_avg": 4
+		},
+		{
+			"sections_dept": "busi",
+			"sections_avg": 4
+		},
+		{
+			"sections_dept": "fopr",
+			"sections_avg": 4.5
+		},
+		{
+			"sections_dept": "civl",
+			"sections_avg": 33
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 34
+		},
+		{
+			"sections_dept": "chem",
+			"sections_avg": 42.5
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 43.33
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 50
+		},
+		{
+			"sections_dept": "chem",
+			"sections_avg": 53
+		},
+		{
+			"sections_dept": "phil",
+			"sections_avg": 55.5
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 55.5
+		},
+		{
+			"sections_dept": "phil",
+			"sections_avg": 56.33
+		},
+		{
+			"sections_dept": "frst",
+			"sections_avg": 58
+		},
+		{
+			"sections_dept": "musc",
+			"sections_avg": 59
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 59
+		},
+		{
+			"sections_dept": "fopr",
+			"sections_avg": 59.67
+		},
+		{
+			"sections_dept": "chem",
+			"sections_avg": 60.5
+		},
+		{
+			"sections_dept": "wood",
+			"sections_avg": 61
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 61
+		},
+		{
+			"sections_dept": "fopr",
+			"sections_avg": 63
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 64
+		},
+		{
+			"sections_dept": "apbi",
+			"sections_avg": 64
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 67
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 68
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 68.5
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 69
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 70
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 70
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 70
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 70
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 70
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 70.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 70.5
+		},
+		{
+			"sections_dept": "frst",
+			"sections_avg": 71
+		},
+		{
+			"sections_dept": "musc",
+			"sections_avg": 71.5
+		},
+		{
+			"sections_dept": "wood",
+			"sections_avg": 72
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 72
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 72
+		},
+		{
+			"sections_dept": "bioc",
+			"sections_avg": 72
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 73
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 73
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 73.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 74
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 74
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 75
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 75
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 75.5
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 75.5
+		},
+		{
+			"sections_dept": "span",
+			"sections_avg": 76
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 76
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 76
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 76.5
+		},
+		{
+			"sections_dept": "bioc",
+			"sections_avg": 76.5
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 77
+		},
+		{
+			"sections_dept": "medg",
+			"sections_avg": 77
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 77
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 77
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 77
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 78
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 78.5
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 78.5
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 78.5
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 79
+		},
+		{
+			"sections_dept": "medi",
+			"sections_avg": 79
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 79
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "iar",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 80.5
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 80.5
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 80.5
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 80.5
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 80.5
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 80.5
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 80.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 81
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 81
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 81
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 81
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 81
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 81.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 81.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 81.5
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 81.5
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 81.5
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 81.5
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 81.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 82
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 82
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 82
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 82
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 82
+		},
+		{
+			"sections_dept": "cnrs",
+			"sections_avg": 82
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 82
+		},
+		{
+			"sections_dept": "thtr",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "thtr",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 82.5
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "law",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "grsj",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "bmeg",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "bioc",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 83
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 83.5
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 83.5
+		},
+		{
+			"sections_dept": "thtr",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "thtr",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "frst",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 84
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 84.5
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 84.5
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 84.5
+		},
+		{
+			"sections_dept": "medi",
+			"sections_avg": 84.5
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 84.5
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 84.5
+		},
+		{
+			"sections_dept": "rsot",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "phth",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "phth",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "ccst",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "ccst",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "bmeg",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 85
+		},
+		{
+			"sections_dept": "thtr",
+			"sections_avg": 85.5
+		},
+		{
+			"sections_dept": "thtr",
+			"sections_avg": 85.5
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 85.5
+		},
+		{
+			"sections_dept": "engl",
+			"sections_avg": 85.5
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 85.5
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "libr",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "libr",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 86
+		},
+		{
+			"sections_dept": "stat",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "edst",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "edst",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 86.5
+		},
+		{
+			"sections_dept": "zool",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "stat",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "rhsc",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "iar",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "fopr",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 87
+		},
+		{
+			"sections_dept": "phil",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 87.5
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "germ",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 88
+		},
+		{
+			"sections_dept": "stat",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "stat",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "libr",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "ccst",
+			"sections_avg": 88.5
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "fish",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "fish",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 89
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 89.5
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 89.5
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 89.5
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 89.5
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 89.5
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 89.5
+		},
+		{
+			"sections_dept": "apbi",
+			"sections_avg": 89.5
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "nrsc",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "libr",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "grsj",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "grsj",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "geog",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "dent",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "ccst",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "bmeg",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 90
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 90.5
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 90.5
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 90.5
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 90.5
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 90.5
+		},
+		{
+			"sections_dept": "rhsc",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "rhsc",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "fish",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "fish",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "bmeg",
+			"sections_avg": 91
+		},
+		{
+			"sections_dept": "phil",
+			"sections_avg": 91.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 91.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 91.5
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 91.5
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 91.5
+		},
+		{
+			"sections_dept": "zool",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "mech",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "chil",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 92
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 92.5
+		},
+		{
+			"sections_dept": "eece",
+			"sections_avg": 92.5
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 92.5
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 92.5
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 92.5
+		},
+		{
+			"sections_dept": "stat",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "stat",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "musc",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "mine",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 93
+		},
+		{
+			"sections_dept": "path",
+			"sections_avg": 93.5
+		},
+		{
+			"sections_dept": "medi",
+			"sections_avg": 93.5
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 93.5
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 93.5
+		},
+		{
+			"sections_dept": "rhsc",
+			"sections_avg": 94
+		},
+		{
+			"sections_dept": "nurs",
+			"sections_avg": 94
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 94
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 94
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 94.5
+		},
+		{
+			"sections_dept": "obst",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "mtrl",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "cpsc",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "bmeg",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "bmeg",
+			"sections_avg": 95
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "phil",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "pcth",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 96
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 97
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 97
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 98
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 98
+		}
+	]
+}

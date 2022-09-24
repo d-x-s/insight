@@ -1,0 +1,19 @@
+{
+	"title": "badOrder",
+	"input": {
+		"WHERE": {
+			"LT": {
+				"sections_year": 1914
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_year"
+			],
+			"ORDER": "sectionsavg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
