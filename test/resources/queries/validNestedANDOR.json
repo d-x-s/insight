@@ -1,0 +1,135 @@
+{
+	"title": "validNestedANDOR",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"OR": [
+						{
+							"GT": {
+								"sections_fail": 1
+							}
+						},
+						{
+							"GT": {
+								"sections_year": 2010
+							}
+						}
+					]
+				},
+				{
+					"IS": {
+						"sections_dept": "japn"
+					}
+				},
+				{
+					"GT": {
+						"sections_avg": 80
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_year"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "japn",
+			"sections_id": "100",
+			"sections_avg": 80.24,
+			"sections_year": 2012
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "102",
+			"sections_avg": 80.42,
+			"sections_year": 2014
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "102",
+			"sections_avg": 80.5,
+			"sections_year": 2014
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "102",
+			"sections_avg": 80.53,
+			"sections_year": 2013
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "100",
+			"sections_avg": 81.09,
+			"sections_year": 2012
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "103",
+			"sections_avg": 81.13,
+			"sections_year": 2012
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "312",
+			"sections_avg": 81.58,
+			"sections_year": 2011
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "101",
+			"sections_avg": 81.8,
+			"sections_year": 2013
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "311",
+			"sections_avg": 81.89,
+			"sections_year": 2013
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "101",
+			"sections_avg": 82.59,
+			"sections_year": 2013
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "100",
+			"sections_avg": 85,
+			"sections_year": 2013
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "100",
+			"sections_avg": 85.18,
+			"sections_year": 2012
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "408",
+			"sections_avg": 85.37,
+			"sections_year": 2013
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "311",
+			"sections_avg": 85.46,
+			"sections_year": 2015
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "311",
+			"sections_avg": 86.95,
+			"sections_year": 2011
+		}
+	]
+}

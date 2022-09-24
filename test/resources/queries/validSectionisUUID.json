@@ -1,0 +1,40 @@
+{
+	"title": "validSectionisUUID",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_uuid": "98128"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_avg",
+				"sections_pass",
+				"sections_fail",
+				"sections_audit",
+				"sections_year",
+				"sections_dept",
+				"sections_id",
+				"sections_instructor",
+				"sections_title",
+				"sections_uuid"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_avg": 54.81,
+			"sections_pass": 12,
+			"sections_fail": 4,
+			"sections_audit": 0,
+			"sections_year": 2014,
+			"sections_dept": "japn",
+			"sections_id": "101",
+			"sections_instructor": "suzuki, michiko",
+			"sections_title": "begin japn i",
+			"sections_uuid": "98128"
+		}
+	]
+}
