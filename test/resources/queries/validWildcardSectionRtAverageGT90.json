@@ -1,0 +1,207 @@
+{
+	"title": "valid Wildcard Section rt AverageGT 90",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "*rt*"
+					}
+				},
+				{
+					"NOT": {
+						"LT": {
+							"sections_avg": 90
+						}
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_instructor",
+				"sections_title",
+				"sections_pass",
+				"sections_fail",
+				"sections_audit",
+				"sections_uuid",
+				"sections_year"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "port",
+			"sections_id": "110",
+			"sections_avg": 90,
+			"sections_instructor": "",
+			"sections_title": "elementary port",
+			"sections_pass": 4,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "74021",
+			"sections_year": 1900
+		},
+		{
+			"sections_dept": "port",
+			"sections_id": "110",
+			"sections_avg": 90,
+			"sections_instructor": "dos santos, pedro",
+			"sections_title": "elementary port",
+			"sections_pass": 4,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "74020",
+			"sections_year": 2015
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 3,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "74124",
+			"sections_year": 1900
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 3,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "74123",
+			"sections_year": 2011
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 2,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "23556",
+			"sections_year": 1900
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 4,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "13434",
+			"sections_year": 1900
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 4,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "13433",
+			"sections_year": 2014
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90.33,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 3,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "91349",
+			"sections_year": 2009
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90.75,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 4,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "24842",
+			"sections_year": 1900
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 90.75,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 4,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "24841",
+			"sections_year": 2012
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 91,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 3,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "67233",
+			"sections_year": 1900
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 92,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 1,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "23555",
+			"sections_year": 2010
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 93,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 1,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "5073",
+			"sections_year": 1900
+		},
+		{
+			"sections_dept": "arth",
+			"sections_id": "599",
+			"sections_avg": 93,
+			"sections_instructor": "",
+			"sections_title": "master's thesis",
+			"sections_pass": 1,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_uuid": "5072",
+			"sections_year": 2011
+		}
+	]
+}
