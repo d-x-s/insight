@@ -23,16 +23,15 @@ describe("InsightFacade", function () {
 	const datasetsToLoad: {[key: string]: string} = {
 		sections: "./test/resources/archives/pair.zip",
 		// davis zips
-		dsCourses: "./test/resources/archives/dscoursesTypo.zip",
-		dsCoursesTypo: "./test/resources/archives/dsempty.zip",
-		dsEmpty: "./test/resources/archives/dsinvalidJson.zip",
+		dsCourses: "./test/resources/archives/dscourses.zip",
+		dsCoursesTypo: "./test/resources/archives/dscoursesTypo.zip",
+		dsEmpty: "./test/resources/archives/dsempty.zip",
 		dsInvalidJson: "./test/resources/archives/dsinvalidJson.zip",
 		dsInvalidSections: "./test/resources/archives/dsinvalidSections.zip",
 		dsNotInCourse: "./test/resources/archives/dsnotInCourse.zip",
-		dsPicture: "./test/resources/archives/dspicture.zip",
 		dsPNG: "./test/resources/archives/dspicture.png",
+		dsPicture: "./test/resources/archives/dspicture.zip",
 		dsPythonFiles: "./test/resources/archives/dspythonFiles.zip",
-		dsNonZip: "./test/resources/archives/dspicture.zip",
 		dsSkipOverInvalid: "./test/resources/archives/dsskipOverInvalid.zip",
 		// wesley zips
 	};
@@ -214,7 +213,7 @@ describe("InsightFacade", function () {
 			};
 		});
 
-		it("should fail if courses is mispelled as courzzes", async function () {
+		it("should fail if courses is misspelled as courzzes", async function () {
 			try {
 				const coursesTypo: string = datasetContents.get("dsCoursesTypo") ?? "";
 				await insightFacade.addDataset("coursesTypo-id", coursesTypo, InsightDatasetKind.Sections);
@@ -294,22 +293,12 @@ describe("InsightFacade", function () {
 			};
 		});
 
-		it("should fail if there is a non-JSON file, like a picture", async function () {
+		it("should fail if loading a non-zip, like a png", async function () {
 			try {
 				const dsPNG: string = datasetContents.get("dsPNG") ?? "";
 				await insightFacade.addDataset("picture-id", dsPNG, InsightDatasetKind.Sections);
 			} catch(error: any) {
 				// the test catches an error as expected
-			};
-		});
-
-		it("should fail if loading a non-zip, like a png", async function () {
-			try {
-				const nonZip: string = datasetContents.get("dsNonZip") ?? "";
-				await insightFacade.addDataset("picture-nonZip", nonZip, InsightDatasetKind.Sections);
-				expect.fail("test failed, error should have been thrown");
-			} catch(error: any) {
-				expect(error).to.be.an.instanceof(InsightError);
 			};
 		});
 
