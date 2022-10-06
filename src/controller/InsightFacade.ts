@@ -1,5 +1,6 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
-import * as JSZip from "jszip";
+import JSZip from "jszip";
+import Dataset from "./Dataset";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -10,7 +11,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	// instantiate dataset locally after
 	// currently mapped as
-	public dataset!: Map<string, string>;
+	public dataset!: Map<string, Dataset[]>;
 
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
@@ -94,11 +95,44 @@ export default class InsightFacade implements IInsightFacade {
 		//      * system should be able to load this persisted value into memory for answering
 		//      * queries.
 
-		// if (this.datasets.get(id)) {
-		// 	let zippedFile: JSZip = new JSZip();
-		// 	zippedFile.loadAsync(content, {base64:  true});
-		// }
+		let filesExtractedPromise: Array<Promise<string>>;
+		let extractedData: JSON[] = [];
 
+		// this is currently buggy:
+
+		// // Create new zip and call helper function to process data from zip file
+		// let processDataPromise: Promise<string[]> = new Promise((resolve, reject) => {
+		// 	let zippedFile: JSZip = new JSZip();
+		// 	zippedFile.loadAsync(content, {base64: true}).then(() => {
+		// 		zippedFile.forEach((filesToExtract) => {
+		// 			if (zippedFile.file(filesToExtract) != null) {
+		// 				// filesExtractedPromise.push(filesToExtract.file(filesToExtract).async("text"));
+		// 				filesExtractedPromise.push(zippedFile.file(filesToExtract).async("text")
+		// 					.then((rawDataFromFile) => {
+		// 						let dataFromFile = JSON.parse(rawDataFromFile);
+		// 						// add verification for if a section is valid here?
+		// 						extractedData.push(dataFromFile);
+		// 					}).catch((err) => {
+		// 						// return new InsightError("Error in parsing from raw data");
+		// 					}));
+		// 			}
+		// 		});
+		// 	})
+		// 		.catch((err) => {
+		// 			return new InsightError("");
+		// 		});
+		//
+		// 	// Data is now parsed, can now push to internal model
+		// 	this.processData(id, content, kind)
+		// 		.then((data) => {
+		// 			resolve(data);
+		// 		})
+		// 		.catch((err: InsightError) => {
+		// 			reject(new InsightError("Data could not be processed"));
+		// 		});
+		// });
+
+		// delete below return statement eventually
 		return Promise.reject("Not implemented.");
 	}
 
