@@ -6,6 +6,8 @@ import {
 	InsightResult,
 	NotFoundError
 } from "./IInsightFacade";
+import ValidateQueryHelper from "./validateQueryHelper";
+import * as JSZip from "jszip";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -54,6 +56,20 @@ export default class InsightFacade implements IInsightFacade {
     */
 	public performQuery(query: unknown): Promise<InsightResult[]> {
 		return Promise.reject("Not implemented.");
+
+
+		// validate the query
+		try {
+			let validator = new ValidateQueryHelper();
+			let dataSet: string = ValidateQueryHelper.validateQuery(query);
+
+			// if the dataset being queried is not available
+
+			// if the dataset being queried
+
+		} catch {
+			return Promise.reject(new InsightError("Invalid Query"));
+		}
 	}
 
 	/*
