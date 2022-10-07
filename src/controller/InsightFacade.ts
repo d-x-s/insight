@@ -7,7 +7,7 @@ import {
 	NotFoundError
 } from "./IInsightFacade";
 import ValidateQueryHelper from "./validateQueryHelper";
-import * as JSZip from "jszip";
+import Utility from "../Utility";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -16,7 +16,7 @@ import * as JSZip from "jszip";
  */
 export default class InsightFacade implements IInsightFacade {
 	constructor() {
-		console.log("InsightFacadeImpl::init()");
+		Utility.log("initialize InsightFacade", "trace");
 	}
 
 	/*
