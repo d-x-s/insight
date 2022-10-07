@@ -144,7 +144,19 @@ export default class InsightFacade implements IInsightFacade {
     * a nonexistent id should be rejected.
     */
 	public removeDataset(id: string): Promise<string> {
-		return Promise.reject("Not implemented.");
+
+		return new Promise<string> ((resolve, reject) => {
+			// check param @id for validity (EBNF standards) and whitespace verification
+			if (!this.checkId(id)) {
+				reject(new InsightError("Error in addDataset: id is invalid"));
+			}
+			// check for nonexistent id
+			if (!this.dataset.has(id)) {
+				reject("This id does not exist in our dataset");
+			}
+			this.dataset.delete(id);
+			resolve(id);
+		});
 	}
 
 	/*
