@@ -6,7 +6,8 @@ import {
 	InsightResult,
 	NotFoundError
 } from "./IInsightFacade";
-import ValidateQueryHelper from "./validateQueryHelper";
+import ValidateQueryHelper from "./ValidateQueryHelper";
+import PerformQueryHelper from "./PerformQueryHelper";
 import Utility from "../Utility";
 
 /**
