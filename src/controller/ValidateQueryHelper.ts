@@ -17,7 +17,7 @@ export default class ValidateQueryHelper {
 	// this query is not a JSON, but rather a Javascript Object
 	public isQueryValid(query: any, id: string): boolean {
 		try {
-			let result: boolean = true;
+			let isValid: boolean = true;
 
 			// grab a reference to JSON objects "WHERE" and "OPTIONS"
 			const queryKeys = Object.keys(query);
@@ -42,12 +42,12 @@ export default class ValidateQueryHelper {
 			}
 
 			// 2) VALIDATE "WHERE" CLAUSE (FILTERING)
-			result = this.isWhereValid(query, id);
+			isValid = isValid && this.isFilterValid(query, id);
 
 			// 3) VALIDATE "OPTIONS" CLAUSE (OUTPUT)
-			result = this.isOptionsValid(query, id);
+			isValid = isValid && this.isOptionsValid(query, id);
 
-			return result;
+			return isValid;
 
 		} catch (error) {
 			Utility.log("caught in isQueryValid", "error");
@@ -55,7 +55,7 @@ export default class ValidateQueryHelper {
 		}
 	}
 
-	private isWhereValid(where: any, id: string): boolean {
+	private isFilterValid(where: any, id: string): boolean {
 		try {
 			if (where === "undefined" || !(where instanceof Object)) {
 				return false;
@@ -63,11 +63,38 @@ export default class ValidateQueryHelper {
 
 			const whereKeys = Object.keys(where);
 
-			// empty WHERE is just the entire dataset (no filtering done)
+			// empty WHERE is when you return the entire dataset (no filtering done)
+			// so in this case it is trivially valid
 			if (whereKeys.length === 0) {
 				return true;
 			}
 
+			// WHERE should only have 1 key
+			// there are 4 choices of top-level filter, and we pick 1
+			// LOGICCOMPARISON | MCOMPARISON | SCOMPARISON | NEGATION
+			let filterKey = whereKeys[0];
+
+			switch (filterKey) {
+				// LOGICCOMPARISON "Logic"
+				case "AND":
+				case "OR":
+					return this.isValidLogicComparison();
+				// MCOMPARISON "Math Comparison"
+				case "LT":
+				case "GT":
+				case "EQ":
+					return this.isValidMathComparison();
+				// SCOMPARISON "String Comparison"
+				case "IS":
+					return this.isValidStringComparison();
+				// NEGATION "Negation"
+				case "NOT":
+					return this.isValidNegation();
+				default:
+					return false;
+			}
+
+			return true;
 
 		} catch (error) {
 			Utility.log("caught in isWhereValid", "error");
@@ -76,6 +103,22 @@ export default class ValidateQueryHelper {
 	}
 
 	private isOptionsValid(options: any, id: string): boolean {
+		return true;
+	}
+
+	private isValidLogicComparison(): boolean {
+		return true;
+	}
+
+	private isValidMathComparison(): boolean {
+		return true;
+	}
+
+	private isValidStringComparison(): boolean {
+		return true;
+	}
+
+	private isValidNegation(): boolean {
 		return true;
 	}
 }

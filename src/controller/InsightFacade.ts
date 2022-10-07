@@ -61,8 +61,9 @@ export default class InsightFacade implements IInsightFacade {
 
 		// validate the query
 		try {
+			const id = "";
 			let validator = new ValidateQueryHelper();
-			let dataSet: string = ValidateQueryHelper.validateQuery(query);
+			validator.isQueryValid(query, id);
 
 			// if the dataset being queried is not available
 
