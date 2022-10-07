@@ -1,11 +1,6 @@
-import {
-	IInsightFacade,
-	InsightDataset,
-	InsightDatasetKind,
-	InsightError,
-	InsightResult,
-	NotFoundError
-} from "./IInsightFacade";
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
+import JSZip from "jszip";
+import Dataset from "./Dataset";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -13,8 +8,51 @@ import {
  *
  */
 export default class InsightFacade implements IInsightFacade {
+
+	// instantiate dataset locally after
+	// currently mapped as
+	public dataset!: Map<string, Dataset[]>;
+
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
+	}
+
+	// HELPER: check if id is valid
+	public checkId(idToVerify: string): boolean {
+		// check to see if idToVerify is a string
+		// typeof is safer: https://stackoverflow.com/questions/2703102/typeof-undefined-vs-null
+		if (idToVerify === null || typeof idToVerify === "undefined") {
+			return false;
+		}
+
+		// check to see if there are any underscores
+		if (idToVerify.includes("_")) {
+			return false;
+		}
+
+		// check to see if the whole string is only white spaces
+		if (idToVerify.trim().length === 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	// HELPER: check if content is valid
+	public checkContent(contentToVerify: string): boolean {
+		if (contentToVerify === null || typeof contentToVerify === "undefined") {
+			return false;
+		}
+		return true;
+	}
+
+	// HELPER: check if kind is valid
+	// Note: for C1, we are only accepting Sections and not Rooms
+	public checkKind(kindToVerify: InsightDatasetKind): boolean {
+		if (kindToVerify !== InsightDatasetKind.Sections) {
+			return false;
+		}
+		return true;
 	}
 
 	/*
@@ -24,12 +62,77 @@ export default class InsightFacade implements IInsightFacade {
     * of the dataset, and the kind of the dataset.
     *
     * For this checkpoint the dataset kind will be sections,
-    * and the rooms kind is invalid. A valid id is as idstring
+    * and the rooms kind is invalid. A valid id is an id string
     * is defined in the EBNF. Additionally, an id that is only
     * whitespace is invalid.
     * Any invalid inputs should be rejected.
     * */
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+
+		// check param @id for validity
+		if (!this.checkId(id)) {
+			return Promise.reject(new InsightError("Error in addDataset: id is invalid"));
+		}
+
+		// check param @content for validity
+		if (!this.checkContent(content)) {
+			return Promise.reject(new InsightError("Error in addDataset: content is invalid"));
+		}
+
+		// check param @kind for validity
+		if (!this.checkKind(kind)) {
+			return Promise.reject(new InsightError("Error in addDataset: kind is invalid"));
+		}
+
+		// check if @id already exists in dataset
+		let keys = Array.from(this.dataset.keys());
+		if (keys.includes(id)) {
+			return Promise.reject(new InsightError("Error in addDataset: " + id + " already exists among datasets"));
+		}
+
+		// After receiving the dataset, it should be processed into a data structure of
+		//      * your design. The processed data structure should be persisted to disk; your
+		//      * system should be able to load this persisted value into memory for answering
+		//      * queries.
+
+		let filesExtractedPromise: Array<Promise<string>>;
+		let extractedData: JSON[] = [];
+
+		// this is currently buggy:
+
+		// // Create new zip and call helper function to process data from zip file
+		// let processDataPromise: Promise<string[]> = new Promise((resolve, reject) => {
+		// 	let zippedFile: JSZip = new JSZip();
+		// 	zippedFile.loadAsync(content, {base64: true}).then(() => {
+		// 		zippedFile.forEach((filesToExtract) => {
+		// 			if (zippedFile.file(filesToExtract) != null) {
+		// 				// filesExtractedPromise.push(filesToExtract.file(filesToExtract).async("text"));
+		// 				filesExtractedPromise.push(zippedFile.file(filesToExtract).async("text")
+		// 					.then((rawDataFromFile) => {
+		// 						let dataFromFile = JSON.parse(rawDataFromFile);
+		// 						// add verification for if a section is valid here?
+		// 						extractedData.push(dataFromFile);
+		// 					}).catch((err) => {
+		// 						// return new InsightError("Error in parsing from raw data");
+		// 					}));
+		// 			}
+		// 		});
+		// 	})
+		// 		.catch((err) => {
+		// 			return new InsightError("");
+		// 		});
+		//
+		// 	// Data is now parsed, can now push to internal model
+		// 	this.processData(id, content, kind)
+		// 		.then((data) => {
+		// 			resolve(data);
+		// 		})
+		// 		.catch((err: InsightError) => {
+		// 			reject(new InsightError("Data could not be processed"));
+		// 		});
+		// });
+
+		// delete below return statement eventually
 		return Promise.reject("Not implemented.");
 	}
 
