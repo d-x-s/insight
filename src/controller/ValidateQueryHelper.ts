@@ -1,5 +1,4 @@
 import Utility from "../Utility";
-import {InsightError} from "./IInsightFacade";
 
 export default class ValidateQueryHelper {
 
@@ -73,7 +72,6 @@ export default class ValidateQueryHelper {
 		// empty WHERE is when you return the entire dataset (no filtering done)
 		// so in this case it is trivially valid
 		if (whereKeys.length === 0) {
-			this.valid = true;
 			return;
 		}
 
@@ -101,7 +99,7 @@ export default class ValidateQueryHelper {
 
 			// SCOMPARISON "String Comparison"
 			case "IS":
-				this.isValidStringComparison(query[filterKey], id);
+				this.validateStringComparison(query[filterKey], id);
 				break;
 
 			// NEGATION "Negation"
@@ -146,7 +144,6 @@ export default class ValidateQueryHelper {
 		//                  key      value
 
 		if(
-			mathComparator.length !== 1 ||
 			typeof mathComparator === "undefined" ||
 			typeof mathComparator !== "object") {
 			this.valid = false;
@@ -154,23 +151,17 @@ export default class ValidateQueryHelper {
 		}
 
 		const pairMComparator = Object.keys(mathComparator);
-		const keyMComparator = pairMComparator[0];
-		const valueMComparator = mathComparator[keyMComparator];
+
+		if (pairMComparator.length !== 1) {
+			this.valid = false;
+			return;
+		}
+
+		const keyMComparator = pairMComparator[0]; // grab the key of the pair
+		const valueMComparator = mathComparator[keyMComparator]; // grab the value of the pair
 
 		this.validateMKey(keyMComparator, id);
-		this.validateMField(valueMComparator);
-	}
-
-	private isValidStringComparison(query: any, id: string) {
-		return;
-	}
-
-	private isValidNegation(query: any, id: string) {
-		return;
-	}
-
-	private isOptionsValid(options: any, id: string) {
-		return;
+		this.validateMValue(valueMComparator);
 	}
 
 	private validateMKey(keyMComparator: string, id: string) {
@@ -178,6 +169,90 @@ export default class ValidateQueryHelper {
 		//   ^
 		this.validateID(keyMComparator.split("_")[0], id);
 		this.validateMField(keyMComparator.split("_")[1]);
+	}
+
+	private validateMValue(valueMComparator: any) {
+		// MCOMPARATOR ':{' mkey ':' number '}'
+		//                             ^
+		if (!(typeof valueMComparator !== "number")) {
+			this.valid = false;
+			return;
+		}
+	}
+
+	private validateMField(keyMField: any) {
+		// mkey ::= idstring '_' mfield
+		//                          ^
+		if(!this.MFIELDS.includes(keyMField)) {
+			this.valid = false;
+		}
+	}
+
+	private validateStringComparison(stringComparator: any, id: string) {
+		// SCOMPARISON ::= 'IS:{' skey ':' [*]? inputstring [*]? '}'  // Asterisks should act as wildcards.
+		//                  ^ already accessed value inside IS at this point
+		if(
+			typeof stringComparator === "undefined" ||
+			typeof stringComparator !== "object") {
+			this.valid = false;
+			return;
+		}
+		return;
+
+		const pairSComparator = Object.keys(stringComparator);
+
+		if (pairSComparator.length !== 1) {
+			this.valid = false;
+			return;
+		}
+
+		const sKey = pairSComparator[0];
+		const inputString = stringComparator[sKey];
+
+		this.validateSKey(sKey, id);
+		this.validateSValue(inputString);
+	}
+
+	private validateSKey(sKey: string, id: string) {
+		// skey ::= idstring '_' sfield
+		//  ^
+		this.validateID(sKey.split("_")[0], id);
+		this.validateSField(sKey.split("_")[1]);
+	}
+
+	private validateSField(sField: any) {
+		// skey ::= idstring '_' sfield
+		//                          ^
+		if(!this.SFIELDS.includes(sField)) {
+			this.valid = false;
+			return;
+		}
+	}
+
+	private validateSValue(inputString: any) {
+		// zero or more of any characters except asterisk
+		// Unexpected response status 400: Asterisks (*) can only be the first or last characters of input strings
+		// SCOMPARISON ::= 'IS:{' skey ':' [*]? inputstring [*]? '}'  // Asterisks should act as wildcards.
+		//                                           ^
+		if (typeof inputString !== "string") {
+			this.valid = false;
+		}
+
+		let asteriskCheck = inputString;
+
+		// covers "", "*", "**", and will fail "***" etc.
+		if (asteriskCheck.endsWith("*")) {
+			asteriskCheck = asteriskCheck.substring(0, asteriskCheck.length - 1);
+		}
+
+		if (asteriskCheck.startsWith("*")) {
+			asteriskCheck = asteriskCheck.substring(1, asteriskCheck.length);
+		}
+
+		if (asteriskCheck.includes("*")) {
+			this.valid = false;
+			return;
+		}
 	}
 
 	private validateID(idToVerify: string, id: string) {
@@ -190,11 +265,26 @@ export default class ValidateQueryHelper {
 		}
 	}
 
-	private validateMField(keyMField: any) {
-		// mkey ::= idstring '_' mfield
-		//                          ^
-		if(!this.MFIELDS.includes(keyMField)) {
+	private isValidNegation(negation: any, id: string) {
+		// NEGATION ::= 'NOT :{' FILTER '}'
+		//                         ^
+		// not contains exactly one key/value pair,
+		// so we are actually just checking whatever is inside the NOT{}
+		//       {
+		//         "NOT": {
+		//           "LT": {                      <-- LT/section_avg pair
+		//             "sections_avg": 90
+		//           }
+		//         }
+		//       }
+		if (typeof negation === "undefined" || !(negation instanceof Object) || Object.keys(negation).length !== 1) {
 			this.valid = false;
+			return;
 		}
+		this.validateFilter(negation, id);
+	}
+
+	private isOptionsValid(options: any, id: string) {
+		return;
 	}
 }
