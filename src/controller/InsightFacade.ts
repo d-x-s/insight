@@ -6,9 +6,9 @@ import {
 	InsightResult,
 	NotFoundError
 } from "./IInsightFacade";
-import ValidateQueryHelper from "./ValidateQueryHelper";
 import PerformQueryHelper from "./PerformQueryHelper";
 import Utility from "../Utility";
+import ValidateQueryHelper from "./ValidateQueryHelper";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -56,9 +56,6 @@ export default class InsightFacade implements IInsightFacade {
     then it should reject with a ResultTooLargeError.
     */
 	public performQuery(query: unknown): Promise<InsightResult[]> {
-		return Promise.reject("Not implemented.");
-
-
 		// validate the query
 		try {
 			const id = "";
@@ -68,6 +65,8 @@ export default class InsightFacade implements IInsightFacade {
 			// if the dataset being queried is not available
 
 			// if the dataset being queried
+
+			return Promise.reject("Not implemented.");
 
 		} catch {
 			return Promise.reject(new InsightError("Invalid Query"));
