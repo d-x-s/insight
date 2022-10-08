@@ -6,8 +6,8 @@ export default class ValidateQueryHelper {
 	// TODO: keys will be extended in future checkpoints
 	protected valid: boolean;
 	protected QKEYS = ["OPTIONS", "WHERE"];
-	protected MKEYS = ["avg", "pass", "fail", "audit", "year"];
-	protected SKEYS = ["dept", "id", "instructor", "title", "uuid"];
+	protected MFIELDS = ["avg", "pass", "fail", "audit", "year"];
+	protected SFIELDS = ["dept", "id", "instructor", "title", "uuid"];
 
 	constructor() {
 		Utility.log("initializing ValidateQueryHelper", "trace");
@@ -80,6 +80,7 @@ export default class ValidateQueryHelper {
 		// access element one level deeper
 		// WHERE should only have 1 key, which is the FILTER
 		// 'WHERE:{' FILTER? '}'
+		// Unexpected response status 400: WHERE should only have 1 key, has 2
 		// there are 4 choices of top-level filter, and we pick 1
 		// LOGICCOMPARISON | MCOMPARISON | SCOMPARISON | NEGATION
 		let filterKey = whereKeys[0];
@@ -156,9 +157,8 @@ export default class ValidateQueryHelper {
 		const keyMComparator = pairMComparator[0];
 		const valueMComparator = mathComparator[keyMComparator];
 
-		this.validateMKey(keyMComparator);
+		this.validateMKey(keyMComparator, id);
 		this.validateMField(valueMComparator);
-
 	}
 
 	private isValidStringComparison(query: any, id: string) {
@@ -173,11 +173,28 @@ export default class ValidateQueryHelper {
 		return;
 	}
 
-	private validateMKey(keyMComparator: string) {
-		return;
+	private validateMKey(keyMComparator: string, id: string) {
+		// mkey ::= idstring '_' mfield
+		//   ^
+		this.validateID(keyMComparator.split("_")[0], id);
+		this.validateMField(keyMComparator.split("_")[1]);
 	}
 
-	private validateMField(valueMComparator: any) {
-		return;
+	private validateID(idToVerify: string, id: string) {
+		// id that is ONLY whitespace is invalid
+		// id that contains an underscore is invalid
+		// trim removes all leading and trailing whitespace characters
+		// TODO: maybe need to check that it matches dataset id
+		if (idToVerify.includes("_") || idToVerify.trim().length === 0) {
+			this.valid = false;
+		}
+	}
+
+	private validateMField(keyMField: any) {
+		// mkey ::= idstring '_' mfield
+		//                          ^
+		if(!this.MFIELDS.includes(keyMField)) {
+			this.valid = false;
+		}
 	}
 }
