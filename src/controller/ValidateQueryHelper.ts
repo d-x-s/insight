@@ -78,7 +78,8 @@ export default class ValidateQueryHelper {
 		}
 
 		// access element one level deeper
-		// WHERE should only have 1 key
+		// WHERE should only have 1 key, which is the FILTER
+		// 'WHERE:{' FILTER? '}'
 		// there are 4 choices of top-level filter, and we pick 1
 		// LOGICCOMPARISON | MCOMPARISON | SCOMPARISON | NEGATION
 		let filterKey = whereKeys[0];
@@ -94,7 +95,7 @@ export default class ValidateQueryHelper {
 			case "LT":
 			case "GT":
 			case "EQ":
-				this.isValidMathComparison(query[filterKey], id);
+				this.validateMathComparison(query[filterKey], id);
 				break;
 
 			// SCOMPARISON "String Comparison"
@@ -114,46 +115,50 @@ export default class ValidateQueryHelper {
 		}
 	}
 
-	private validateLogicComparison(query: any, id: string) {
+	private validateLogicComparison(queryLogicArray: any, id: string) {
 		// note the square brackets, indicating an array
 		// LOGIC ':[{' FILTER ('}, {' FILTER )* '}]'
-		if(!Array.isArray(query)) {
-			this.valid = false;
-			return;
-		}
-
-		// need 1 or more elements in the array
-		if(query.length === 0) {
-			this.valid = false;
-			return;
-		}
-
-		// query cannot be null
-		if(query === null) {
-			this.valid = false;
-			return;
-		}
-
-		// query cannot be undefined
-		if(typeof query === "undefined") {
-			this.valid = false;
-			return;
-		}
-
-		// query is an object
-		if(typeof query !== "object") {
+		if(
+			!Array.isArray(queryLogicArray) ||
+			queryLogicArray.length === 0 ||
+			typeof queryLogicArray === "undefined" ||
+			typeof queryLogicArray !== "object") {
 			this.valid = false;
 			return;
 		}
 
 		// check each element in the LOGIC[] array
-		for (let element of Object.values(query)) {
+		// access each element in the array, once again filter on it
+		queryLogicArray.forEach((element: any) => {
 			this.validateFilter(element, id);
-		}
+		});
 	}
 
-	private isValidMathComparison(query: any, id: string) {
-		return;
+	private validateMathComparison(mathComparator: any, id: string) {
+		// we do need to check that LT/GT/EQ are well-formed, because the switch in validateFilter handles it,
+		// I.E. "GT":{ "sections_avg":90 }, we now check what is directly within the curly braces
+		// it is a singleton key/value pair, so expect a length 1
+		// "Unexpected response status 400: GT should only have 1 key, has 2"
+
+		//                      pair
+		// MCOMPARATOR ':{' mkey ':' number '}'
+		//                  key      value
+
+		if(
+			mathComparator.length !== 1 ||
+			typeof mathComparator === "undefined" ||
+			typeof mathComparator !== "object") {
+			this.valid = false;
+			return;
+		}
+
+		const pairMComparator = Object.keys(mathComparator);
+		const keyMComparator = pairMComparator[0];
+		const valueMComparator = mathComparator[keyMComparator];
+
+		this.validateMKey(keyMComparator);
+		this.validateMField(valueMComparator);
+
 	}
 
 	private isValidStringComparison(query: any, id: string) {
@@ -165,6 +170,14 @@ export default class ValidateQueryHelper {
 	}
 
 	private isOptionsValid(options: any, id: string) {
+		return;
+	}
+
+	private validateMKey(keyMComparator: string) {
+		return;
+	}
+
+	private validateMField(valueMComparator: any) {
 		return;
 	}
 }
