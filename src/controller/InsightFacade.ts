@@ -1,4 +1,14 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
+import {
+	IInsightFacade,
+	InsightDataset,
+	InsightDatasetKind,
+	InsightError,
+	InsightResult,
+	NotFoundError
+} from "./IInsightFacade";
+import PerformQueryHelper from "./PerformQueryHelper";
+import Utility from "../Utility";
+import ValidateQueryHelper from "./ValidateQueryHelper";
 import JSZip from "jszip";
 import Dataset from "./Dataset";
 
@@ -14,7 +24,7 @@ export default class InsightFacade implements IInsightFacade {
 	public dataset!: Map<string, Dataset[]>;
 
 	constructor() {
-		console.log("InsightFacadeImpl::init()");
+		Utility.log("initialize InsightFacade", "trace");
 	}
 
 	// HELPER: check if id is valid
@@ -168,7 +178,21 @@ export default class InsightFacade implements IInsightFacade {
     then it should reject with a ResultTooLargeError.
     */
 	public performQuery(query: unknown): Promise<InsightResult[]> {
-		return Promise.reject("Not implemented.");
+		// validate the query
+		try {
+			const id = "";
+			let validator = new ValidateQueryHelper();
+			validator.isQueryValid(query, id);
+
+			// if the dataset being queried is not available
+
+			// if the dataset being queried
+
+			return Promise.reject("Not implemented.");
+
+		} catch {
+			return Promise.reject(new InsightError("Invalid Query"));
+		}
 	}
 
 	/*
