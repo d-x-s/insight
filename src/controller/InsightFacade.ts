@@ -1,16 +1,9 @@
-import {
-	IInsightFacade,
-	InsightDataset,
-	InsightDatasetKind,
-	InsightError,
-	InsightResult,
-	NotFoundError
-} from "./IInsightFacade";
-import PerformQueryHelper from "./PerformQueryHelper";
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
 import Utility from "../Utility";
 import ValidateQueryHelper from "./ValidateQueryHelper";
 import JSZip from "jszip";
-import Dataset from "./Dataset";
+import {Dataset} from "./Dataset";
+import {rejects} from "assert";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -21,10 +14,11 @@ export default class InsightFacade implements IInsightFacade {
 
 	// instantiate dataset locally after
 	// currently mapped as
-	public dataset!: Map<string, Dataset[]>;
+	public dataset: Map<string, Dataset[]>;
 
 	constructor() {
 		Utility.log("initialize InsightFacade", "trace");
+		this.dataset = new Map();
 	}
 
 	// HELPER: check if id is valid
@@ -65,6 +59,32 @@ export default class InsightFacade implements IInsightFacade {
 		return true;
 	}
 
+	// // HELPER: Called by addDataset to handle parsing and adding dataset to model
+	// private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind) {
+	// 	let currentDataset = [] as Dataset;
+	// 	currentDataset.id = id;
+	// 	currentDataset.kind = kind;
+	//
+	// 	return new Promise<Dataset[]> ((resolve, reject) => {
+	// 		// parse through JSON
+	// 		this.parseJSON(content).then((data) => {
+	// 			currentDataset.sectionData = data;
+	// 			this.dataset[id] = currentDataset;
+	// 		});
+	// 	});
+	//
+	// 	return [];
+	// }
+	//
+	// // HELPER: Called by addDatasetToModel to prepare JSON for internal model
+	// private parseJSON(content: string): Promise<> {
+	// 	return new Promise((resolve, reject) => {
+	// 		JSZip.loadAsync(content, {base64: true}).then(
+	//
+	// 		);
+	// 	});
+	// }
+
 	/*
     * addDataset(id: string, content: string, kind: InsightDatasetKind):
     * Promise<string[]> adds a dataset to the internal model,
@@ -100,50 +120,11 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Error in addDataset: " + id + " already exists among datasets"));
 		}
 
-		// After receiving the dataset, it should be processed into a data structure of
-		//      * your design. The processed data structure should be persisted to disk; your
-		//      * system should be able to load this persisted value into memory for answering
-		//      * queries.
+		// temporary
+		return Promise.reject(new InsightError("Not implemented"));
+		// Assuming all inputs are valid, we can push this to the internal model.
+		// return Promise.resolve(this.addDatasetToModel(id, content, kind));
 
-		let filesExtractedPromise: Array<Promise<string>>;
-		let extractedData: JSON[] = [];
-
-		// this is currently buggy:
-
-		// // Create new zip and call helper function to process data from zip file
-		// let processDataPromise: Promise<string[]> = new Promise((resolve, reject) => {
-		// 	let zippedFile: JSZip = new JSZip();
-		// 	zippedFile.loadAsync(content, {base64: true}).then(() => {
-		// 		zippedFile.forEach((filesToExtract) => {
-		// 			if (zippedFile.file(filesToExtract) != null) {
-		// 				// filesExtractedPromise.push(filesToExtract.file(filesToExtract).async("text"));
-		// 				filesExtractedPromise.push(zippedFile.file(filesToExtract).async("text")
-		// 					.then((rawDataFromFile) => {
-		// 						let dataFromFile = JSON.parse(rawDataFromFile);
-		// 						// add verification for if a section is valid here?
-		// 						extractedData.push(dataFromFile);
-		// 					}).catch((err) => {
-		// 						// return new InsightError("Error in parsing from raw data");
-		// 					}));
-		// 			}
-		// 		});
-		// 	})
-		// 		.catch((err) => {
-		// 			return new InsightError("");
-		// 		});
-		//
-		// 	// Data is now parsed, can now push to internal model
-		// 	this.processData(id, content, kind)
-		// 		.then((data) => {
-		// 			resolve(data);
-		// 		})
-		// 		.catch((err: InsightError) => {
-		// 			reject(new InsightError("Data could not be processed"));
-		// 		});
-		// });
-
-		// delete below return statement eventually
-		return Promise.reject("Not implemented.");
 	}
 
 	/*
@@ -202,6 +183,21 @@ export default class InsightFacade implements IInsightFacade {
     which contains the dataset id, kind, and number of rows.
     */
 	public listDatasets(): Promise<InsightDataset[]> {
-		return Promise.reject("Not implemented.");
+		let listDatasetsFromLocal: InsightDataset[] = [];
+		return new Promise<InsightDataset[]>((resolve, reject) => {
+			this.dataset.forEach((data, id) => {
+				if (!id || !data) {
+					reject(new InsightError("invalid id or data in set"));
+				}
+				let currInsightDataset: InsightDataset = {
+					id: id,
+					kind: InsightDatasetKind.Sections,
+					numRows: data.length
+				};
+				listDatasetsFromLocal.push(currInsightDataset);
+			});
+			resolve(listDatasetsFromLocal);
+		});
 	}
+
 }
