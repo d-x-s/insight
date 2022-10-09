@@ -178,21 +178,17 @@ export default class InsightFacade implements IInsightFacade {
     then it should reject with a ResultTooLargeError.
     */
 	public performQuery(query: unknown): Promise<InsightResult[]> {
-		// validate the query
-		try {
+
+		return new Promise((resolve, reject) => {
+
 			const id = "";
 			let validator = new ValidateQueryHelper();
-			validator.isQueryValid(query, id);
+			validator.validateQuery(query, id);
 
-			// if the dataset being queried is not available
-
-			// if the dataset being queried
-
-			return Promise.reject("Not implemented.");
-
-		} catch {
-			return Promise.reject(new InsightError("Invalid Query"));
-		}
+			if (!validator.getValid()) {
+				return reject(new InsightError());
+			}
+		});
 	}
 
 	/*

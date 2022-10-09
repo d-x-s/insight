@@ -1,118 +1,275 @@
 import Utility from "../Utility";
-import {InsightError} from "./IInsightFacade";
 
 export default class ValidateQueryHelper {
 
-	// TODO: keys will be extended in future checkpoints
+	protected valid: boolean;
 	protected QKEYS = ["OPTIONS", "WHERE"];
-	protected MKEYS = ["avg", "pass", "fail", "audit", "year"];
-	protected SKEYS = ["dept", "id", "instructor", "title", "uuid"];
+	protected OKEYS = ["ORDER", "COLUMNS"];
+	protected MFIELDS = ["avg", "pass", "fail", "audit", "year"];
+	protected SFIELDS = ["dept", "id", "instructor", "title", "uuid"];
 
 	constructor() {
 		Utility.log("initializing ValidateQueryHelper", "trace");
+		this.valid = true;
 	}
 
-	// @TODO: see piazza@502, is this the right way to access? treat it like a JSON?
-	// https://piazza.com/class/l7qenrnq7oy512/post/502
-	// this query is not a JSON, but rather a Javascript Object
-	public isQueryValid(query: any, id: string): boolean {
-		try {
-			let isValid: boolean = true;
+	public getValid() {
+		return this.valid;
+	}
 
-			// grab a reference to JSON objects "WHERE" and "OPTIONS"
+	public validateQuery(query: any, id: string) {
+		try {
+
 			const queryKeys = Object.keys(query);
 
-			// 0) CHECK FOR VALID ARGUMENTS
 			if (query === null || query === "undefined" || !(query instanceof Object)) {
-				return false;
+				this.valid = false;
+				return;
 			}
 
-			// 1) VALIDATE TOP LEVEL ACCESSORS
-			// expect exactly 2 members (WHERE and OPTIONS)
 			if (queryKeys.length !== 2) {
-				Utility.log("not exactly 2 top level members", "error");
-				return false;
+				Utility.log("isQueryValid: not exactly 2 top level members", "trace");
+				this.valid = false;
+				return;
 			}
-			// expect correct naming
+
 			for (let k of queryKeys) {
 				if(!this.QKEYS.includes(k)) {
-					Utility.log("typos or incorrect naming in WHERE and OPTIONS", "error");
-					return false;
+					Utility.log("isQueryValid: typos or incorrect naming in WHERE and OPTIONS", "trace");
+					this.valid = false;
+					return;
 				}
 			}
 
-			// 2) VALIDATE "WHERE" CLAUSE (FILTERING)
-			isValid = isValid && this.isFilterValid(query, id);
-
-			// 3) VALIDATE "OPTIONS" CLAUSE (OUTPUT)
-			isValid = isValid && this.isOptionsValid(query, id);
-
-			return isValid;
+			this.validateFilter(query["WHERE"], id);
+			this.validateOptions(query["OPTIONS"], id);
 
 		} catch (error) {
-			Utility.log("caught in isQueryValid", "error");
-			return false;
+			Utility.log("isQueryValid: error caught", "error");
 		}
 	}
 
-	private isFilterValid(where: any, id: string): boolean {
+	private validateFilter(query: any, id: string) {
 
-		if (where === "undefined" || !(where instanceof Object)) {
-			return false;
+		if (typeof query === "undefined" || !(query instanceof Object)) {
+			this.valid = false;
+			return;
 		}
 
-		const whereKeys = Object.keys(where);
+		const whereKeys = Object.keys(query);
 
-		// empty WHERE is when you return the entire dataset (no filtering done)
-		// so in this case it is trivially valid
 		if (whereKeys.length === 0) {
-			return true;
+			return;
 		}
 
-		// WHERE should only have 1 key
-		// there are 4 choices of top-level filter, and we pick 1
-		// LOGICCOMPARISON | MCOMPARISON | SCOMPARISON | NEGATION
 		let filterKey = whereKeys[0];
 
 		switch (filterKey) {
-			// LOGICCOMPARISON "Logic"
 			case "AND":
 			case "OR":
-				return this.isValidLogicComparison();
-			// MCOMPARISON "Math Comparison"
+				this.validateLogicComparison(query[filterKey], id);
+				break;
 			case "LT":
 			case "GT":
 			case "EQ":
-				return this.isValidMathComparison();
-			// SCOMPARISON "String Comparison"
+				this.validateMathComparison(query[filterKey], id);
+				break;
 			case "IS":
-				return this.isValidStringComparison();
-			// NEGATION "Negation"
+				this.validateStringComparison(query[filterKey], id);
+				break;
 			case "NOT":
-				return this.isValidNegation();
+				this.validateNegation(query[filterKey], id);
+				break;
 			default:
-				return false;
+				this.valid = false;
+				break;
 		}
-		return false;
 	}
 
-	private isOptionsValid(options: any, id: string): boolean {
-		return true;
+	private validateLogicComparison(queryLogicArray: any, id: string) {
+		if(
+			!Array.isArray(queryLogicArray) ||
+			queryLogicArray.length === 0 ||
+			typeof queryLogicArray === "undefined" ||
+			typeof queryLogicArray !== "object") {
+			this.valid = false;
+			return;
+		}
+
+		queryLogicArray.forEach((element: any) => {
+			this.validateFilter(element, id);
+		});
 	}
 
-	private isValidLogicComparison(): boolean {
-		return true;
+	private validateMathComparison(mathComparator: any, id: string) {
+		if(
+			typeof mathComparator === "undefined" ||
+			typeof mathComparator !== "object") {
+			this.valid = false;
+			return;
+		}
+
+		const pairMComparator = Object.keys(mathComparator);
+
+		if (pairMComparator.length !== 1) {
+			this.valid = false;
+			return;
+		}
+
+		const keyMComparator = pairMComparator[0];
+		const valueMComparator = mathComparator[keyMComparator];
+
+		this.validateMKey(keyMComparator, id);
+		this.validateMValue(valueMComparator);
 	}
 
-	private isValidMathComparison(): boolean {
-		return true;
+	private validateMKey(keyMComparator: string, id: string) {
+		this.validateID(keyMComparator.split("_")[0], id);
+		this.validateMField(keyMComparator.split("_")[1]);
 	}
 
-	private isValidStringComparison(): boolean {
-		return true;
+	private validateMValue(valueMComparator: any) {
+		if (!(typeof valueMComparator !== "number")) {
+			this.valid = false;
+			return;
+		}
 	}
 
-	private isValidNegation(): boolean {
-		return true;
+	private validateMField(keyMField: any) {
+		if(!this.MFIELDS.includes(keyMField)) {
+			this.valid = false;
+		}
+	}
+
+	private validateStringComparison(stringComparator: any, id: string) {
+		if(
+			typeof stringComparator === "undefined" ||
+			typeof stringComparator !== "object") {
+			this.valid = false;
+			return;
+		}
+
+		const pairSComparator = Object.keys(stringComparator);
+
+		if (pairSComparator.length !== 1) {
+			this.valid = false;
+			return;
+		}
+
+		const sKey = pairSComparator[0];
+		const inputString = stringComparator[sKey];
+
+		this.validateSKey(sKey, id);
+		this.validateSValue(inputString);
+	}
+
+	private validateSKey(sKey: string, id: string) {
+		this.validateID(sKey.split("_")[0], id);
+		this.validateSField(sKey.split("_")[1]);
+	}
+
+	private validateSField(sField: any) {
+		if(!this.SFIELDS.includes(sField)) {
+			this.valid = false;
+			return;
+		}
+	}
+
+	private validateSValue(inputString: any) {
+		if (typeof inputString !== "string") {
+			this.valid = false;
+		}
+
+		let asteriskCheck = inputString;
+
+		if (asteriskCheck.endsWith("*")) {
+			asteriskCheck = asteriskCheck.substring(0, asteriskCheck.length - 1);
+		}
+
+		if (asteriskCheck.startsWith("*")) {
+			asteriskCheck = asteriskCheck.substring(1, asteriskCheck.length);
+		}
+
+		if (asteriskCheck.includes("*")) {
+			this.valid = false;
+			return;
+		}
+	}
+
+	private validateID(idToVerify: string, id: string) {
+		if (idToVerify.includes("_") || idToVerify.trim().length === 0) {
+			this.valid = false;
+		}
+	}
+
+	private validateNegation(negation: any, id: string) {
+		if (typeof negation === "undefined" || !(negation instanceof Object) || Object.keys(negation).length !== 1) {
+			this.valid = false;
+			return;
+		}
+		this.validateFilter(negation, id);
+	}
+
+	private validateOptions(options: any, id: string) {
+		if(
+			typeof options === "undefined" ||
+			typeof options !== "object") {
+			this.valid = false;
+			return;
+		}
+
+		const optionsKeys = Object.keys(options);
+
+		optionsKeys.forEach((element: any) => {
+			if (!this.OKEYS.includes(element)) {
+				this.valid = false;
+				return;
+			}
+		});
+
+		if (optionsKeys.length === 1) {
+			if (optionsKeys[0] !== "COLUMNS") {
+				this.valid = false;
+				return;
+			}
+			this.validateColumns(options["COLUMNS"], id);
+		} else {
+			this.validateColumns(options["COLUMNS"], id);
+			this.validateOrder(options["ORDER"], options["COLUMNS"]);
+		}
+	}
+
+	private validateColumns(columnsArray: any, id: string) {
+		if(
+			!Array.isArray(columnsArray) ||
+			columnsArray.length === 0 ||
+			typeof columnsArray === "undefined" ||
+			typeof columnsArray !== "object") {
+			this.valid = false;
+			return;
+		}
+
+		columnsArray.forEach((element: any) => {
+			let key = element.split("_");
+			this.validateID(key[0], id);
+			if (!this.MFIELDS.includes(key[1]) && !this.SFIELDS.includes(key[1])) {
+				this.valid = false;
+				return;
+			}
+		});
+	}
+
+	private validateOrder(orderValue: any, columnsArray: any) {
+		if(
+			typeof orderValue === "undefined" ||
+			typeof orderValue !== "object") {
+			this.valid = false;
+			return;
+		}
+
+		if (typeof orderValue !== "string" || columnsArray.includes(orderValue)) {
+			this.valid = false;
+			return;
+		}
 	}
 }
