@@ -59,29 +59,48 @@ export default class InsightFacade implements IInsightFacade {
 		return true;
 	}
 
-	// // HELPER: Called by addDataset to handle parsing and adding dataset to model
-	// private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind) {
-	// 	let currentDataset = [] as Dataset;
-	// 	currentDataset.id = id;
-	// 	currentDataset.kind = kind;
-	//
-	// 	return new Promise<Dataset[]> ((resolve, reject) => {
-	// 		// parse through JSON
-	// 		this.parseJSON(content).then((data) => {
-	// 			currentDataset.sectionData = data;
-	// 			this.dataset[id] = currentDataset;
-	// 		});
-	// 	});
-	//
-	// 	return [];
-	// }
+	// HELPER: Called by addDataset to handle parsing and adding dataset to model
+	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		let zipped: JSZip = new JSZip();
+
+		return new Promise<string[]> ((resolve, reject) => {
+			let dataToProcess: Array<Promise<string>> = [];
+			zipped.loadAsync(content, {base64: true})
+				.then((file) => {
+					let fileFolder = file.folder("courses");
+					if (fileFolder == null) {
+						return new InsightError("ERROR: null file folder, could not load");
+					}
+					fileFolder.forEach((section) => {
+						if (fileFolder == null) {
+							return new InsightError("ERROR: null file folder, could not load");
+						}
+						let currSection = fileFolder.file(section);
+						if (currSection == null) {
+							return;
+						}
+						dataToProcess.push(currSection.async("text"));
+						return dataToProcess;
+					});
+				}).then(() => {
+					// this.pushToDataset(dataToProcess, content);
+				})
+				.catch((err) => {
+					return new InsightError("Failed to parse");
+				});
+		});
+	}
 	//
 	// // HELPER: Called by addDatasetToModel to prepare JSON for internal model
-	// private parseJSON(content: string): Promise<> {
-	// 	return new Promise((resolve, reject) => {
-	// 		JSZip.loadAsync(content, {base64: true}).then(
+	// private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<string[]> {
+	// 	let pushDataset: <string[]> = [];
+	// 	promiseDataToProcess.forEach((dataToProcess: string) => {
+	// 		let data = //
 	//
-	// 		);
+	//
+	// 		//
+	// 		pushDataset.push(data);
+	// 		return pushDataset;
 	// 	});
 	// }
 
