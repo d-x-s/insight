@@ -182,6 +182,8 @@ export default class InsightFacade implements IInsightFacade {
 		return new Promise((resolve, reject) => {
 
 			const id = "";
+
+			// validate query
 			let validator = new ValidateQueryHelper();
 			validator.validateQuery(query, id);
 
