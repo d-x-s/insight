@@ -61,31 +61,33 @@ export default class InsightFacade implements IInsightFacade {
 	// 				if (fileFolder == null) {
 	// 					return new InsightError("ERROR: null file folder, could not load");
 	// 				}
-	// 				fileFolder.forEach((section) => {
+	// 				fileFolder.forEach((course) => {
 	// 					if (fileFolder == null) {
 	// 						return new InsightError("ERROR: null file folder, could not load");
 	// 					}
-	// 					let currSection = fileFolder.file(section);
-	// 					if (currSection == null) {
+	// 					let currCourse = fileFolder.file(course);
+	// 					if (currCourse == null) {
 	// 						return;
 	// 					}
-	// 					dataToProcess.push(currSection.async("text"));
+	// 					dataToProcess.push(currCourse.async("text"));
 	// 					return dataToProcess;
 	// 				});
-	// 			}).then(() => {
-	// 				let pushDataset = this.pushToDataset(dataToProcess, content);
-	// 			}).then((pushDataset) => {
+	// 			});
+	// 		Promise.all(dataToProcess).then(() => {
+	// 			let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
+	// 			return pushDataset;
+	// 		}).then((pushDataset) => {
 	// 				// add a for loop here to push every element of pushDataset to
-	// 				let newDataset: Dataset = {
-	// 					id: id,
-	// 					sectionData: pushDataset,
-	// 					kind: kind
-	// 				};
-	// 				this.internalModel.set(id, newDataset);
-	// 				// what to return here
-	// 				resolve(pushDataset);
-	// 			}
-	// 			)
+	// 			let newDataset: Dataset = {
+	// 				id: id,
+	// 				sectionData: pushDataset,
+	// 				kind: kind
+	// 			};
+	// 			this.internalModel.set(id, newDataset);
+	// 					// what to return here
+	// 			let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+	// 			resolve(updateKeysAfterAdd);
+	// 		})
 	// 			.catch((err) => {
 	// 				reject(new InsightError("Failed to parse" + err));
 	// 			});
@@ -96,16 +98,14 @@ export default class InsightFacade implements IInsightFacade {
 	// private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<SectionsData[]> {
 	// 	let pushDataset: SectionsData[] = [];
 	// 	try {
-	// 		promiseDataToProcess.forEach((dataToProcess: string) => {
+	// 		for (let dataToProcess in promiseDataToProcess) {
 	// 			let data = JSON.parse(dataToProcess);
 	//
-	// 			// relook at how this works
-	// 			let dataElement = data["result"];
-	// 			data.forEach((dataElement) => {
+	// 			let dataFromJSON = data["result"];
+	// 			for (let dataElement in dataFromJSON) {
 	// 				pushDataset.push(dataElement);
-	// 			});
-	// 		});
-	//
+	// 			};
+	// 		}
 	// 		return Promise.resolve(pushDataset);
 	// 	} catch {
 	// 		return Promise.reject(new InsightError("ERROR: could not push to dataset"));
