@@ -14,11 +14,11 @@ export default class InsightFacade implements IInsightFacade {
 
 	// instantiate dataset locally after
 	// currently mapped as
-	public dataset: Map<string, Dataset[]>;
+	public internalModel: Map<string, Dataset[]>;
 
 	constructor() {
 		Utility.log("initialize InsightFacade", "trace");
-		this.dataset = new Map();
+		this.internalModel = new Map();
 	}
 
 	// HELPER: check if id is valid
@@ -81,7 +81,7 @@ export default class InsightFacade implements IInsightFacade {
 	// 					sectionData: pushDataset,
 	// 					kind: kind
 	// 				};
-	// 				this.dataset.set(id, newDataset);
+	// 				this.internalModel.set(id, newDataset);
 	// 				// what to return here
 	// 				resolve(pushDataset);
 	// 			}
@@ -108,7 +108,7 @@ export default class InsightFacade implements IInsightFacade {
 	//
 	// 		return Promise.resolve(pushDataset);
 	// 	} catch {
-	// 			return Promise.reject(new InsightError("ERROR: could not push to dataset");
+	// 		return Promise.reject(new InsightError("ERROR: could not push to dataset"));
 	// 	};
 	// }
 
@@ -142,7 +142,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// check if @id already exists in dataset
-		let keys = Array.from(this.dataset.keys());
+		let keys = Array.from(this.internalModel.keys());
 		if (keys.includes(id)) {
 			return Promise.reject(new InsightError("Error in addDataset: " + id + " already exists among datasets"));
 		}
@@ -169,10 +169,10 @@ export default class InsightFacade implements IInsightFacade {
 				reject(new InsightError("Error in addDataset: id is invalid"));
 			}
 			// check for nonexistent id
-			if (!this.dataset.has(id)) {
+			if (!this.internalModel.has(id)) {
 				reject("This id does not exist in our dataset");
 			}
-			this.dataset.delete(id);
+			this.internalModel.delete(id);
 			resolve(id);
 		});
 	}
@@ -212,7 +212,7 @@ export default class InsightFacade implements IInsightFacade {
 	public listDatasets(): Promise<InsightDataset[]> {
 		let listDatasetsFromLocal: InsightDataset[] = [];
 		return new Promise<InsightDataset[]>((resolve, reject) => {
-			this.dataset.forEach((data, id) => {
+			this.internalModel.forEach((data, id) => {
 				if (!id || !data) {
 					reject(new InsightError("invalid id or data in set"));
 				}
