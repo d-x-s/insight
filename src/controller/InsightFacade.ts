@@ -3,7 +3,7 @@ import Utility from "../Utility";
 import ValidateQueryHelper from "./ValidateQueryHelper";
 import JSZip from "jszip";
 import {Dataset} from "./Dataset";
-import {rejects} from "assert";
+import {SectionsData} from "./SectionsData";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -35,54 +35,81 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// check to see if the whole string is only white spaces
-		if (idToVerify.trim().length === 0) {
-			return false;
-		}
-
-		return true;
+		return idToVerify.trim().length !== 0;
 	}
 
 	// HELPER: check if content is valid
 	public checkContent(contentToVerify: string): boolean {
-		if (contentToVerify === null || typeof contentToVerify === "undefined") {
-			return false;
-		}
-		return true;
+		return !(contentToVerify === null || typeof contentToVerify === "undefined");
 	}
 
 	// HELPER: check if kind is valid
 	// Note: for C1, we are only accepting Sections and not Rooms
 	public checkKind(kindToVerify: InsightDatasetKind): boolean {
-		if (kindToVerify !== InsightDatasetKind.Sections) {
-			return false;
-		}
-		return true;
+		return kindToVerify === InsightDatasetKind.Sections;
 	}
 
 	// // HELPER: Called by addDataset to handle parsing and adding dataset to model
-	// private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind) {
-	// 	let currentDataset = [] as Dataset;
-	// 	currentDataset.id = id;
-	// 	currentDataset.kind = kind;
+	// private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+	// 	let zipped: JSZip = new JSZip();
 	//
-	// 	return new Promise<Dataset[]> ((resolve, reject) => {
-	// 		// parse through JSON
-	// 		this.parseJSON(content).then((data) => {
-	// 			currentDataset.sectionData = data;
-	// 			this.dataset[id] = currentDataset;
-	// 		});
+	// 	return new Promise<string[]> ((resolve, reject) => {
+	// 		let dataToProcess: Array<Promise<string>> = [];
+	// 		zipped.loadAsync(content, {base64: true})
+	// 			.then((file) => {
+	// 				let fileFolder = file.folder("courses");
+	// 				if (fileFolder == null) {
+	// 					return new InsightError("ERROR: null file folder, could not load");
+	// 				}
+	// 				fileFolder.forEach((section) => {
+	// 					if (fileFolder == null) {
+	// 						return new InsightError("ERROR: null file folder, could not load");
+	// 					}
+	// 					let currSection = fileFolder.file(section);
+	// 					if (currSection == null) {
+	// 						return;
+	// 					}
+	// 					dataToProcess.push(currSection.async("text"));
+	// 					return dataToProcess;
+	// 				});
+	// 			}).then(() => {
+	// 				let pushDataset = this.pushToDataset(dataToProcess, content);
+	// 			}).then((pushDataset) => {
+	// 				// add a for loop here to push every element of pushDataset to
+	// 				let newDataset: Dataset = {
+	// 					id: id,
+	// 					sectionData: pushDataset,
+	// 					kind: kind
+	// 				};
+	// 				this.dataset.set(id, newDataset);
+	// 				// what to return here
+	// 				resolve(pushDataset);
+	// 			}
+	// 			)
+	// 			.catch((err) => {
+	// 				reject(new InsightError("Failed to parse" + err));
+	// 			});
 	// 	});
-	//
-	// 	return [];
 	// }
 	//
 	// // HELPER: Called by addDatasetToModel to prepare JSON for internal model
-	// private parseJSON(content: string): Promise<> {
-	// 	return new Promise((resolve, reject) => {
-	// 		JSZip.loadAsync(content, {base64: true}).then(
+	// private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<SectionsData[]> {
+	// 	let pushDataset: SectionsData[] = [];
+	// 	try {
+	// 		promiseDataToProcess.forEach((dataToProcess: string) => {
+	// 			let data = JSON.parse(dataToProcess);
 	//
-	// 		);
-	// 	});
+	// 			// relook at how this works
+	// 			let dataElement = data["result"];
+	// 			data.forEach((dataElement) => {
+	// 				pushDataset.push(dataElement);
+	// 			});
+	// 		});
+	//
+	// 		return Promise.resolve(pushDataset);
+	// 	} catch {
+	// 			return Promise.reject(new InsightError("ERROR: could not push to dataset");
+	// 	};
 	// }
 
 	/*
