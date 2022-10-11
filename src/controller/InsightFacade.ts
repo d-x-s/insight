@@ -1,16 +1,9 @@
-import {
-	IInsightFacade,
-	InsightDataset,
-	InsightDatasetKind,
-	InsightError,
-	InsightResult,
-	NotFoundError
-} from "./IInsightFacade";
-import PerformQueryHelper from "./PerformQueryHelper";
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
 import Utility from "../Utility";
 import ValidateQueryHelper from "./ValidateQueryHelper";
 import JSZip from "jszip";
-import Dataset from "./Dataset";
+import {Dataset} from "./Dataset";
+import {SectionsData} from "./SectionsData";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -21,10 +14,11 @@ export default class InsightFacade implements IInsightFacade {
 
 	// instantiate dataset locally after
 	// currently mapped as
-	public dataset!: Map<string, Dataset[]>;
+	public internalModel: Map<string, Dataset>;
 
 	constructor() {
 		Utility.log("initialize InsightFacade", "trace");
+		this.internalModel = new Map();
 	}
 
 	// HELPER: check if id is valid
@@ -41,28 +35,79 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// check to see if the whole string is only white spaces
-		if (idToVerify.trim().length === 0) {
-			return false;
-		}
-
-		return true;
+		return idToVerify.trim().length !== 0;
 	}
 
 	// HELPER: check if content is valid
 	public checkContent(contentToVerify: string): boolean {
-		if (contentToVerify === null || typeof contentToVerify === "undefined") {
-			return false;
-		}
-		return true;
+		return !(contentToVerify === null || typeof contentToVerify === "undefined");
 	}
 
 	// HELPER: check if kind is valid
 	// Note: for C1, we are only accepting Sections and not Rooms
 	public checkKind(kindToVerify: InsightDatasetKind): boolean {
-		if (kindToVerify !== InsightDatasetKind.Sections) {
-			return false;
-		}
-		return true;
+		return kindToVerify === InsightDatasetKind.Sections;
+	}
+
+	// HELPER: Called by addDataset to handle parsing and adding dataset to model
+	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		let zipped: JSZip = new JSZip();
+
+		return new Promise<string[]> ((resolve, reject) => {
+			let dataToProcess: Array<Promise<string>> = [];
+			zipped.loadAsync(content, {base64: true})
+				.then((file) => {
+					let fileFolder = file.folder("courses");
+					if (fileFolder == null) {
+						return new InsightError("ERROR: null file folder, could not load");
+					}
+					fileFolder.forEach((course) => {
+						if (fileFolder == null) {
+							return new InsightError("ERROR: null file folder, could not load");
+						}
+						let currCourse = fileFolder.file(course);
+						if (currCourse == null) {
+							return;
+						}
+						dataToProcess.push(currCourse.async("text"));
+						return dataToProcess;
+					});
+				});
+			Promise.all(dataToProcess).then(() => {
+				let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
+				return pushDataset;
+			}).then((pushDataset) => {
+				let newDataset: Dataset = {
+					id: id,
+					sectionData: pushDataset,
+					kind: kind
+				};
+				this.internalModel.set(id, newDataset);
+				let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+				resolve(updateKeysAfterAdd);
+			})
+				.catch((err) => {
+					reject(new InsightError("Failed to parse" + err));
+				});
+		});
+	}
+
+	// HELPER: Called by addDatasetToModel to prepare JSON for internal model
+	private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<SectionsData[]> {
+		let pushDataset: any = [];
+		try {
+			for (let dataToProcess in promiseDataToProcess) {
+				let data = JSON.parse(dataToProcess);
+
+				let dataFromJSON = data["result"];
+				for (let dataElement in dataFromJSON) {
+					pushDataset.push(dataElement);
+				};
+			}
+			return Promise.resolve(pushDataset);
+		} catch {
+			return Promise.reject(new InsightError("ERROR: could not push to dataset"));
+		};
 	}
 
 	/*
@@ -95,55 +140,16 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// check if @id already exists in dataset
-		let keys = Array.from(this.dataset.keys());
+		let keys = Array.from(this.internalModel.keys());
 		if (keys.includes(id)) {
 			return Promise.reject(new InsightError("Error in addDataset: " + id + " already exists among datasets"));
 		}
 
-		// After receiving the dataset, it should be processed into a data structure of
-		//      * your design. The processed data structure should be persisted to disk; your
-		//      * system should be able to load this persisted value into memory for answering
-		//      * queries.
+		// temporary
+		// return Promise.reject(new InsightError("Not implemented"));
+		// Assuming all inputs are valid, we can push this to the internal model.
+		return Promise.resolve(this.addDatasetToModel(id, content, kind));
 
-		let filesExtractedPromise: Array<Promise<string>>;
-		let extractedData: JSON[] = [];
-
-		// this is currently buggy:
-
-		// // Create new zip and call helper function to process data from zip file
-		// let processDataPromise: Promise<string[]> = new Promise((resolve, reject) => {
-		// 	let zippedFile: JSZip = new JSZip();
-		// 	zippedFile.loadAsync(content, {base64: true}).then(() => {
-		// 		zippedFile.forEach((filesToExtract) => {
-		// 			if (zippedFile.file(filesToExtract) != null) {
-		// 				// filesExtractedPromise.push(filesToExtract.file(filesToExtract).async("text"));
-		// 				filesExtractedPromise.push(zippedFile.file(filesToExtract).async("text")
-		// 					.then((rawDataFromFile) => {
-		// 						let dataFromFile = JSON.parse(rawDataFromFile);
-		// 						// add verification for if a section is valid here?
-		// 						extractedData.push(dataFromFile);
-		// 					}).catch((err) => {
-		// 						// return new InsightError("Error in parsing from raw data");
-		// 					}));
-		// 			}
-		// 		});
-		// 	})
-		// 		.catch((err) => {
-		// 			return new InsightError("");
-		// 		});
-		//
-		// 	// Data is now parsed, can now push to internal model
-		// 	this.processData(id, content, kind)
-		// 		.then((data) => {
-		// 			resolve(data);
-		// 		})
-		// 		.catch((err: InsightError) => {
-		// 			reject(new InsightError("Data could not be processed"));
-		// 		});
-		// });
-
-		// delete below return statement eventually
-		return Promise.reject("Not implemented.");
 	}
 
 	/*
@@ -161,10 +167,10 @@ export default class InsightFacade implements IInsightFacade {
 				reject(new InsightError("Error in addDataset: id is invalid"));
 			}
 			// check for nonexistent id
-			if (!this.dataset.has(id)) {
+			if (!this.internalModel.has(id)) {
 				reject("This id does not exist in our dataset");
 			}
-			this.dataset.delete(id);
+			this.internalModel.delete(id);
 			resolve(id);
 		});
 	}
@@ -198,6 +204,21 @@ export default class InsightFacade implements IInsightFacade {
     which contains the dataset id, kind, and number of rows.
     */
 	public listDatasets(): Promise<InsightDataset[]> {
-		return Promise.reject("Not implemented.");
+		let listDatasetsFromLocal: InsightDataset[] = [];
+		return new Promise<InsightDataset[]>((resolve, reject) => {
+			this.internalModel.forEach((data, id) => {
+				if (!id || !data) {
+					reject(new InsightError("invalid id or data in set"));
+				}
+				let currInsightDataset: InsightDataset = {
+					id: id,
+					kind: InsightDatasetKind.Sections,
+					numRows: data.sectionData.length
+				};
+				listDatasetsFromLocal.push(currInsightDataset);
+			});
+			resolve(listDatasetsFromLocal);
+		});
 	}
+
 }

@@ -1,10 +1,10 @@
 import {InsightDatasetKind} from "./IInsightFacade";
+import {SectionsData} from "./SectionsData";
 
-export default class Dataset {
+export interface Dataset {
 
-	public constructor(id: string, kind: InsightDatasetKind) {
-		let content: string;
-		let type: InsightDatasetKind;
-	}
+	"id": string;
+	"sectionData": SectionsData[];
+	"kind": InsightDatasetKind;
 
 }
