@@ -1,0 +1,19 @@
+{
+	"title": "sectionsTooMuchGT",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_pass": 3
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "ResultTooLargeError"
+}

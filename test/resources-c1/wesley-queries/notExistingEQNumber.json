@@ -1,0 +1,19 @@
+{
+	"title": "notExistingEQNumber",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"sections_avg": 400
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

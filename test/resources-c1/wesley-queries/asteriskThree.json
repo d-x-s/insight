@@ -1,0 +1,19 @@
+{
+	"title": "AsteriskThree",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_dept": "*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "ResultTooLargeError"
+}

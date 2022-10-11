@@ -1,0 +1,19 @@
+{
+	"title": "AsteriskSevenError1",
+	"input": {
+		"WHERE": {
+			"LT": {
+				"sections_fail": "*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

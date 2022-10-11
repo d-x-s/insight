@@ -1,0 +1,19 @@
+{
+	"title": "AsteriskSixError2",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_pass": "*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

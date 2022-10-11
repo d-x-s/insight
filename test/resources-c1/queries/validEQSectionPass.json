@@ -1,0 +1,40 @@
+{
+	"title": "validEQSectionPass",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"sections_avg": 1
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_avg",
+				"sections_pass",
+				"sections_fail",
+				"sections_audit",
+				"sections_year",
+				"sections_dept",
+				"sections_id",
+				"sections_instructor",
+				"sections_title",
+				"sections_uuid"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_avg": 1,
+			"sections_pass": 0,
+			"sections_fail": 2,
+			"sections_audit": 0,
+			"sections_year": 1900,
+			"sections_dept": "wood",
+			"sections_id": "475",
+			"sections_instructor": "",
+			"sections_title": "prpty,ident&uses",
+			"sections_uuid": "49835"
+		}
+	]
+}

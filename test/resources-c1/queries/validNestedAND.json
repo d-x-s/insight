@@ -1,0 +1,57 @@
+{
+	"title": "validNestedAND",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"AND": [
+						{
+							"GT": {
+								"sections_fail": 4
+							}
+						},
+						{
+							"EQ": {
+								"sections_year": 2015
+							}
+						}
+					]
+				},
+				{
+					"IS": {
+						"sections_dept": "japn"
+					}
+				},
+				{
+					"LT": {
+						"sections_avg": 95
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_year"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "japn",
+			"sections_id": "151",
+			"sections_avg": 63.35,
+			"sections_year": 2015
+		},
+		{
+			"sections_dept": "japn",
+			"sections_id": "100",
+			"sections_avg": 68.75,
+			"sections_year": 2015
+		}
+	]
+}

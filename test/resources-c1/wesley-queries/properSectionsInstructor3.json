@@ -1,0 +1,21 @@
+{
+	"title": "properSectionsInstructor3",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_instructor": "stern,  louise"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_instructor"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}
