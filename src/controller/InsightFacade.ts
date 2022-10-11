@@ -14,7 +14,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	// instantiate dataset locally after
 	// currently mapped as
-	public internalModel: Map<string, Dataset[]>;
+	public internalModel: Map<string, Dataset>;
 
 	constructor() {
 		Utility.log("initialize InsightFacade", "trace");
@@ -49,68 +49,66 @@ export default class InsightFacade implements IInsightFacade {
 		return kindToVerify === InsightDatasetKind.Sections;
 	}
 
-	// // HELPER: Called by addDataset to handle parsing and adding dataset to model
-	// private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-	// 	let zipped: JSZip = new JSZip();
-	//
-	// 	return new Promise<string[]> ((resolve, reject) => {
-	// 		let dataToProcess: Array<Promise<string>> = [];
-	// 		zipped.loadAsync(content, {base64: true})
-	// 			.then((file) => {
-	// 				let fileFolder = file.folder("courses");
-	// 				if (fileFolder == null) {
-	// 					return new InsightError("ERROR: null file folder, could not load");
-	// 				}
-	// 				fileFolder.forEach((course) => {
-	// 					if (fileFolder == null) {
-	// 						return new InsightError("ERROR: null file folder, could not load");
-	// 					}
-	// 					let currCourse = fileFolder.file(course);
-	// 					if (currCourse == null) {
-	// 						return;
-	// 					}
-	// 					dataToProcess.push(currCourse.async("text"));
-	// 					return dataToProcess;
-	// 				});
-	// 			});
-	// 		Promise.all(dataToProcess).then(() => {
-	// 			let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
-	// 			return pushDataset;
-	// 		}).then((pushDataset) => {
-	// 				// add a for loop here to push every element of pushDataset to
-	// 			let newDataset: Dataset = {
-	// 				id: id,
-	// 				sectionData: pushDataset,
-	// 				kind: kind
-	// 			};
-	// 			this.internalModel.set(id, newDataset);
-	// 					// what to return here
-	// 			let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
-	// 			resolve(updateKeysAfterAdd);
-	// 		})
-	// 			.catch((err) => {
-	// 				reject(new InsightError("Failed to parse" + err));
-	// 			});
-	// 	});
-	// }
-	//
-	// // HELPER: Called by addDatasetToModel to prepare JSON for internal model
-	// private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<SectionsData[]> {
-	// 	let pushDataset: SectionsData[] = [];
-	// 	try {
-	// 		for (let dataToProcess in promiseDataToProcess) {
-	// 			let data = JSON.parse(dataToProcess);
-	//
-	// 			let dataFromJSON = data["result"];
-	// 			for (let dataElement in dataFromJSON) {
-	// 				pushDataset.push(dataElement);
-	// 			};
-	// 		}
-	// 		return Promise.resolve(pushDataset);
-	// 	} catch {
-	// 		return Promise.reject(new InsightError("ERROR: could not push to dataset"));
-	// 	};
-	// }
+	// HELPER: Called by addDataset to handle parsing and adding dataset to model
+	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		let zipped: JSZip = new JSZip();
+
+		return new Promise<string[]> ((resolve, reject) => {
+			let dataToProcess: Array<Promise<string>> = [];
+			zipped.loadAsync(content, {base64: true})
+				.then((file) => {
+					let fileFolder = file.folder("courses");
+					if (fileFolder == null) {
+						return new InsightError("ERROR: null file folder, could not load");
+					}
+					fileFolder.forEach((course) => {
+						if (fileFolder == null) {
+							return new InsightError("ERROR: null file folder, could not load");
+						}
+						let currCourse = fileFolder.file(course);
+						if (currCourse == null) {
+							return;
+						}
+						dataToProcess.push(currCourse.async("text"));
+						return dataToProcess;
+					});
+				});
+			Promise.all(dataToProcess).then(() => {
+				let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
+				return pushDataset;
+			}).then((pushDataset) => {
+				let newDataset: Dataset = {
+					id: id,
+					sectionData: pushDataset,
+					kind: kind
+				};
+				this.internalModel.set(id, newDataset);
+				let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+				resolve(updateKeysAfterAdd);
+			})
+				.catch((err) => {
+					reject(new InsightError("Failed to parse" + err));
+				});
+		});
+	}
+
+	// HELPER: Called by addDatasetToModel to prepare JSON for internal model
+	private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<SectionsData[]> {
+		let pushDataset: any = [];
+		try {
+			for (let dataToProcess in promiseDataToProcess) {
+				let data = JSON.parse(dataToProcess);
+
+				let dataFromJSON = data["result"];
+				for (let dataElement in dataFromJSON) {
+					pushDataset.push(dataElement);
+				};
+			}
+			return Promise.resolve(pushDataset);
+		} catch {
+			return Promise.reject(new InsightError("ERROR: could not push to dataset"));
+		};
+	}
 
 	/*
     * addDataset(id: string, content: string, kind: InsightDatasetKind):
@@ -148,9 +146,9 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// temporary
-		return Promise.reject(new InsightError("Not implemented"));
+		// return Promise.reject(new InsightError("Not implemented"));
 		// Assuming all inputs are valid, we can push this to the internal model.
-		// return Promise.resolve(this.addDatasetToModel(id, content, kind));
+		return Promise.resolve(this.addDatasetToModel(id, content, kind));
 
 	}
 
@@ -219,7 +217,7 @@ export default class InsightFacade implements IInsightFacade {
 				let currInsightDataset: InsightDataset = {
 					id: id,
 					kind: InsightDatasetKind.Sections,
-					numRows: data.length
+					numRows: data.sectionData.length
 				};
 				listDatasetsFromLocal.push(currInsightDataset);
 			});
