@@ -98,9 +98,7 @@ export default class InsightFacade implements IInsightFacade {
 		try {
 			for (let dataToProcess in promiseDataToProcess) {
 				let data = JSON.parse(dataToProcess);
-
-				let dataFromJSON = data["result"];
-				for (let dataElement in dataFromJSON) {
+				for (let dataElement in data) {
 					pushDataset.push(dataElement);
 				};
 			}
