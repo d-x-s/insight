@@ -1,11 +1,4 @@
-import {
-	IInsightFacade,
-	InsightDataset,
-	InsightDatasetKind,
-	InsightError,
-	InsightResult,
-	NotFoundError
-} from "./IInsightFacade";
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
 import Utility from "../Utility";
 import ValidateQueryHelper from "./ValidateQueryHelper";
 import JSZip from "jszip";
@@ -106,8 +99,7 @@ export default class InsightFacade implements IInsightFacade {
 			for (let dataToProcess in promiseDataToProcess) {
 				// resource: https://stackoverflow.com/questions/4935632/parse-json-in-javascript
 				let data = JSON.parse(dataToProcess);
-				let dataFromJSON = data["result"];
-				for (let dataElement in dataFromJSON) {
+				for (let dataElement in data) {
 					pushDataset.push(dataElement);
 				};
 			}
@@ -175,7 +167,7 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			// check for nonexistent id
 			if (!this.internalModel.has(id)) {
-				reject(new NotFoundError("This id does not exist in our dataset"));
+				reject("This id does not exist in our dataset");
 			}
 			this.internalModel.delete(id);
 			resolve(id);
@@ -191,18 +183,17 @@ export default class InsightFacade implements IInsightFacade {
     then it should reject with a ResultTooLargeError.
     */
 	public performQuery(query: unknown): Promise<InsightResult[]> {
-		return Promise.reject("Not implemented.");
 
-		// return new Promise((resolve, reject) => {
-		//
-		// 	const id = "";
-		// 	let validator = new ValidateQueryHelper();
-		// 	validator.validateQuery(query, id);
-		//
-		// 	if (!validator.getValid()) {
-		// 		return reject(new InsightError());
-		// 	}
-		// });
+		return new Promise((resolve, reject) => {
+
+			const id = "";
+			let validator = new ValidateQueryHelper();
+			validator.validateQuery(query, id);
+
+			if (!validator.getValid()) {
+				return reject(new InsightError());
+			}
+		});
 	}
 
 	/*
