@@ -12,8 +12,7 @@ import {SectionsData} from "./SectionsData";
  */
 export default class InsightFacade implements IInsightFacade {
 
-	// instantiate dataset locally after
-	// currently mapped as
+	// locally instantiated model containing Datasets
 	public internalModel: Map<string, Dataset>;
 
 	constructor() {
@@ -58,35 +57,38 @@ export default class InsightFacade implements IInsightFacade {
 			zipped.loadAsync(content, {base64: true})
 				.then((file) => {
 					let fileFolder = file.folder("courses");
-					if (fileFolder == null) {
+					if (fileFolder == null || fileFolder === undefined) {
 						return new InsightError("ERROR: null file folder, could not load");
 					}
 					fileFolder.forEach((course) => {
-						if (fileFolder == null) {
+						if (fileFolder == null || fileFolder === undefined) {
 							return new InsightError("ERROR: null file folder, could not load");
 						}
 						let currCourse = fileFolder.file(course);
 						if (currCourse == null) {
-							return;
+							return new InsightError("ERROR: current course being added is null");
 						}
 						dataToProcess.push(currCourse.async("text"));
-						return dataToProcess;
 					});
-				});
-			Promise.all(dataToProcess).then(() => {
-				let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
-				return pushDataset;
-			}).then((pushDataset) => {
-				let newDataset: Dataset = {
-					id: id,
-					sectionData: pushDataset,
-					kind: kind
-				};
-				this.internalModel.set(id, newDataset);
-				let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
-				resolve(updateKeysAfterAdd);
-			})
-				.catch((err) => {
+					return dataToProcess;
+				}).then((value: Array<Promise<string>> | InsightError) => {
+					if (value instanceof InsightError) {
+						return new InsightError("ERROR: InsightError caught ");
+					}
+					Promise.all(value).then(() => {
+						let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
+						return pushDataset;
+					}).then((pushDataset) => {
+						let newDataset: Dataset = {
+							id: id,
+							sectionData: pushDataset,
+							kind: kind
+						};
+						this.internalModel.set(id, newDataset);
+						let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+						resolve(updateKeysAfterAdd);
+					});
+				}).catch((err) => {
 					reject(new InsightError("Failed to parse" + err));
 				});
 		});
@@ -99,7 +101,8 @@ export default class InsightFacade implements IInsightFacade {
 			for (let dataToProcess in promiseDataToProcess) {
 				// resource: https://stackoverflow.com/questions/4935632/parse-json-in-javascript
 				let data = JSON.parse(dataToProcess);
-				for (let dataElement in data) {
+				let dataFromJSON = data["result"];
+				for (let dataElement in dataFromJSON) {
 					pushDataset.push(dataElement);
 				};
 			}
@@ -167,7 +170,7 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			// check for nonexistent id
 			if (!this.internalModel.has(id)) {
-				reject("This id does not exist in our dataset");
+				reject(new InsightError("This id does not exist in our dataset"));
 			}
 			this.internalModel.delete(id);
 			resolve(id);
@@ -209,6 +212,7 @@ export default class InsightFacade implements IInsightFacade {
 				if (!id || !data) {
 					reject(new InsightError("invalid id or data in set"));
 				}
+				console.log(data.sectionData.length);
 				let currInsightDataset: InsightDataset = {
 					id: id,
 					kind: InsightDatasetKind.Sections,
