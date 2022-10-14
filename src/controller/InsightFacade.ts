@@ -1,9 +1,16 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult} from "./IInsightFacade";
+import {IInsightFacade,
+	InsightDataset,
+	InsightDatasetKind,
+	InsightError,
+	InsightResult,
+	ResultTooLargeError} from "./IInsightFacade";
 import Utility from "../Utility";
 import ValidateQueryHelper from "./ValidateQueryHelper";
 import JSZip from "jszip";
 import {Dataset} from "./Dataset";
 import {SectionsData} from "./SectionsData";
+import {KeyObject} from "crypto";
+import PerformQueryHelper from "./PerformQueryHelper";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -188,13 +195,37 @@ export default class InsightFacade implements IInsightFacade {
 	public performQuery(query: unknown): Promise<InsightResult[]> {
 
 		return new Promise((resolve, reject) => {
-
-			const id = "";
 			let validator = new ValidateQueryHelper();
-			validator.validateQuery(query, id);
+			let performer = new PerformQueryHelper();
 
+			// the id of the dataset you are querying upon is determined by the first key of OPTIONS
+			let id = validator.extractDatasetID(query);
+			if (id === "") {
+				return reject(new InsightError("performQuery::Invalid query"));
+			}
+
+			let keys = Array.from(this.internalModel.keys());
+			if (!keys.includes(id)) {
+				return reject(new InsightError(`performQuery::Referenced dataset ${id} not yet added yet`));
+			}
+
+			validator.validateQuery(query, id);
 			if (!validator.getValid()) {
-				return reject(new InsightError());
+				return reject(new InsightError("performQuery::Invalid query"));
+			}
+
+			let result: any[];
+			try {
+				result = performer.processFilter(query, this.internalModel.get(id));
+				result = performer.processOptions();
+			} catch {
+				return reject(new InsightError("performQuery::Error while querying"));
+			}
+
+			if (result.length > 5000) {
+				return reject(new ResultTooLargeError());
+			} else {
+				return resolve(result);
 			}
 		});
 	}

@@ -1,7 +1,6 @@
 import Utility from "../Utility";
 
 export default class ValidateQueryHelper {
-
 	protected valid: boolean;
 	protected QKEYS = ["OPTIONS", "WHERE"];
 	protected OKEYS = ["ORDER", "COLUMNS"];
@@ -17,9 +16,44 @@ export default class ValidateQueryHelper {
 		return this.valid;
 	}
 
+	/**
+	 * extracts an id from a query object
+	 * @param query  A query object
+	 * @return string  The id of the dataset associated with this query, "" if not erroneous or not found
+	 */
+	public extractDatasetID(query: any): string {
+		if (query === null || query === "undefined" || !(query instanceof Object)) {
+			return "";
+		}
+
+		let keys = Object.keys(query);
+		if (!keys.includes("OPTIONS")) {
+			return "";
+		}
+
+		let optionsKeys = Object.keys(query["OPTIONS"]);
+		if (!optionsKeys.includes("COLUMNS")) {
+			return "";
+		}
+
+		let columnsValue = query["COLUMNS"];
+		if (!Array.isArray(columnsValue) ||
+				columnsValue.length === 0 ||
+				typeof columnsValue === "undefined" ||
+				typeof columnsValue !== "object"
+		) {
+			return "";
+		}
+
+		for (let s in columnsValue) {
+			return s.split("_")[0];
+		}
+
+		return "";
+	}
+
 	public validateQuery(query: any, id: string) {
 		try {
-
 			const queryKeys = Object.keys(query);
 
 			if (query === null || query === "undefined" || !(query instanceof Object)) {
@@ -34,7 +68,7 @@ export default class ValidateQueryHelper {
 			}
 
 			for (let k of queryKeys) {
-				if(!this.QKEYS.includes(k)) {
+				if (!this.QKEYS.includes(k)) {
 					Utility.log("isQueryValid: typos or incorrect naming in WHERE and OPTIONS", "trace");
 					this.valid = false;
 					return;
@@ -43,14 +77,12 @@ export default class ValidateQueryHelper {
 
 			this.validateFilter(query["WHERE"], id);
 			this.validateOptions(query["OPTIONS"], id);
-
 		} catch (error) {
 			Utility.log("isQueryValid: error caught", "error");
 		}
 	}
 
 	private validateFilter(query: any, id: string) {
-
 		if (typeof query === "undefined" || !(query instanceof Object)) {
 			this.valid = false;
 			return;
@@ -87,11 +119,12 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateLogicComparison(queryLogicArray: any, id: string) {
-		if(
+		if (
 			!Array.isArray(queryLogicArray) ||
 			queryLogicArray.length === 0 ||
 			typeof queryLogicArray === "undefined" ||
-			typeof queryLogicArray !== "object") {
+			typeof queryLogicArray !== "object"
+		) {
 			this.valid = false;
 			return;
 		}
@@ -102,15 +135,12 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateMathComparison(mathComparator: any, id: string) {
-		if(
-			typeof mathComparator === "undefined" ||
-			typeof mathComparator !== "object") {
+		if (typeof mathComparator === "undefined" || typeof mathComparator !== "object") {
 			this.valid = false;
 			return;
 		}
 
 		const pairMComparator = Object.keys(mathComparator);
-
 		if (pairMComparator.length !== 1) {
 			this.valid = false;
 			return;
@@ -136,21 +166,18 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateMField(keyMField: any) {
-		if(!this.MFIELDS.includes(keyMField)) {
+		if (!this.MFIELDS.includes(keyMField)) {
 			this.valid = false;
 		}
 	}
 
 	private validateStringComparison(stringComparator: any, id: string) {
-		if(
-			typeof stringComparator === "undefined" ||
-			typeof stringComparator !== "object") {
+		if (typeof stringComparator === "undefined" || typeof stringComparator !== "object") {
 			this.valid = false;
 			return;
 		}
 
 		const pairSComparator = Object.keys(stringComparator);
-
 		if (pairSComparator.length !== 1) {
 			this.valid = false;
 			return;
@@ -169,7 +196,7 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateSField(sField: any) {
-		if(!this.SFIELDS.includes(sField)) {
+		if (!this.SFIELDS.includes(sField)) {
 			this.valid = false;
 			return;
 		}
@@ -197,7 +224,7 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateID(idToVerify: string, id: string) {
-		if (idToVerify.includes("_") || idToVerify.trim().length === 0) {
+		if (idToVerify.includes("_") || idToVerify.trim().length === 0 || idToVerify !== id) {
 			this.valid = false;
 		}
 	}
@@ -211,9 +238,7 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateOptions(options: any, id: string) {
-		if(
-			typeof options === "undefined" ||
-			typeof options !== "object") {
+		if (typeof options === "undefined" || typeof options !== "object") {
 			this.valid = false;
 			return;
 		}
@@ -240,11 +265,12 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateColumns(columnsArray: any, id: string) {
-		if(
+		if (
 			!Array.isArray(columnsArray) ||
 			columnsArray.length === 0 ||
 			typeof columnsArray === "undefined" ||
-			typeof columnsArray !== "object") {
+			typeof columnsArray !== "object"
+		) {
 			this.valid = false;
 			return;
 		}
@@ -260,9 +286,7 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateOrder(orderValue: any, columnsArray: any) {
-		if(
-			typeof orderValue === "undefined" ||
-			typeof orderValue !== "object") {
+		if (typeof orderValue === "undefined" || typeof orderValue !== "object") {
 			this.valid = false;
 			return;
 		}
