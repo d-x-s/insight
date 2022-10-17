@@ -1,6 +1,7 @@
+import e, {raw} from "express";
 import Utility from "../Utility";
 import {Dataset} from "./Dataset";
-import {InsightError} from "./IInsightFacade";
+import {InsightError, InsightResult} from "./IInsightFacade";
 import {SectionsData} from "./SectionsData";
 
 export default class PerformQueryHelper {
@@ -14,13 +15,53 @@ export default class PerformQueryHelper {
 		if (dataset === undefined) {
 			throw Error("The dataset being queried on is undefined");
 		}
+
+		if(Object.keys(query["WHERE"]).length === 0) {
+			return dataset.sectionData;
+		}
+
 		this.kind = dataset.kind;
 		return this.filterQuery(query["WHERE"], dataset.sectionData, this.kind);
 	}
 
-	public processOptions(): any[] {
-		return [];
+	public processOptions(query: any, rawResult: any[]): any[] {
+		let options = query["OPTIONS"];
+		let resultFiltered = this.processColumns(options["COLUMNS"], rawResult);
+
+		let optionsKeys = Object.keys(options);
+		if(optionsKeys.includes("ORDER")) {
+			resultFiltered = this.processOrder(options["ORDER"], resultFiltered);
+		}
+		return resultFiltered;
 	}
+
+	private processColumns(columns: any[], rawResult: any[]): any[] {
+		let resultFiltered: any[] = [];
+		rawResult.forEach((r) => {
+			const processedSectionObject: InsightResult = {};
+			columns.forEach((c: string) => {
+				let columnPair = c.split("_");
+				let columnKey = columnPair[0];
+				let columnValue = columnPair[1];
+				processedSectionObject[c] = r[columnValue];
+			});
+			resultFiltered.push(processedSectionObject);
+		});
+		return resultFiltered;
+	}
+
+	private processOrder(order: any, resultUnsorted: any[]): any[] {
+		return resultUnsorted.sort((element1, element2) => {
+			if (element1[order] > element2[order]) {
+				return 1;
+			} else if (element1[order] < element2[order]) {
+				return -1;
+			} else {
+				return 0;
+			}
+		});
+	}
+
 
 	// key idea:
 	// filter through SectionsData[], examining each individual section and seeing if it matches with the query
@@ -142,15 +183,15 @@ export default class PerformQueryHelper {
 			return true;
 
 		} else if (sString.startsWIth("*") && sString.endsWith("*")) {
-			let sStringTrim = sString.substring(1, sString.length - 2);
-			return sectionString.includes(sStringTrim);
-
-		} else if (sString.startsWIth("*")) {
 			let sStringTrim = sString.substring(1, sString.length - 1);
 			return sectionString.includes(sStringTrim);
 
+		} else if (sString.startsWIth("*")) {
+			let sStringTrim = sString.substring(1, sString.length - 0);
+			return sectionString.includes(sStringTrim);
+
 		} else if (sString.endsWith("*")) {
-			let sStringTrim = sString.substring(0, sString.length - 2);
+			let sStringTrim = sString.substring(0, sString.length - 1);
 			return sectionString.includes(sStringTrim);
 
 		} else {
