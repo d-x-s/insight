@@ -17,7 +17,7 @@ export default class PerformQueryHelper {
 		}
 
 		if(Object.keys(query["WHERE"]).length === 0) {
-			return dataset.sectionData;
+			return this.processOptions(query, dataset.sectionData);
 		}
 
 		this.kind = dataset.kind;
