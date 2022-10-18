@@ -108,7 +108,7 @@ export default class InsightFacade implements IInsightFacade {
 							return pushDataset;
 						})
 						.then((pushDataset) => {
-							console.log(pushDataset);
+							// console.log(pushDataset);
 							let newDataset: Dataset = {
 								id: id,
 								sectionData: pushDataset,
@@ -218,8 +218,9 @@ export default class InsightFacade implements IInsightFacade {
 			// the id of the dataset you are querying upon is determined by the first key of OPTIONS
 			let id = validator.extractDatasetID(query);
 			if (id === "") {
-				return reject(new InsightError("performQuery::Invalid query"));
+				return reject(new InsightError("performQuery::Invalid query::L221"));
 			}
+			console.log("The id is:" + id);
 
 			let keys = Array.from(this.internalModel.keys());
 			if (!keys.includes(id)) {
@@ -228,7 +229,7 @@ export default class InsightFacade implements IInsightFacade {
 
 			validator.validateQuery(query, id);
 			if (!validator.getValid()) {
-				return reject(new InsightError("performQuery::Invalid query"));
+				return reject(new InsightError("performQuery::Invalid query::L231"));
 			}
 
 			let result: any[];
