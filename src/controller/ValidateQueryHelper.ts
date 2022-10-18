@@ -223,7 +223,7 @@ export default class ValidateQueryHelper {
 		this.validateSValue(inputString);
 	}
 	private validateSKey(sKey: string, id: string) {
-		console.log("validateSKey:: skey = " + sKey);
+		// console.log("validateSKey:: skey = " + sKey);
 		this.validateID(sKey.split("_")[0], id);
 		this.validateSField(sKey.split("_")[1]);
 		return;

@@ -123,8 +123,12 @@ export default class InsightFacade implements IInsightFacade {
 		newSection.instructor = x["Professor"];
 		newSection.pass = x["Pass"];
 		newSection.title = x["Title"];
-		newSection.uuid = x["id"];
-		newSection.year = x["Year"];
+		newSection.uuid = String(x["id"]);
+		if (x["Section"] === "overall") {
+			newSection.year = 1900;
+		} else {
+			newSection.year = Number(x["Year"]);
+		}
 		return newSection;
 	}
 
