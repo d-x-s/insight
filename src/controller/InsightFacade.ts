@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import {
 	IInsightFacade,
 	InsightDataset,
@@ -59,66 +58,55 @@ export default class InsightFacade implements IInsightFacade {
 	// HELPER: Called by addDataset to handle parsing and adding dataset to model
 	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let zipped: JSZip = new JSZip();
-
 		return new Promise<string[]>((resolve, reject) => {
 			let dataToProcess: Array<Promise<string>> = [];
-			zipped
-				.loadAsync(content, {base64: true})
-				.then((file) => {
-					let fileFolder = file.folder("courses");
+			zipped.loadAsync(content, {base64: true}).then((file) => {
+				let fileFolder = file.folder("courses");
+				if (fileFolder == null || fileFolder === undefined) {
+					return new InsightError("ERROR: null file folder, could not load");
+				}
+				fileFolder.forEach((course) => {
 					if (fileFolder == null || fileFolder === undefined) {
 						return new InsightError("ERROR: null file folder, could not load");
 					}
-					fileFolder.forEach((course) => {
-						if (fileFolder == null || fileFolder === undefined) {
-							return new InsightError("ERROR: null file folder, could not load");
-						}
-						let currCourse = fileFolder.file(course);
-						if (currCourse == null) {
-							return new InsightError("ERROR: current course being added is null");
-						}
-						dataToProcess.push(currCourse.async("text"));
-					});
-					return dataToProcess;
-				})
-				.then((value: Array<Promise<string>> | InsightError) => {
-					if (value instanceof InsightError) {
-						return new InsightError("ERROR: InsightError caught ");
+					let currCourse = fileFolder.file(course);
+					if (currCourse == null) {
+						return new InsightError("ERROR: current course being added is null");
 					}
-					Promise.all(value)
-						.then((results) => {
-							let pushDataset: any = [];
-							results.forEach((v) => {
-								let data = JSON.parse(v);
-								let dataFromJSON = data["result"];
+					dataToProcess.push(currCourse.async("text"));
+				});
+				return dataToProcess;
+			}).then((value: Array<Promise<string>> | InsightError) => {
+				if (value instanceof InsightError) {
+					return new InsightError("ERROR: InsightError caught ");
+				}
+				Promise.all(value).then((results) => {
+					let pushDataset: any = [];
+					results.forEach((v) => {
+						// let data = JSON.parse(v);
+						let dataFromJSON = JSON.parse(v)["result"];
 								// console.log(dataFromJSON);
-								dataFromJSON.forEach((x: any) => {
+						dataFromJSON.forEach((x: any) => {
 									// console.log(x);
-									let y = this.convertToSectionFormat(x);
-									pushDataset.push(y);
-								});
-								// for (let dataElement in dataFromJSON) { // this is broken why?
-								// 	console.log(dataElement);
-								// 	pushDataset.push(dataElement);
-								// }
-							});
-
-							// console.log(pushDataset);
-							// console.log(pushDataset);
-							return pushDataset;
-						})
-						.then((pushDataset) => {
-							// console.log(pushDataset);
-							let newDataset: Dataset = {
-								id: id,
-								sectionData: pushDataset,
-								kind: kind,
-							};
-							this.internalModel.set(id, newDataset);
-							let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
-							resolve(updateKeysAfterAdd);
+							let y = this.convertToSectionFormat(x);
+							pushDataset.push(y);
 						});
-				})
+					});
+		     			// console.log(pushDataset);
+							// console.log(pushDataset);
+					return pushDataset;
+				}).then((pushDataset) => {
+							// console.log(pushDataset);
+					let newDataset: Dataset = {
+						id: id,
+						sectionData: pushDataset,
+						kind: kind,
+					};
+					this.internalModel.set(id, newDataset);
+					let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+					resolve(updateKeysAfterAdd);
+				});
+			})
 				.catch((err) => {
 					reject(new InsightError("Failed to parse" + err));
 				});
