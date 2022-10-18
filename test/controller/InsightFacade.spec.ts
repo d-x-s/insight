@@ -467,7 +467,7 @@ describe("InsightFacade", function () {
 		folderTest<unknown, Promise<InsightResult[]>, PQErrorKind>(
 			"Dynamic InsightFacade PerformQuery tests",
 			(input) => insightFacade.performQuery(input),
-			"./test/resources/query-simple",
+			"./test/resources/queries",
 			{assertOnResult: assertResult,
 				assertOnError: (actual, expected) => {
 					if (expected === "ResultTooLargeError") {
