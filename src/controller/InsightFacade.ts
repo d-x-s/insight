@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import {
 	IInsightFacade,
 	InsightDataset,
@@ -85,11 +86,29 @@ export default class InsightFacade implements IInsightFacade {
 						return new InsightError("ERROR: InsightError caught ");
 					}
 					Promise.all(value)
-						.then(() => {
-							let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
+						.then((results) => {
+							let pushDataset: any = [];
+							results.forEach((v) => {
+								let data = JSON.parse(v);
+								let dataFromJSON = data["result"];
+								// console.log(dataFromJSON);
+								dataFromJSON.forEach((x: any) => {
+									// console.log(x);
+									let y = this.convertToSectionFormat(x);
+									pushDataset.push(y);
+								});
+								// for (let dataElement in dataFromJSON) { // this is broken why?
+								// 	console.log(dataElement);
+								// 	pushDataset.push(dataElement);
+								// }
+							});
+
+							// console.log(pushDataset);
+							// console.log(pushDataset);
 							return pushDataset;
 						})
 						.then((pushDataset) => {
+							console.log(pushDataset);
 							let newDataset: Dataset = {
 								id: id,
 								sectionData: pushDataset,
@@ -106,22 +125,19 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 
-	// HELPER: Called by addDatasetToModel to prepare JSON for internal model
-	private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<SectionsData[]> {
-		let pushDataset: any = [];
-		try {
-			for (let dataToProcess in promiseDataToProcess) {
-				// resource: https://stackoverflow.com/questions/4935632/parse-json-in-javascript
-				let data = JSON.parse(dataToProcess);
-				let dataFromJSON = data["result"];
-				for (let dataElement in dataFromJSON) {
-					pushDataset.push(dataElement);
-				}
-			}
-			return Promise.resolve(pushDataset);
-		} catch {
-			return Promise.reject(new InsightError("ERROR: could not push to dataset"));
-		}
+	private convertToSectionFormat(x: any) {
+		let newSection = {} as SectionsData;
+		newSection.audit = x["Audit"];
+		newSection.avg = x["Avg"];
+		newSection.dept = x["Subject"];
+		newSection.fail = x["Fail"];
+		newSection.id = x["Course"];
+		newSection.instructor = x["Professor"];
+		newSection.pass = x["Pass"];
+		newSection.title = x["Title"];
+		newSection.uuid = x["id"];
+		newSection.year = x["Year"];
+		return newSection;
 	}
 
 	/*
@@ -256,3 +272,5 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 }
+
+
