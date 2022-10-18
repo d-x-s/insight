@@ -16,13 +16,11 @@ export default class PerformQueryHelper {
 			console.log("processQuery::the dataset being on is undefined");
 			throw Error("The dataset being queried on is undefined");
 		}
-		console.log("line 19 lol");
 		if(Object.keys(query["WHERE"]).length === 0) {
 			console.log("processQuery::where is empty");
 			return this.processOptions(query, dataset.sectionData);
 		}
 		this.kind = dataset.kind;
-		// console.log(dataset.sectionData);
 		return this.filterQuery(query["WHERE"], dataset.sectionData, this.kind);
 	}
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {filter} from "jszip";
 import Utility from "../Utility";
 
@@ -41,10 +42,11 @@ export default class ValidateQueryHelper {
 		}
 
 		let columnsValue = query["OPTIONS"]["COLUMNS"];
-		if (!Array.isArray(columnsValue) ||
-				columnsValue.length === 0 ||
-				typeof columnsValue === "undefined" ||
-				typeof columnsValue !== "object"
+		if (
+			!Array.isArray(columnsValue) ||
+			columnsValue.length === 0 ||
+			typeof columnsValue === "undefined" ||
+			typeof columnsValue !== "object"
 		) {
 			console.log("extractDatasetID::columns has length 0 or is undefiend or not an object or not an array");
 			return "";
@@ -79,7 +81,11 @@ export default class ValidateQueryHelper {
 			}
 
 			this.validateFilter(query["WHERE"], id);
+			console.log("line before options runs");
+			console.log(this.valid);
 			this.validateOptions(query["OPTIONS"], id);
+			console.log("line after options runs");
+			console.log(this.valid);
 		} catch (error) {
 			console.log("error at 98");
 			Utility.log("isQueryValid: error caught", "error");
@@ -101,7 +107,7 @@ export default class ValidateQueryHelper {
 		}
 
 		let filterKey = whereKeys[0];
-		console.log("filterKey is: " + filterKey);
+		// console.log("filterKey is: " + filterKey);
 
 		switch (filterKey) {
 			case "AND":
@@ -115,6 +121,7 @@ export default class ValidateQueryHelper {
 				this.validateMathComparison(query[filterKey], id);
 				break;
 			case "IS":
+				console.log("enter is clause");
 				this.validateStringComparison(query[filterKey], id);
 				break;
 			case "NOT":
@@ -143,21 +150,28 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateMathComparison(mathComparator: any, id: string) {
+		console.log(mathComparator);
 		if (typeof mathComparator === "undefined" || typeof mathComparator !== "object") {
 			console.log("set to false at 162");
 			this.valid = false;
 			return;
 		}
 
-		const pairMComparator = Object.keys(mathComparator);
-		if (pairMComparator.length !== 1) {
+		console.log("Line 156 is being run");
+		const pairMComparatorKeys = Object.keys(mathComparator);
+		console.log("pairMComparatorKEys = " + pairMComparatorKeys);
+		if (pairMComparatorKeys.length !== 1) {
 			console.log("set to false at 170");
 			this.valid = false;
 			return;
 		}
 
-		const keyMComparator = mathComparator[0];
+
+		const keyMComparator = pairMComparatorKeys[0];
 		const valueMComparator = mathComparator[keyMComparator];
+
+		console.log("keyMComparator = " + keyMComparator);
+		console.log("valueMcomparator = " + valueMComparator);
 
 		this.validateMKey(keyMComparator, id);
 		this.validateMValue(valueMComparator);
@@ -169,7 +183,7 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateMValue(valueMComparator: any) {
-		if (!(typeof valueMComparator !== "number")) {
+		if (typeof valueMComparator !== "number") {
 			console.log("set to false at 188");
 			this.valid = false;
 			return;
@@ -180,6 +194,7 @@ export default class ValidateQueryHelper {
 		if (!this.MFIELDS.includes(keyMField)) {
 			console.log("set to false at 196");
 			this.valid = false;
+			return;
 		}
 	}
 
@@ -195,15 +210,23 @@ export default class ValidateQueryHelper {
 			this.valid = false;
 			return;
 		}
-		const sKey = stringComparator[keySComparator[0]];
+		// console.log(stringComparator);
+		// console.log(keySComparator);
+		// console.log("stringComparator[0] value" + stringComparator[0]);
+
+		const sKey = keySComparator[0];
 		const inputString = stringComparator[sKey];
+		// console.log("validateStringComparison::sKey = " + sKey);
+		// console.log("validateStringComparison::inputString = " + inputString);
 
 		this.validateSKey(sKey, id);
 		this.validateSValue(inputString);
 	}
 	private validateSKey(sKey: string, id: string) {
+		console.log("validateSKey:: skey = " + sKey);
 		this.validateID(sKey.split("_")[0], id);
 		this.validateSField(sKey.split("_")[1]);
+		return;
 	}
 	private validateSField(sField: any) {
 		if (!this.SFIELDS.includes(sField)) {
@@ -216,6 +239,7 @@ export default class ValidateQueryHelper {
 		if (typeof inputString !== "string") {
 			console.log("set to false at 237");
 			this.valid = false;
+			return;
 		}
 		let asteriskCheck = inputString;
 		if (asteriskCheck.endsWith("*")) {
@@ -229,9 +253,13 @@ export default class ValidateQueryHelper {
 			return;
 		}
 	}
-	private validateID(idToVerify: string, id: string) {
+	private validateID(idToVerify: any, id: any) {
+		// console.log("validateID:: idToVerify = " + idToVerify);
+		// console.log("validateID:: id = " + id);
 		if (idToVerify.includes("_") || idToVerify.trim().length === 0 || idToVerify !== id) {
+			console.log("set to false at 244");
 			this.valid = false;
+			return;
 		}
 	}
 	private validateNegation(negation: any, id: string) {
@@ -242,13 +270,16 @@ export default class ValidateQueryHelper {
 		this.validateFilter(negation, id);
 	}
 	private validateOptions(options: any, id: string) {
+		// console.log(options);
 		if (typeof options === "undefined" || typeof options !== "object") {
 			this.valid = false;
 			return;
 		}
 		const optionsKeys = Object.keys(options);
+		// console.log(optionsKeys);
 		optionsKeys.forEach((element: any) => {
 			if (!this.OKEYS.includes(element)) {
+				console.log("set to false in 281");
 				this.valid = false;
 				return;
 			}
@@ -256,6 +287,7 @@ export default class ValidateQueryHelper {
 
 		if (optionsKeys.length === 1) {
 			if (optionsKeys[0] !== "COLUMNS") {
+				console.log("set to false in 289");
 				this.valid = false;
 				return;
 			}
@@ -287,12 +319,17 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateOrder(orderValue: any, columnsArray: any) {
-		if (typeof orderValue === "undefined" || typeof orderValue !== "object") {
+		// console.log(orderValue);
+		// console.log(columnsArray);
+		if (typeof orderValue === "undefined") {
+			console.log("set to false in 322");
 			this.valid = false;
 			return;
 		}
 
-		if (typeof orderValue !== "string" || columnsArray.includes(orderValue)) {
+		if (typeof orderValue !== "string" || !columnsArray.includes(orderValue)) {
+			// console.log("columnsArray.includes(orderValue) = " + columnsArray.includes(orderValue));
+			// console.log("set to false in 327");
 			this.valid = false;
 			return;
 		}
