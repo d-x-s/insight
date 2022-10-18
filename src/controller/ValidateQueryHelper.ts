@@ -1,4 +1,3 @@
-import {filter} from "jszip";
 import Utility from "../Utility";
 
 export default class ValidateQueryHelper {
@@ -9,7 +8,6 @@ export default class ValidateQueryHelper {
 	protected SFIELDS = ["dept", "id", "instructor", "title", "uuid"];
 
 	constructor() {
-		Utility.log("initializing ValidateQueryHelper", "trace");
 		this.valid = true;
 	}
 
@@ -24,29 +22,26 @@ export default class ValidateQueryHelper {
 	 */
 	public extractDatasetID(query: any): string {
 		if (query === null || query === "undefined" || !(query instanceof Object)) {
-			console.log("extractDatasetID::query is null or undefined or not an object");
 			return "";
 		}
 
 		let keys = Object.keys(query);
 		if (!keys.includes("OPTIONS")) {
-			console.log("extractDatasetID::query does not have OPTIONS");
 			return "";
 		}
 
 		let optionsKeys = Object.keys(query["OPTIONS"]);
 		if (!optionsKeys.includes("COLUMNS")) {
-			console.log("extractDatasetID::query does not have COLUMNS");
 			return "";
 		}
 
 		let columnsValue = query["OPTIONS"]["COLUMNS"];
-		if (!Array.isArray(columnsValue) ||
-				columnsValue.length === 0 ||
-				typeof columnsValue === "undefined" ||
-				typeof columnsValue !== "object"
+		if (
+			!Array.isArray(columnsValue) ||
+			columnsValue.length === 0 ||
+			typeof columnsValue === "undefined" ||
+			typeof columnsValue !== "object"
 		) {
-			console.log("extractDatasetID::columns has length 0 or is undefiend or not an object or not an array");
 			return "";
 		}
 		return columnsValue[0].split("_")[0];
@@ -57,22 +52,17 @@ export default class ValidateQueryHelper {
 			const queryKeys = Object.keys(query);
 
 			if (query === null || query === "undefined" || !(query instanceof Object)) {
-				console.log("set to false at line 74");
 				this.valid = false;
 				return;
 			}
 
 			if (queryKeys.length !== 2) {
-				console.log("set to false at line 80");
-				Utility.log("isQueryValid: not exactly 2 top level members", "trace");
 				this.valid = false;
 				return;
 			}
 
 			for (let k of queryKeys) {
 				if (!this.QKEYS.includes(k)) {
-					Utility.log("isQueryValid: typos or incorrect naming in WHERE and OPTIONS", "trace");
-					console.log("set to false at line 89");
 					this.valid = false;
 					return;
 				}
@@ -81,28 +71,22 @@ export default class ValidateQueryHelper {
 			this.validateFilter(query["WHERE"], id);
 			this.validateOptions(query["OPTIONS"], id);
 		} catch (error) {
-			console.log("error at 98");
-			Utility.log("isQueryValid: error caught", "error");
+			Utility.log("isQueryValid::validateQuery::error caught", "error");
 		}
 	}
 
 	private validateFilter(query: any, id: string) {
 		if (typeof query === "undefined" || !(query instanceof Object)) {
-			console.log("set to false at 105");
 			this.valid = false;
 			return;
 		}
 
 		const whereKeys = Object.keys(query);
-
 		if (whereKeys.length === 0) {
-			console.log("swhere keys length 0 return");
 			return;
 		}
 
 		let filterKey = whereKeys[0];
-		console.log("filterKey is: " + filterKey);
-
 		switch (filterKey) {
 			case "AND":
 			case "OR":
@@ -111,7 +95,6 @@ export default class ValidateQueryHelper {
 			case "LT":
 			case "GT":
 			case "EQ":
-				console.log("etner lt/gt/eq case clause");
 				this.validateMathComparison(query[filterKey], id);
 				break;
 			case "IS":
@@ -144,21 +127,16 @@ export default class ValidateQueryHelper {
 
 	private validateMathComparison(mathComparator: any, id: string) {
 		if (typeof mathComparator === "undefined" || typeof mathComparator !== "object") {
-			console.log("set to false at 162");
 			this.valid = false;
 			return;
 		}
-
-		const pairMComparator = Object.keys(mathComparator);
-		if (pairMComparator.length !== 1) {
-			console.log("set to false at 170");
+		const pairMComparatorKeys = Object.keys(mathComparator);
+		if (pairMComparatorKeys.length !== 1) {
 			this.valid = false;
 			return;
 		}
-
-		const keyMComparator = mathComparator[0];
+		const keyMComparator = pairMComparatorKeys[0];
 		const valueMComparator = mathComparator[keyMComparator];
-
 		this.validateMKey(keyMComparator, id);
 		this.validateMValue(valueMComparator);
 	}
@@ -169,8 +147,7 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateMValue(valueMComparator: any) {
-		if (!(typeof valueMComparator !== "number")) {
-			console.log("set to false at 188");
+		if (typeof valueMComparator !== "number") {
 			this.valid = false;
 			return;
 		}
@@ -178,44 +155,46 @@ export default class ValidateQueryHelper {
 
 	private validateMField(keyMField: any) {
 		if (!this.MFIELDS.includes(keyMField)) {
-			console.log("set to false at 196");
 			this.valid = false;
+			return;
 		}
 	}
 
 	private validateStringComparison(stringComparator: any, id: string) {
 		if (typeof stringComparator === "undefined" || typeof stringComparator !== "object") {
-			console.log("set to false at 203");
 			this.valid = false;
 			return;
 		}
+
 		const keySComparator = Object.keys(stringComparator);
 		if (keySComparator.length !== 1) {
-			console.log("set to false at 209");
 			this.valid = false;
 			return;
 		}
-		const sKey = stringComparator[keySComparator[0]];
-		const inputString = stringComparator[sKey];
 
+		const sKey = keySComparator[0];
+		const inputString = stringComparator[sKey];
 		this.validateSKey(sKey, id);
 		this.validateSValue(inputString);
 	}
+
 	private validateSKey(sKey: string, id: string) {
 		this.validateID(sKey.split("_")[0], id);
 		this.validateSField(sKey.split("_")[1]);
+		return;
 	}
+
 	private validateSField(sField: any) {
 		if (!this.SFIELDS.includes(sField)) {
-			console.log("set to false at 229");
 			this.valid = false;
 			return;
 		}
 	}
+
 	private validateSValue(inputString: any) {
 		if (typeof inputString !== "string") {
-			console.log("set to false at 237");
 			this.valid = false;
+			return;
 		}
 		let asteriskCheck = inputString;
 		if (asteriskCheck.endsWith("*")) {
@@ -229,9 +208,10 @@ export default class ValidateQueryHelper {
 			return;
 		}
 	}
-	private validateID(idToVerify: string, id: string) {
+	private validateID(idToVerify: any, id: any) {
 		if (idToVerify.includes("_") || idToVerify.trim().length === 0 || idToVerify !== id) {
 			this.valid = false;
+			return;
 		}
 	}
 	private validateNegation(negation: any, id: string) {
@@ -287,12 +267,12 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateOrder(orderValue: any, columnsArray: any) {
-		if (typeof orderValue === "undefined" || typeof orderValue !== "object") {
+		if (typeof orderValue === "undefined") {
 			this.valid = false;
 			return;
 		}
 
-		if (typeof orderValue !== "string" || columnsArray.includes(orderValue)) {
+		if (typeof orderValue !== "string" || !columnsArray.includes(orderValue)) {
 			this.valid = false;
 			return;
 		}

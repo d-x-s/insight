@@ -12,6 +12,7 @@ import JSZip from "jszip";
 import {Dataset} from "./Dataset";
 import {SectionsData} from "./SectionsData";
 import PerformQueryHelper from "./PerformQueryHelper";
+import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -123,8 +124,12 @@ export default class InsightFacade implements IInsightFacade {
 		newSection.instructor = x["Professor"];
 		newSection.pass = x["Pass"];
 		newSection.title = x["Title"];
-		newSection.uuid = x["id"];
-		newSection.year = x["Year"];
+		newSection.uuid = String(x["id"]);
+		if (x["Section"] === "overall") {
+			newSection.year = 1900;
+		} else {
+			newSection.year = Number(x["Year"]);
+		}
 		return newSection;
 	}
 
@@ -202,6 +207,7 @@ export default class InsightFacade implements IInsightFacade {
 		return new Promise((resolve, reject) => {
 			let validator = new ValidateQueryHelper();
 			let performer = new PerformQueryHelper();
+			let options = new PerformQueryOptionsHelper();
 
 			// the id of the dataset you are querying upon is determined by the first key of OPTIONS
 			let id = validator.extractDatasetID(query);
@@ -223,7 +229,7 @@ export default class InsightFacade implements IInsightFacade {
 			let result: any[];
 			try {
 				result = performer.processQuery(query, this.internalModel.get(id));
-				result = performer.processOptions(query, result);
+				result = options.processOptions(query, result);
 			} catch {
 				return reject(new InsightError("performQuery::Error while querying"));
 			}

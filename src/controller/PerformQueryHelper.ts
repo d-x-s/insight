@@ -1,14 +1,16 @@
-import e, {raw} from "express";
 import Utility from "../Utility";
 import {Dataset} from "./Dataset";
 import {InsightError, InsightResult} from "./IInsightFacade";
+import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
 import {SectionsData} from "./SectionsData";
 
 export default class PerformQueryHelper {
 	protected kind: any;
+	protected options: PerformQueryOptionsHelper;
 
 	constructor() {
 		Utility.log("initializing PerformQueryHelper", "trace");
+		this.options = new PerformQueryOptionsHelper();
 	}
 
 	public processQuery(query: any, dataset: Dataset | undefined): any[] {
@@ -16,54 +18,13 @@ export default class PerformQueryHelper {
 			console.log("processQuery::the dataset being on is undefined");
 			throw Error("The dataset being queried on is undefined");
 		}
-		console.log("line 19 lol");
 		if(Object.keys(query["WHERE"]).length === 0) {
 			console.log("processQuery::where is empty");
-			return this.processOptions(query, dataset.sectionData);
+			return this.options.processOptions(query, dataset.sectionData);
 		}
 		this.kind = dataset.kind;
-		// console.log(dataset.sectionData);
 		return this.filterQuery(query["WHERE"], dataset.sectionData, this.kind);
 	}
-
-	public processOptions(query: any, rawResult: any[]): any[] {
-		let options = query["OPTIONS"];
-		let resultFiltered = this.processColumns(options["COLUMNS"], rawResult);
-
-		let optionsKeys = Object.keys(options);
-		if(optionsKeys.includes("ORDER")) {
-			resultFiltered = this.processOrder(options["ORDER"], resultFiltered);
-		}
-		return resultFiltered;
-	}
-
-	private processColumns(columns: any[], rawResult: any[]): any[] {
-		let resultFiltered: any[] = [];
-		rawResult.forEach((r) => {
-			const processedSectionObject: InsightResult = {};
-			columns.forEach((c: string) => {
-				let columnPair = c.split("_");
-				let columnKey = columnPair[0];
-				let columnValue = columnPair[1];
-				processedSectionObject[c] = r[columnValue];
-			});
-			resultFiltered.push(processedSectionObject);
-		});
-		return resultFiltered;
-	}
-
-	private processOrder(order: any, resultUnsorted: any[]): any[] {
-		return resultUnsorted.sort((element1, element2) => {
-			if (element1[order] > element2[order]) {
-				return 1;
-			} else if (element1[order] < element2[order]) {
-				return -1;
-			} else {
-				return 0;
-			}
-		});
-	}
-
 
 	// key idea:
 	// filter through SectionsData[], examining each individual section and seeing if it matches with the query
