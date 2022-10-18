@@ -58,70 +58,74 @@ export default class InsightFacade implements IInsightFacade {
 	// HELPER: Called by addDataset to handle parsing and adding dataset to model
 	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let zipped: JSZip = new JSZip();
-
 		return new Promise<string[]>((resolve, reject) => {
 			let dataToProcess: Array<Promise<string>> = [];
-			zipped
-				.loadAsync(content, {base64: true})
-				.then((file) => {
-					let fileFolder = file.folder("courses");
+			zipped.loadAsync(content, {base64: true}).then((file) => {
+				let fileFolder = file.folder("courses");
+				if (fileFolder == null || fileFolder === undefined) {
+					return new InsightError("ERROR: null file folder, could not load");
+				}
+				fileFolder.forEach((course) => {
 					if (fileFolder == null || fileFolder === undefined) {
 						return new InsightError("ERROR: null file folder, could not load");
 					}
-					fileFolder.forEach((course) => {
-						if (fileFolder == null || fileFolder === undefined) {
-							return new InsightError("ERROR: null file folder, could not load");
-						}
-						let currCourse = fileFolder.file(course);
-						if (currCourse == null) {
-							return new InsightError("ERROR: current course being added is null");
-						}
-						dataToProcess.push(currCourse.async("text"));
-					});
-					return dataToProcess;
-				})
-				.then((value: Array<Promise<string>> | InsightError) => {
-					if (value instanceof InsightError) {
-						return new InsightError("ERROR: InsightError caught ");
+					let currCourse = fileFolder.file(course);
+					if (currCourse == null) {
+						return new InsightError("ERROR: current course being added is null");
 					}
-					Promise.all(value)
-						.then(() => {
-							let pushDataset: Promise<SectionsData[]> = this.pushToDataset(dataToProcess, content);
-							return pushDataset;
-						})
-						.then((pushDataset) => {
-							let newDataset: Dataset = {
-								id: id,
-								sectionData: pushDataset,
-								kind: kind,
-							};
-							this.internalModel.set(id, newDataset);
-							let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
-							resolve(updateKeysAfterAdd);
+					dataToProcess.push(currCourse.async("text"));
+				});
+				return dataToProcess;
+			}).then((value: Array<Promise<string>> | InsightError) => {
+				if (value instanceof InsightError) {
+					return new InsightError("ERROR: InsightError caught ");
+				}
+				Promise.all(value).then((results) => {
+					let pushDataset: any = [];
+					results.forEach((v) => {
+						// let data = JSON.parse(v);
+						let dataFromJSON = JSON.parse(v)["result"];
+								// console.log(dataFromJSON);
+						dataFromJSON.forEach((x: any) => {
+									// console.log(x);
+							let y = this.convertToSectionFormat(x);
+							pushDataset.push(y);
 						});
-				})
+					});
+		     			// console.log(pushDataset);
+							// console.log(pushDataset);
+					return pushDataset;
+				}).then((pushDataset) => {
+							// console.log(pushDataset);
+					let newDataset: Dataset = {
+						id: id,
+						sectionData: pushDataset,
+						kind: kind,
+					};
+					this.internalModel.set(id, newDataset);
+					let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+					resolve(updateKeysAfterAdd);
+				});
+			})
 				.catch((err) => {
 					reject(new InsightError("Failed to parse" + err));
 				});
 		});
 	}
 
-	// HELPER: Called by addDatasetToModel to prepare JSON for internal model
-	private pushToDataset(promiseDataToProcess: Array<Promise<string>>, content: string): Promise<SectionsData[]> {
-		let pushDataset: any = [];
-		try {
-			for (let dataToProcess in promiseDataToProcess) {
-				// resource: https://stackoverflow.com/questions/4935632/parse-json-in-javascript
-				let data = JSON.parse(dataToProcess);
-				let dataFromJSON = data["result"];
-				for (let dataElement in dataFromJSON) {
-					pushDataset.push(dataElement);
-				}
-			}
-			return Promise.resolve(pushDataset);
-		} catch {
-			return Promise.reject(new InsightError("ERROR: could not push to dataset"));
-		}
+	private convertToSectionFormat(x: any) {
+		let newSection = {} as SectionsData;
+		newSection.audit = x["Audit"];
+		newSection.avg = x["Avg"];
+		newSection.dept = x["Subject"];
+		newSection.fail = x["Fail"];
+		newSection.id = x["Course"];
+		newSection.instructor = x["Professor"];
+		newSection.pass = x["Pass"];
+		newSection.title = x["Title"];
+		newSection.uuid = x["id"];
+		newSection.year = x["Year"];
+		return newSection;
 	}
 
 	/*
@@ -202,8 +206,9 @@ export default class InsightFacade implements IInsightFacade {
 			// the id of the dataset you are querying upon is determined by the first key of OPTIONS
 			let id = validator.extractDatasetID(query);
 			if (id === "") {
-				return reject(new InsightError("performQuery::Invalid query"));
+				return reject(new InsightError("performQuery::Invalid query::L221"));
 			}
+			console.log("The id is:" + id);
 
 			let keys = Array.from(this.internalModel.keys());
 			if (!keys.includes(id)) {
@@ -212,7 +217,7 @@ export default class InsightFacade implements IInsightFacade {
 
 			validator.validateQuery(query, id);
 			if (!validator.getValid()) {
-				return reject(new InsightError("performQuery::Invalid query"));
+				return reject(new InsightError("performQuery::Invalid query::L231"));
 			}
 
 			let result: any[];
@@ -256,3 +261,5 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 }
+
+
