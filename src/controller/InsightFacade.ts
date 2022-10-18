@@ -217,9 +217,8 @@ export default class InsightFacade implements IInsightFacade {
 
 			let result: any[];
 			try {
-				// TODO: add a check if the WHERE clause has 0 keys
 				result = performer.processQuery(query, this.internalModel.get(id));
-				result = performer.processOptions();
+				result = performer.processOptions(query, result);
 			} catch {
 				return reject(new InsightError("performQuery::Error while querying"));
 			}
