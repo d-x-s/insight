@@ -80,9 +80,13 @@ export default class ValidateQueryHelper {
 			this.valid = false;
 			return;
 		}
-
 		const whereKeys = Object.keys(query);
 		if (whereKeys.length === 0) {
+			return; // empty where clause
+		}
+
+		if (whereKeys.length !== 1) {
+			this.valid = false;
 			return;
 		}
 
@@ -121,22 +125,8 @@ export default class ValidateQueryHelper {
 		}
 
 		queryLogicArray.forEach((element: any) => {
-
-			// detect objects that have multiple keys
-			// the array should ONLY consist of objects with single keys
-			// specifically, this is invalid
-			// "AND": [
-			// 	{
-			// 	  "IS": {
-			// 		"sections_title": "intr soc welfare"
-			// 	  },
-			// 	  "GT": {
-			// 		"sections_pass": 2
-			// 	  }
-			// 	}
-			//   ]
-			let keys = Object.keys(element);
-			if (keys.length !== 1) {
+			let logicComparisonKeys = Object.keys(element);
+			if (logicComparisonKeys.length !== 1) {
 				this.valid = false;
 				return;
 			}
