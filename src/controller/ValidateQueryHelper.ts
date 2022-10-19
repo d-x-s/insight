@@ -121,6 +121,25 @@ export default class ValidateQueryHelper {
 		}
 
 		queryLogicArray.forEach((element: any) => {
+
+			// detect objects that have multiple keys
+			// the array should ONLY consist of objects with single keys
+			// specifically, this is invalid
+			// "AND": [
+			// 	{
+			// 	  "IS": {
+			// 		"sections_title": "intr soc welfare"
+			// 	  },
+			// 	  "GT": {
+			// 		"sections_pass": 2
+			// 	  }
+			// 	}
+			//   ]
+			let keys = Object.keys(element);
+			if (keys.length !== 1) {
+				this.valid = false;
+				return;
+			}
 			this.validateFilter(element, id);
 		});
 	}
