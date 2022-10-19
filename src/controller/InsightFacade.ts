@@ -65,7 +65,7 @@ export default class InsightFacade implements IInsightFacade {
 					return new InsightError("ERROR: InsightError caught ");
 				}
 				if (value.length === 0) {
-					return new InsightError("ERROR: empty directory");
+					reject(new InsightError("ERROR: empty directory"));
 				}
 				Promise.all(value).then((results) => {
 					let pushDataset: any = [];

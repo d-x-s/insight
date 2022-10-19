@@ -229,6 +229,7 @@ describe("InsightFacade", function () {
 				await insightFacade.addDataset("empty-id", empty, InsightDatasetKind.Sections);
 				expect.fail("test failed, error should have been thrown");
 			} catch(error: any) {
+				console.log("error", error);
 				expect(error).to.be.an.instanceof(InsightError);
 			};
 		});
