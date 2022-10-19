@@ -16,6 +16,8 @@ import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
 import * as fs from "fs";
 import path from "path";
 import {IdValidator} from "./IdValidator";
+import {Persistence} from "./Persistence";
+import {SectionConverter} from "./SectionConverter";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -27,12 +29,17 @@ export default class InsightFacade implements IInsightFacade {
 	public internalModel: Map<string, Dataset>;
 	public fileDirectory: string;
 	public idChecker: IdValidator;
+	public persistenceVerification: Persistence;
+	public sectionConverter: SectionConverter;
 
 	constructor() {
 		this.fileDirectory = __dirname + "/../../data";
 		Utility.log("initialize InsightFacade", "trace");
 		this.internalModel = new Map();
 		this.idChecker = new IdValidator();
+		this.persistenceVerification = new Persistence();
+		this.sectionConverter = new SectionConverter();
+		this.persistenceVerification.loadExistingData(this.internalModel);
 	}
 
 	private loadAsyncHelper(file: JSZip, dataToPush: Array<Promise<string>>): any {
@@ -73,7 +80,7 @@ export default class InsightFacade implements IInsightFacade {
 						results.forEach((v) => {
 							let dataFromJSON = JSON.parse(v)["result"];
 							dataFromJSON.forEach((x: any) => {
-								let y = this.convertToSectionFormat(x);
+								let y = this.sectionConverter.convertToSectionFormat(x);
 								pushDataset.push(y);
 							});
 						});
@@ -102,25 +109,6 @@ export default class InsightFacade implements IInsightFacade {
 					reject(new InsightError("Failed to parse" + err));
 				});
 		});
-	}
-
-	private convertToSectionFormat(x: any) {
-		let newSection = {} as SectionsData;
-		newSection.audit = x["Audit"];
-		newSection.avg = x["Avg"];
-		newSection.dept = x["Subject"];
-		newSection.fail = x["Fail"];
-		newSection.id = x["Course"];
-		newSection.instructor = x["Professor"];
-		newSection.pass = x["Pass"];
-		newSection.title = x["Title"];
-		newSection.uuid = String(x["id"]);
-		if (x["Section"] === "overall") {
-			newSection.year = 1900;
-		} else {
-			newSection.year = Number(x["Year"]);
-		}
-		return newSection;
 	}
 
 	/*
