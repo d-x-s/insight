@@ -200,11 +200,11 @@ export default class PerformQueryHelper {
 
 		} else if (sString.startsWith("*")) {
 			let sStringTrim = sString.substring(1, sString.length);
-			return sectionString.includes(sStringTrim);
+			return sectionString.endsWith(sStringTrim);
 
 		} else if (sString.endsWith("*")) {
 			let sStringTrim = sString.substring(0, sString.length - 1);
-			return sectionString.includes(sStringTrim);
+			return sectionString.startsWith(sStringTrim);
 
 		} else {
 			// console.log("sectionString and ssString arebeing evaluated");
