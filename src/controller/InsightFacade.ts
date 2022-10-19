@@ -39,7 +39,7 @@ export default class InsightFacade implements IInsightFacade {
 		this.idChecker = new IdValidator();
 		this.persistenceVerification = new Persistence();
 		this.sectionConverter = new SectionConverter();
-		this.persistenceVerification.loadExistingData(this.internalModel);
+		// this.persistenceVerification.loadExistingData(this.internalModel);
 	}
 
 	private loadAsyncHelper(file: JSZip, dataToPush: Array<Promise<string>>): any {

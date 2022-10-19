@@ -15,7 +15,8 @@ export class Persistence {
 			console.log("length", this.fileDirectory.length);
 			try {
 				fs.readdir(this.fileDirectory, function (err, files) {
-					files.forEach(function (file) {
+					for (let file in files) {
+						// files.forEach(function (file) {
 						let results = fs.readFileSync(file);
 						let idToAdd: string = "";
 
@@ -35,7 +36,7 @@ export class Persistence {
 						} catch {
 							return new InsightError("ERROR: could not parse JSON (invalid)");
 						}
-					});
+					}
 				});
 			} catch {
 				return new InsightError("ERROR: could not read directory");
