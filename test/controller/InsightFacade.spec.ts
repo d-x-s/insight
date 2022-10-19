@@ -142,12 +142,10 @@ describe("InsightFacade", function () {
 				const result1 = await insightFacade.addDataset("id-1", courses, InsightDatasetKind.Sections);
 				expect(result1).to.be.an.instanceOf(Array);
 				expect(result1).to.have.length(1);
-				console.log("first done");
 
 				const result2 = await insightFacade.addDataset("id-2", courses, InsightDatasetKind.Sections);
 				expect(result2).to.be.an.instanceOf(Array);
 				expect(result2).to.have.length(2);
-				console.log("second done");
 			} catch(error: any) {
 				expect.fail("test failed, no error should have been thrown");
 			};
