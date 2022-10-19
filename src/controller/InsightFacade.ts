@@ -3,7 +3,7 @@ import {
 	InsightDataset,
 	InsightDatasetKind,
 	InsightError,
-	InsightResult,
+	InsightResult, NotFoundError,
 	ResultTooLargeError,
 } from "./IInsightFacade";
 import Utility from "../Utility";
@@ -13,6 +13,9 @@ import {Dataset} from "./Dataset";
 import {SectionsData} from "./SectionsData";
 import PerformQueryHelper from "./PerformQueryHelper";
 import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
+import * as fs from "fs";
+import path from "path";
+import {IdValidator} from "./IdValidator";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -22,39 +25,33 @@ import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
 export default class InsightFacade implements IInsightFacade {
 	// locally instantiated model containing Datasets
 	public internalModel: Map<string, Dataset>;
+	public fileDirectory: string;
+	public idChecker: IdValidator;
 
 	constructor() {
+		this.fileDirectory = __dirname + "/../../data";
 		Utility.log("initialize InsightFacade", "trace");
 		this.internalModel = new Map();
+		this.idChecker = new IdValidator();
 	}
 
-	// HELPER: check if id is valid
-	public checkId(idToVerify: string): boolean {
-		// check to see if idToVerify is a string
-		// typeof is safer: https://stackoverflow.com/questions/2703102/typeof-undefined-vs-null
-		if (idToVerify === null || typeof idToVerify === "undefined") {
-			return false;
+	private loadAsyncHelper(file: JSZip, dataToPush: Array<Promise<string>>): any {
+		let fileFolder = file.folder("courses");
+		if (fileFolder == null || fileFolder === undefined) {
+			return new InsightError("ERROR: null file folder, could not load");
 		}
-
-		// check to see if there are any underscores
-		if (idToVerify.includes("_")) {
-			return false;
-		}
-
-		// check to see if the whole string is only white spaces
-		return idToVerify.trim().length !== 0;
-	}
-
-	// HELPER: check if content is valid
-	public checkContent(contentToVerify: string): boolean {
-		return !(contentToVerify === null || typeof contentToVerify === "undefined");
-	}
-
-	// HELPER: check if kind is valid
-	// Note: for C1, we are only accepting Sections and not Rooms
-	public checkKind(kindToVerify: InsightDatasetKind): boolean {
-		return kindToVerify === InsightDatasetKind.Sections;
-	}
+		fileFolder.forEach((course) => {
+			if (fileFolder == null || fileFolder === undefined) {
+				return new InsightError("ERROR: null file folder, could not load");
+			}
+			let currCourse = fileFolder.file(course);
+			if (currCourse == null) {
+				return new InsightError("ERROR: current course being added is null");
+			}
+			dataToPush.push(currCourse.async("text"));
+		});
+		return dataToPush;
+	};
 
 	// HELPER: Called by addDataset to handle parsing and adding dataset to model
 	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -62,42 +59,29 @@ export default class InsightFacade implements IInsightFacade {
 		return new Promise<string[]>((resolve, reject) => {
 			let dataToProcess: Array<Promise<string>> = [];
 			zipped.loadAsync(content, {base64: true}).then((file) => {
-				let fileFolder = file.folder("courses");
-				if (fileFolder == null || fileFolder === undefined) {
-					return new InsightError("ERROR: null file folder, could not load");
-				}
-				fileFolder.forEach((course) => {
-					if (fileFolder == null || fileFolder === undefined) {
-						return new InsightError("ERROR: null file folder, could not load");
-					}
-					let currCourse = fileFolder.file(course);
-					if (currCourse == null) {
-						return new InsightError("ERROR: current course being added is null");
-					}
-					dataToProcess.push(currCourse.async("text"));
-				});
-				return dataToProcess;
+				return this.loadAsyncHelper(file, dataToProcess);
 			}).then((value: Array<Promise<string>> | InsightError) => {
 				if (value instanceof InsightError) {
 					return new InsightError("ERROR: InsightError caught ");
 				}
+				if (value.length === 0) {
+					return new InsightError("ERROR: empty directory");
+				}
 				Promise.all(value).then((results) => {
 					let pushDataset: any = [];
-					results.forEach((v) => {
-						// let data = JSON.parse(v);
-						let dataFromJSON = JSON.parse(v)["result"];
-								// console.log(dataFromJSON);
-						dataFromJSON.forEach((x: any) => {
-									// console.log(x);
-							let y = this.convertToSectionFormat(x);
-							pushDataset.push(y);
+					try {
+						results.forEach((v) => {
+							let dataFromJSON = JSON.parse(v)["result"];
+							dataFromJSON.forEach((x: any) => {
+								let y = this.convertToSectionFormat(x);
+								pushDataset.push(y);
+							});
 						});
-					});
-		     			// console.log(pushDataset);
-							// console.log(pushDataset);
+					} catch {
+						return new InsightError("ERROR: could not parse JSON (invalid)");
+					}
 					return pushDataset;
 				}).then((pushDataset) => {
-							// console.log(pushDataset);
 					let newDataset: Dataset = {
 						id: id,
 						sectionData: pushDataset,
@@ -105,6 +89,12 @@ export default class InsightFacade implements IInsightFacade {
 					};
 					this.internalModel.set(id, newDataset);
 					let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+					let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
+					fs.writeFile(datasetFile, content, "base64", (err) => {
+						if (err) {
+							return new InsightError("ERROR: could not write to file");
+						}
+					});
 					resolve(updateKeysAfterAdd);
 				});
 			})
@@ -147,17 +137,17 @@ export default class InsightFacade implements IInsightFacade {
 	 * */
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		// check param @id for validity
-		if (!this.checkId(id)) {
+		if (!this.idChecker.checkId(id)) {
 			return Promise.reject(new InsightError("Error in addDataset: id is invalid"));
 		}
 
 		// check param @content for validity
-		if (!this.checkContent(content)) {
+		if (!this.idChecker.checkContent(content)) {
 			return Promise.reject(new InsightError("Error in addDataset: content is invalid"));
 		}
 
 		// check param @kind for validity
-		if (!this.checkKind(kind)) {
+		if (!this.idChecker.checkKind(kind)) {
 			return Promise.reject(new InsightError("Error in addDataset: kind is invalid"));
 		}
 
@@ -167,8 +157,11 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Error in addDataset: " + id + " already exists among datasets"));
 		}
 
-		// temporary
-		// return Promise.reject(new InsightError("Not implemented"));
+		// check if @id exists in disk
+		if (this.idChecker.checkIfExistsOnDisk(id)) {
+			return Promise.reject(new InsightError("Error in addDataset: file exists on disk"));
+		}
+
 		// Assuming all inputs are valid, we can push this to the internal model.
 		return Promise.resolve(this.addDatasetToModel(id, content, kind));
 	}
@@ -183,15 +176,25 @@ export default class InsightFacade implements IInsightFacade {
 	public removeDataset(id: string): Promise<string> {
 		return new Promise<string>((resolve, reject) => {
 			// check param @id for validity (EBNF standards) and whitespace verification
-			if (!this.checkId(id)) {
+			if (!this.idChecker.checkId(id)) {
 				reject(new InsightError("Error in addDataset: id is invalid"));
 			}
 			// check for nonexistent id
 			if (!this.internalModel.has(id)) {
-				reject(new InsightError("This id does not exist in our dataset"));
+				reject(new NotFoundError("This id does not exist in our dataset"));
 			}
-			this.internalModel.delete(id);
-			resolve(id);
+			let fileToDelete = path.join(this.fileDirectory, "/" + id + ".zip");
+			fs.unlink(fileToDelete, (err) => {
+				if (err) {
+					return new InsightError("Could not delete file successfully");
+				}
+			});
+			try {
+				this.internalModel.delete(id);
+				return resolve(id);
+			} catch {
+				return new InsightError("error deleting");
+			}
 		});
 	}
 
@@ -214,7 +217,6 @@ export default class InsightFacade implements IInsightFacade {
 			if (id === "") {
 				return reject(new InsightError("performQuery::Invalid query::L221"));
 			}
-			console.log("The id is:" + id);
 
 			let keys = Array.from(this.internalModel.keys());
 			if (!keys.includes(id)) {
@@ -255,7 +257,6 @@ export default class InsightFacade implements IInsightFacade {
 				if (!id || !data) {
 					reject(new InsightError("invalid id or data in set"));
 				}
-				console.log(data.sectionData.length);
 				let currInsightDataset: InsightDataset = {
 					id: id,
 					kind: InsightDatasetKind.Sections,
