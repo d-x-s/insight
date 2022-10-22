@@ -1,5 +1,3 @@
-import Utility from "../Utility";
-
 export default class ValidateQueryHelper {
 	protected valid: boolean;
 	protected QKEYS = ["OPTIONS", "WHERE"];
@@ -71,7 +69,7 @@ export default class ValidateQueryHelper {
 			this.validateFilter(query["WHERE"], id);
 			this.validateOptions(query["OPTIONS"], id);
 		} catch (error) {
-			Utility.log("isQueryValid::validateQuery::error caught", "error");
+			console.log("error: " + error + " caught in validateQuery");
 		}
 	}
 
@@ -121,20 +119,6 @@ export default class ValidateQueryHelper {
 		}
 
 		queryLogicArray.forEach((element: any) => {
-
-			// detect objects that have multiple keys
-			// the array should ONLY consist of objects with single keys
-			// specifically, this is invalid
-			// "AND": [
-			// 	{
-			// 	  "IS": {
-			// 		"sections_title": "intr soc welfare"
-			// 	  },
-			// 	  "GT": {
-			// 		"sections_pass": 2
-			// 	  }
-			// 	}
-			//   ]
 			let keys = Object.keys(element);
 			if (keys.length !== 1) {
 				this.valid = false;
