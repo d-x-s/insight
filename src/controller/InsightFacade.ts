@@ -16,7 +16,6 @@ import {IdValidator} from "./IdValidator";
 import JSZip from "jszip";
 import * as fs from "fs";
 import path from "path";
-import {IdValidator} from "./IdValidator";
 import RoomsHelper from "./RoomsHelper";
 
 
@@ -55,6 +54,42 @@ export default class InsightFacade implements IInsightFacade {
 		return dataToPush;
 	};
 
+	// HELPER: parse passed in JSON file and convert into SectionData
+	private parseJSON(arrayOfPromiseAllResults: string[]): any {
+		let convertedSections: any = [];
+		try {
+			arrayOfPromiseAllResults.forEach((jsonPromise) => {
+				let arrayOfSections = JSON.parse(jsonPromise)["result"];
+				arrayOfSections.forEach((section: any) => {
+					let mappedSection = this.mapToSectionDataFormat(section);
+					convertedSections.push(mappedSection);
+				});
+			});
+		} catch {
+			return new InsightError("InsightError: could not parse JSON (invalid)");
+		}
+		return convertedSections;
+	}
+
+	// HELPER: Sets data to internal model and to disk
+	private setDataToModelAndDisk(id: string, convertedSections: SectionsData[],
+								  kind: InsightDatasetKind, content: string): Promise<string[]> {
+		let newDataset: Dataset = {
+			id: id,
+			sectionData: convertedSections,
+			kind: kind,
+		};
+		this.internalModel.set(id, newDataset);
+		let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+		let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
+		fs.writeFile(datasetFile, content, "base64", (err) => {
+			if (err) {
+				 return Promise.reject(new InsightError("InsightError: could not write to file"));
+			}
+		});
+		return Promise.resolve(updateKeysAfterAdd);
+	}
+
 	// HELPER: Called by addDataset to handle parsing and adding dataset to model
 	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		let zipped: JSZip = new JSZip();
@@ -70,34 +105,9 @@ export default class InsightFacade implements IInsightFacade {
 					reject(new InsightError("InsightError: empty directory"));
 				}
 				Promise.all(value).then((arrayOfPromiseAllResults) => {
-					let convertedSections: any = [];
-					try {
-						arrayOfPromiseAllResults.forEach((jsonPromise) => {
-							let arrayOfSections = JSON.parse(jsonPromise)["result"];
-							arrayOfSections.forEach((section: any) => {
-								let mappedSection = this.mapToSectionDataFormat(section);
-								convertedSections.push(mappedSection);
-							});
-						});
-					} catch {
-						return new InsightError("InsightError: could not parse JSON (invalid)");
-					}
-					return convertedSections;
+					return this.parseJSON(arrayOfPromiseAllResults);
 				}).then((convertedSections) => {
-					let newDataset: Dataset = {
-						id: id,
-						sectionData: convertedSections,
-						kind: kind,
-					};
-					this.internalModel.set(id, newDataset);
-					let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
-					let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
-					fs.writeFile(datasetFile, content, "base64", (err) => {
-						if (err) {
-							return new InsightError("InsightError: could not write to file");
-						}
-					});
-					resolve(updateKeysAfterAdd);
+					return this.setDataToModelAndDisk(id, convertedSections, kind, content);
 				});
 			})
 				.catch((err) => {
@@ -145,7 +155,7 @@ export default class InsightFacade implements IInsightFacade {
 		if (!this.idChecker.checkContent(content)) {
 			return Promise.reject(new InsightError("InsightError: content is invalid"));
 		}
-    
+
 		// // check param @kind for validity
 		// if (!this.idChecker.checkKind(kind)) {
 		// 	return Promise.reject(new InsightError("Error in addDataset: kind is invalid"));
