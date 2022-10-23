@@ -5,7 +5,7 @@ import {RoomsData} from "./RoomsData";
 export interface Rooms {
 
 	"id": string;
-	"sectionData": RoomsData[];
+	"roomsData": RoomsData[];
 	"kind": InsightDatasetKind;
 
 }
