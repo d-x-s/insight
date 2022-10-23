@@ -31,11 +31,11 @@ export class IdValidator {
 		return !(contentToVerify === null || typeof contentToVerify === "undefined");
 	}
 
-	// HELPER: check if kind is valid
-	// Note: for C1, we are only accepting Sections and not Rooms
-	public checkKind(kindToVerify: InsightDatasetKind): boolean {
-		return kindToVerify === InsightDatasetKind.Sections;
-	}
+	// // HELPER: check if kind is valid
+	// // Note: for C1, we are only accepting Sections and not Rooms
+	// public checkKind(kindToVerify: InsightDatasetKind): boolean {
+	// 	return kindToVerify === InsightDatasetKind.Sections;
+	// }
 
 	// HELPER: check if id exists on disk
 	public checkIfExistsOnDisk(idToCheck: string) {
