@@ -1,6 +1,4 @@
-import Utility from "../Utility";
 import {Dataset} from "./Dataset";
-import {InsightError, InsightResult} from "./IInsightFacade";
 import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
 import {SectionsData} from "./SectionsData";
 
@@ -9,17 +7,14 @@ export default class PerformQueryHelper {
 	protected options: PerformQueryOptionsHelper;
 
 	constructor() {
-		Utility.log("initializing PerformQueryHelper", "trace");
 		this.options = new PerformQueryOptionsHelper();
 	}
 
 	public processQuery(query: any, dataset: Dataset | undefined): any[] {
 		if (dataset === undefined) {
-			console.log("processQuery::the dataset being on is undefined");
-			throw Error("The dataset being queried on is undefined");
+			throw Error("the dataset being queried on is undefined");
 		}
 		if(Object.keys(query["WHERE"]).length === 0) {
-			console.log("processQuery::where is empty");
 			return this.options.processOptions(query, dataset.sectionData);
 		}
 		this.kind = dataset.kind;
@@ -31,14 +26,9 @@ export default class PerformQueryHelper {
 	// if it is valid, return true and keep it in the list
 	// otherwise filter it out
 	private filterQuery(query: any, sections: SectionsData[], kind: any): any[] {
-		// console.log("filterQuery:: is being run");
-		let trueCount = 0;
 		return sections.filter((section) => {
-			// console.log(this.where(query, section, kind)); everything output to true?
-			trueCount++;
 			return this.where(query, section, kind);
 		});
-		console.log(trueCount);
 	}
 
 	private where(query: any, section: SectionsData, kind: any): boolean {
@@ -54,15 +44,11 @@ export default class PerformQueryHelper {
 			case "EQ":
 				return this.mComparator(query, section, kind, key);
 			case "IS":
-				// console.log("the value of sCompartoar is: " + this.sComparator(query, section, kind, key));
-				// console.log(key);
-				// console.log(query);
 				return this.sComparator(query, section, kind, key);
 			case "NOT":
 				return this.not(query, section, kind);
 			default:
-				console.log("where::switch case error thrown");
-				throw new Error("Malformed operator key name");
+				throw new Error("invalid where key: " +  key + " encountered");
 		}
 	}
 
@@ -114,25 +100,8 @@ export default class PerformQueryHelper {
 		} else if (mField === "year") {
 			sectionNumber = section.year;
 		} else {
-			// console.log(mField);
-			console.log("mComparator:: this line should not be run");
+			throw new Error("invalid mField: " +  mField + " encountered");
 		}
-
-		// switch (mField) {
-		// 	case "avg":
-		// 		sectionNumber = section.avg;
-		// 	case "pass":
-		// 		sectionNumber = section.pass;
-		// 	case "fail":
-		// 		sectionNumber = section.fail;
-		// 	case "audit":
-		// 		sectionNumber = section.audit;
-		// 	case "year":
-		// 		sectionNumber = section.year;
-		// }
-		// console.log(section);
-		// console.log(sectionNumber);
-		// console.log(mNumber);
 
 		switch (comparator) {
 			case "GT":
@@ -142,7 +111,7 @@ export default class PerformQueryHelper {
 			case "EQ":
 				return sectionNumber === mNumber;
 			default:
-				throw new InsightError("mComparator::invalid comparator");
+				throw new Error("invalid mComparator: " + comparator + " encountered");
 		}
 	}
 
@@ -155,9 +124,6 @@ export default class PerformQueryHelper {
 		let sString = sPair[sKey];
 		let sField = sKey.split("_")[1];
 		let sectionString = "";
-		// console.log(sPair, sKey, sString, sField, sectionString);
-
-		// console.log("sComparator is being reached");
 
 		if (sField === "dept") {
 			sectionString = section.dept;
@@ -170,44 +136,21 @@ export default class PerformQueryHelper {
 		} else if (sField === "uuid") {
 			sectionString = section.uuid;
 		} else {
-			// console.log(sField);
-			console.log(query, sPair, sKey, sString, sField, sectionString);
-			console.log("sComparator:: this line should not be run");
+			throw new Error("invalid SField: " + sField + " encountered");
 		}
-
-		// switch (sField) {
-		// 	case "dept":
-		// 		sectionString = section.dept;
-		// 	case "id":
-		// 		sectionString = section.id;
-		// 	case "instructor":
-		// 		sectionString = section.instructor;
-		// 	case "title":
-		// 		sectionString = section.title;
-		// 	case "uuid":
-		// 		sectionString = section.uuid;
-		// }
-
-		// console.log(sPair, sKey, sString, sField, sectionString, section);
-		// return sectionString === sString;
 
 		if (sString === "*" || sString === "**") {
 			return true;
-
 		} else if (sString.startsWith("*") && sString.endsWith("*")) {
 			let sStringTrim = sString.substring(1, sString.length - 1);
 			return sectionString.includes(sStringTrim);
-
 		} else if (sString.startsWith("*")) {
 			let sStringTrim = sString.substring(1, sString.length);
 			return sectionString.endsWith(sStringTrim);
-
 		} else if (sString.endsWith("*")) {
 			let sStringTrim = sString.substring(0, sString.length - 1);
 			return sectionString.startsWith(sStringTrim);
-
 		} else {
-			// console.log("sectionString and ssString arebeing evaluated");
 			return sectionString === sString;
 		}
 	}

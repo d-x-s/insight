@@ -1,12 +1,7 @@
-import Utility from "../Utility";
 import {InsightResult} from "./IInsightFacade";
 
 export default class PerformQueryOptionsHelper {
 	protected kind: any;
-
-	constructor() {
-		Utility.log("initializing PerformQueryOptionsHelper", "trace");
-	}
 
 	public processOptions(query: any, rawResult: any[]): any[] {
 		let options = query["OPTIONS"];

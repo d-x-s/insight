@@ -22,7 +22,6 @@ describe("InsightFacade", function () {
 	// automatically be loaded in the 'before' hook.
 	const datasetsToLoad: {[key: string]: string} = {
 		sections: "./test/resources/archives/pair.zip",
-		// davis zips
 		dsCourses: "./test/resources/archives/dscourses.zip",
 		dsCoursesTypo: "./test/resources/archives/dscoursesTypo.zip",
 		dsEmpty: "./test/resources/archives/dsempty.zip",
@@ -33,7 +32,6 @@ describe("InsightFacade", function () {
 		dsPicture: "./test/resources/archives/dspicture.zip",
 		dsPythonFiles: "./test/resources/archives/dspythonFiles.zip",
 		dsSkipOverInvalid: "./test/resources/archives/dsskipOverInvalid.zip",
-		// wesley zips
 	};
 
 	before(function () {
@@ -470,7 +468,7 @@ describe("InsightFacade", function () {
 		folderTest<unknown, Promise<InsightResult[]>, PQErrorKind>(
 			"Dynamic InsightFacade PerformQuery tests",
 			(input) => insightFacade.performQuery(input),
-			"./test/resources/queries",
+			"./test/resources/query-d",
 			{assertOnResult: assertResult,
 				assertOnError: (actual, expected) => {
 					if (expected === "ResultTooLargeError") {

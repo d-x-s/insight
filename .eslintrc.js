@@ -12,14 +12,14 @@ module.exports = {
 	"plugins": [
 		"@typescript-eslint",
 		"jsdoc",
-		"import",
+		"import"
 	],
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
 		"plugin:import/recommended",
 		"plugin:import/typescript",
-		"prettier",
+		"prettier"
 	],
 	"overrides": [
 		{
@@ -27,7 +27,8 @@ module.exports = {
 			"rules": {
 				"max-lines": "off",
 				"max-lines-per-function": "off",
-				"no-unused-expressions": "off"
+				"no-unused-expressions": "off",
+				"max-nested-callbacks": "off"
 			}
 		}
 	],
@@ -42,7 +43,7 @@ module.exports = {
 					"Boolean": "Avoid using the `Boolean` type. Did you mean `boolean`?",
 					"Number": "Avoid using the `Number` type. Did you mean `number`?",
 					"String": "Avoid using the `String` type. Did you mean `string`?",
-					"Symbol": "Avoid using the `Symbol` type. Did you mean `symbol`?",
+					"Symbol": "Avoid using the `Symbol` type. Did you mean `symbol`?"
 				}
 			}
 		],
@@ -52,7 +53,7 @@ module.exports = {
 		"@typescript-eslint/naming-convention": [
 			"error",
 			{"selector": "typeLike", "format": ["PascalCase"]},
-			{"selector": "variable", "format": ['camelCase', "PascalCase", "UPPER_CASE"]}
+			{"selector": "variable", "format": ["camelCase", "PascalCase", "UPPER_CASE"]}
 		],
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/no-inferrable-types": "off",
@@ -111,5 +112,8 @@ module.exports = {
 		"jsdoc/check-indentation": 2,
 		"jsdoc/require-asterisk-prefix": 2,
 		"jsdoc/no-bad-blocks": 2,
+		"lines-between-class-members": ["error", "always", {"exceptAfterSingleLine": true}],
+		"max-nested-callbacks": ["error", 2],
+		"max-statements-per-line": "error"
 	}
-};
+}

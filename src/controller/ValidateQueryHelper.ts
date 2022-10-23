@@ -1,5 +1,3 @@
-import Utility from "../Utility";
-
 export default class ValidateQueryHelper {
 	protected valid: boolean;
 	protected QKEYS = ["OPTIONS", "WHERE"];
@@ -71,7 +69,7 @@ export default class ValidateQueryHelper {
 			this.validateFilter(query["WHERE"], id);
 			this.validateOptions(query["OPTIONS"], id);
 		} catch (error) {
-			Utility.log("isQueryValid::validateQuery::error caught", "error");
+			console.log("error: " + error + " caught in validateQuery");
 		}
 	}
 
@@ -217,12 +215,14 @@ export default class ValidateQueryHelper {
 			return;
 		}
 	}
+
 	private validateID(idToVerify: any, id: any) {
 		if (idToVerify.includes("_") || idToVerify.trim().length === 0 || idToVerify !== id) {
 			this.valid = false;
 			return;
 		}
 	}
+
 	private validateNegation(negation: any, id: string) {
 		if (typeof negation === "undefined" || !(negation instanceof Object) || Object.keys(negation).length !== 1) {
 			this.valid = false;
@@ -230,6 +230,7 @@ export default class ValidateQueryHelper {
 		}
 		this.validateFilter(negation, id);
 	}
+
 	private validateOptions(options: any, id: string) {
 		if (typeof options === "undefined" || typeof options !== "object") {
 			this.valid = false;
