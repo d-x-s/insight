@@ -74,20 +74,26 @@ export default class InsightFacade implements IInsightFacade {
 	// HELPER: Sets data to internal model and to disk
 	private setDataToModelAndDisk(id: string, convertedSections: SectionsData[],
 								  kind: InsightDatasetKind, content: string): Promise<string[]> {
-		let newDataset: Dataset = {
-			id: id,
-			sectionData: convertedSections,
-			kind: kind,
-		};
-		this.internalModel.set(id, newDataset);
-		let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
-		let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
-		fs.writeFile(datasetFile, content, "base64", (err) => {
-			if (err) {
-				 return Promise.reject(new InsightError("InsightError: could not write to file"));
+		return new Promise<string[]>((resolve, reject) => {
+			let newDataset: Dataset = {
+				id: id,
+				sectionData: convertedSections,
+				kind: kind,
+			};
+			this.internalModel.set(id, newDataset);
+			let updateKeysAfterAdd: string[] = Array.from(this.internalModel.keys());
+			let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
+			try {
+				fs.writeFile(datasetFile, content, "base64", (err) => {
+					if (err) {
+						reject(new InsightError("InsightError: could not write to file"));
+					}
+				});
+			} catch {
+				return new InsightError("InsightError: could not delete dataset");
 			}
+			return resolve(updateKeysAfterAdd);
 		});
-		return Promise.resolve(updateKeysAfterAdd);
 	}
 
 	// HELPER: Called by addDataset to handle parsing and adding dataset to model
@@ -107,7 +113,7 @@ export default class InsightFacade implements IInsightFacade {
 				Promise.all(value).then((arrayOfPromiseAllResults) => {
 					return this.parseJSON(arrayOfPromiseAllResults);
 				}).then((convertedSections) => {
-					return this.setDataToModelAndDisk(id, convertedSections, kind, content);
+					resolve(this.setDataToModelAndDisk(id, convertedSections, kind, content));
 				});
 			})
 				.catch((err) => {
@@ -278,5 +284,3 @@ export default class InsightFacade implements IInsightFacade {
 		});
 	}
 }
-
-
