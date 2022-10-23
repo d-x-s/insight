@@ -1,6 +1,6 @@
-import {Dataset} from "./Dataset";
+import {CourseDataset} from "../courses/CourseDataset";
 import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
-import {SectionsData} from "./SectionsData";
+import {SectionData} from "../courses/SectionData";
 
 export default class PerformQueryHelper {
 	protected kind: any;
@@ -10,28 +10,28 @@ export default class PerformQueryHelper {
 		this.options = new PerformQueryOptionsHelper();
 	}
 
-	public processQuery(query: any, dataset: Dataset | undefined): any[] {
+	public processQuery(query: any, dataset: CourseDataset | undefined): any[] {
 		if (dataset === undefined) {
 			throw Error("the dataset being queried on is undefined");
 		}
-		if(Object.keys(query["WHERE"]).length === 0) {
-			return this.options.processOptions(query, dataset.sectionData);
+		if (Object.keys(query["WHERE"]).length === 0) {
+			return this.options.processOptions(query, dataset.sectionsData);
 		}
 		this.kind = dataset.kind;
-		return this.filterQuery(query["WHERE"], dataset.sectionData, this.kind);
+		return this.filterQuery(query["WHERE"], dataset.sectionsData, this.kind);
 	}
 
 	// key idea:
 	// filter through SectionsData[], examining each individual section and seeing if it matches with the query
 	// if it is valid, return true and keep it in the list
 	// otherwise filter it out
-	private filterQuery(query: any, sections: SectionsData[], kind: any): any[] {
+	private filterQuery(query: any, sections: SectionData[], kind: any): any[] {
 		return sections.filter((section) => {
 			return this.where(query, section, kind);
 		});
 	}
 
-	private where(query: any, section: SectionsData, kind: any): boolean {
+	private where(query: any, section: SectionData, kind: any): boolean {
 		let key = Object.keys(query)[0];
 
 		switch (key) {
@@ -48,15 +48,15 @@ export default class PerformQueryHelper {
 			case "NOT":
 				return this.not(query, section, kind);
 			default:
-				throw new Error("invalid where key: " +  key + " encountered");
+				throw new Error("invalid where key: " + key + " encountered");
 		}
 	}
 
 	// if any of the sub-elements don't match the query, return false
-	private and(query: any, section: SectionsData, kind: any): boolean {
+	private and(query: any, section: SectionData, kind: any): boolean {
 		let resultAnd = true;
 		for (let element of query["AND"]) {
-			if(this.where(element, section, kind) === false) {
+			if (this.where(element, section, kind) === false) {
 				resultAnd = false;
 			}
 		}
@@ -64,10 +64,10 @@ export default class PerformQueryHelper {
 	}
 
 	// if any of the sub-elements do match the query, return true
-	private or(query: any, section: SectionsData, kind: any): boolean {
+	private or(query: any, section: SectionData, kind: any): boolean {
 		let resultOr = false;
 		for (let element of query["OR"]) {
-			if(this.where(element, section, kind) === true) {
+			if (this.where(element, section, kind) === true) {
 				resultOr = true;
 			}
 		}
@@ -75,14 +75,14 @@ export default class PerformQueryHelper {
 	}
 
 	// simply return the negated result of the check on the sub-elements
-	private not(query: any, section: SectionsData, kind: any): boolean {
+	private not(query: any, section: SectionData, kind: any): boolean {
 		return !this.where(query["NOT"], section, kind);
 	}
 
 	// MCOMPARISON ::= MCOMPARATOR ':{' mkey ':' number '}'
 	// mkey ::= idstring '_' mfield
 	// mfield ::= 'avg' | 'pass' | 'fail' | 'audit' | 'year'
-	private mComparator(query: any, section: SectionsData, kind: any, comparator: string): boolean {
+	private mComparator(query: any, section: SectionData, kind: any, comparator: string): boolean {
 		let mPair = query[comparator];
 		let mKey = Object.keys(mPair)[0];
 		let mNumber = mPair[mKey];
@@ -100,7 +100,7 @@ export default class PerformQueryHelper {
 		} else if (mField === "year") {
 			sectionNumber = section.year;
 		} else {
-			throw new Error("invalid mField: " +  mField + " encountered");
+			throw new Error("invalid mField: " + mField + " encountered");
 		}
 
 		switch (comparator) {
@@ -118,7 +118,7 @@ export default class PerformQueryHelper {
 	// SCOMPARISON ::= 'IS:{' skey ':' [*]? inputstring [*]? '}'  // Asterisks should act as wildcards.
 	// skey ::= idstring '_' sfield
 	// sfield ::=  'dept' | 'id' | 'instructor' | 'title' | 'uuid'
-	private sComparator(query: any, section: SectionsData, kind: any, comparator: string): boolean {
+	private sComparator(query: any, section: SectionData, kind: any, comparator: string): boolean {
 		let sPair = query[comparator];
 		let sKey = Object.keys(sPair)[0];
 		let sString = sPair[sKey];

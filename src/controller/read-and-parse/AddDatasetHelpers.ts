@@ -1,10 +1,9 @@
 import JSZip from "jszip";
-import {InsightDatasetKind, InsightError} from "./IInsightFacade";
-import {SectionsData} from "./SectionsData";
-import {Dataset} from "./Dataset";
+import {InsightDatasetKind, InsightError} from "../IInsightFacade";
+import {SectionData} from "../courses/SectionData";
+import {CourseDataset} from "../courses/CourseDataset";
 import path from "path";
 import fs from "fs";
-
 
 export class AddDatasetHelpers {
 	public fileDirectory: string;
@@ -30,7 +29,7 @@ export class AddDatasetHelpers {
 			dataToPush.push(currFile.async("text"));
 		});
 		return dataToPush;
-	};
+	}
 
 	// HELPER: parse passed in JSON file and convert into SectionData
 	public parseJSON(arrayOfPromiseAllResults: string[]): any {
@@ -50,13 +49,17 @@ export class AddDatasetHelpers {
 	}
 
 	// HELPER: Sets data to internal model and to disk
-	public setDataToModelAndDisk(id: string, convertedSections: SectionsData[],
-								  kind: InsightDatasetKind, content: string,
-								 model: Map<string, Dataset>): Promise<string[]> {
+	public setDataToModelAndDisk(
+		id: string,
+		convertedSections: SectionData[],
+		kind: InsightDatasetKind,
+		content: string,
+		model: Map<string, CourseDataset>
+	): Promise<string[]> {
 		return new Promise<string[]>((resolve, reject) => {
-			let newDataset: Dataset = {
+			let newDataset: CourseDataset = {
 				id: id,
-				sectionData: convertedSections,
+				sectionsData: convertedSections,
 				kind: kind,
 			};
 			model.set(id, newDataset);
@@ -77,16 +80,16 @@ export class AddDatasetHelpers {
 
 	// HELPER: Convert JSON to SectionData format
 	public mapToSectionDataFormat(rawSection: any) {
-		let newSection        = {} as SectionsData;
-		newSection.audit      = rawSection["Audit"];
-		newSection.avg        = rawSection["Avg"];
-		newSection.dept       = rawSection["Subject"];
-		newSection.fail       = rawSection["Fail"];
-		newSection.id         = rawSection["Course"];
+		let newSection = {} as SectionData;
+		newSection.audit = rawSection["Audit"];
+		newSection.avg = rawSection["Avg"];
+		newSection.dept = rawSection["Subject"];
+		newSection.fail = rawSection["Fail"];
+		newSection.id = rawSection["Course"];
 		newSection.instructor = rawSection["Professor"];
-		newSection.pass       = rawSection["Pass"];
-		newSection.title      = rawSection["Title"];
-		newSection.uuid       = String(rawSection["id"]);
+		newSection.pass = rawSection["Pass"];
+		newSection.title = rawSection["Title"];
+		newSection.uuid = String(rawSection["id"]);
 		if (rawSection["Section"] === "overall") {
 			newSection.year = 1900;
 		} else {

@@ -1,4 +1,4 @@
-import {InsightResult} from "./IInsightFacade";
+import {InsightResult} from "../IInsightFacade";
 
 export default class PerformQueryOptionsHelper {
 	protected kind: any;
@@ -8,7 +8,7 @@ export default class PerformQueryOptionsHelper {
 		let resultFiltered = this.processColumns(options["COLUMNS"], rawResult);
 
 		let optionsKeys = Object.keys(options);
-		if(optionsKeys.includes("ORDER")) {
+		if (optionsKeys.includes("ORDER")) {
 			resultFiltered = this.processOrder(options["ORDER"], resultFiltered);
 		}
 		return resultFiltered;
