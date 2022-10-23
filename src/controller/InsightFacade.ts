@@ -3,7 +3,8 @@ import {
 	InsightDataset,
 	InsightDatasetKind,
 	InsightError,
-	InsightResult, NotFoundError,
+	InsightResult,
+	NotFoundError,
 	ResultTooLargeError,
 } from "./IInsightFacade";
 import PerformQueryHelper from "./PerformQueryHelper";
@@ -15,6 +16,9 @@ import {IdValidator} from "./IdValidator";
 import JSZip from "jszip";
 import * as fs from "fs";
 import path from "path";
+import {IdValidator} from "./IdValidator";
+import RoomsHelper from "./RoomsHelper";
+
 
 /**
  * This is the main programmatic entry point for the project.
@@ -141,10 +145,11 @@ export default class InsightFacade implements IInsightFacade {
 		if (!this.idChecker.checkContent(content)) {
 			return Promise.reject(new InsightError("InsightError: content is invalid"));
 		}
-
-		if (!this.idChecker.checkKind(kind)) {
-			return Promise.reject(new InsightError("InsightError: kind is invalid"));
-		}
+    
+		// // check param @kind for validity
+		// if (!this.idChecker.checkKind(kind)) {
+		// 	return Promise.reject(new InsightError("Error in addDataset: kind is invalid"));
+		// }
 
 		let keys = Array.from(this.internalModel.keys());
 		if (keys.includes(id)) {
@@ -155,8 +160,13 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("InsightError: dataset file already exists on disk"));
 		}
 
-		// Assuming all inputs are valid, we can push this to the internal model.
-		return Promise.resolve(this.addDatasetToModel(id, content, kind));
+		if (kind === InsightDatasetKind.Sections) {
+			// Assuming all inputs are valid, we can push this to the internal model.
+			return Promise.resolve(this.addDatasetToModel(id, content, kind));
+		} else {
+			let AddRoomsHelper = new RoomsHelper();
+			return Promise.resolve(AddRoomsHelper.addRooms(id, content, kind));
+		}
 	}
 
 	/*
