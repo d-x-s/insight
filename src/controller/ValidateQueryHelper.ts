@@ -215,12 +215,14 @@ export default class ValidateQueryHelper {
 			return;
 		}
 	}
+
 	private validateID(idToVerify: any, id: any) {
 		if (idToVerify.includes("_") || idToVerify.trim().length === 0 || idToVerify !== id) {
 			this.valid = false;
 			return;
 		}
 	}
+
 	private validateNegation(negation: any, id: string) {
 		if (typeof negation === "undefined" || !(negation instanceof Object) || Object.keys(negation).length !== 1) {
 			this.valid = false;
@@ -228,6 +230,7 @@ export default class ValidateQueryHelper {
 		}
 		this.validateFilter(negation, id);
 	}
+
 	private validateOptions(options: any, id: string) {
 		if (typeof options === "undefined" || typeof options !== "object") {
 			this.valid = false;
