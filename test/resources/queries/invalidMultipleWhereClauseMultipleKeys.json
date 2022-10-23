@@ -1,0 +1,22 @@
+{
+	"title": "invalidMultipleWhereClauseMultipleKeys",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			},
+			"LT": {
+				"sections_avg": 98
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
