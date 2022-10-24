@@ -7,18 +7,16 @@ import {
 	NotFoundError,
 	ResultTooLargeError,
 } from "./IInsightFacade";
-import PerformQueryHelper from "./PerformQueryHelper";
-import ValidateQueryHelper from "./ValidateQueryHelper";
-import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
-import {Dataset} from "./Dataset";
-import {SectionsData} from "./SectionsData";
-import {IdValidator} from "./IdValidator";
+import PerformQueryHelper from "./query/PerformQueryHelper";
+import ValidateQueryHelper from "./query/ValidateQueryHelper";
+import PerformQueryOptionsHelper from "./query/PerformQueryOptionsHelper";
+import {CourseDataset} from "./courses/CourseDataset";
+import RoomsHelper from "./rooms/RoomsHelper";
+import {IdValidator} from "./read-and-parse/IdValidator";
+import {AddDatasetHelpers} from "./read-and-parse/AddDatasetHelpers";
 import JSZip from "jszip";
 import * as fs from "fs";
 import path from "path";
-import RoomsHelper from "./RoomsHelper";
-import {AddDatasetHelpers} from "./AddDatasetHelpers";
-
 
 /**
  * This is the main programmatic entry point for the project.
@@ -26,7 +24,7 @@ import {AddDatasetHelpers} from "./AddDatasetHelpers";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	public internalModel: Map<string, Dataset>;
+	public internalModel: Map<string, CourseDataset>;
 	public fileDirectory: string;
 	public idChecker: IdValidator;
 	public addDatasetHelpers: AddDatasetHelpers;
@@ -43,22 +41,34 @@ export default class InsightFacade implements IInsightFacade {
 		let zipped: JSZip = new JSZip();
 		return new Promise<string[]>((resolve, reject) => {
 			let dataToProcess: Array<Promise<string>> = [];
-			zipped.loadAsync(content, {base64: true}).then((loadedZipFile) => {
-				return this.addDatasetHelpers.loadAsyncHelper(loadedZipFile, dataToProcess);
-			}).then((value: Array<Promise<string>> | InsightError) => {
-				if (value instanceof InsightError) {
-					return value;
-				}
-				if (value.length === 0) {
-					reject(new InsightError("InsightError: empty directory"));
-				}
-				Promise.all(value).then((arrayOfPromiseAllResults) => {
-					return this.addDatasetHelpers.parseJSON(arrayOfPromiseAllResults);
-				}).then((convertedSections) => {
-					resolve(this.addDatasetHelpers.setDataToModelAndDisk(id,
-						convertedSections, kind, content, this.internalModel));
-				});
-			})
+			zipped
+				.loadAsync(content, {base64: true})
+				.then((loadedZipFile) => {
+					return this.addDatasetHelpers.loadAsyncHelper(loadedZipFile, dataToProcess);
+				})
+				.then((value: Array<Promise<string>> | InsightError) => {
+					if (value instanceof InsightError) {
+						return value;
+					}
+					if (value.length === 0) {
+						reject(new InsightError("InsightError: empty directory"));
+					}
+					Promise.all(value)
+						.then((arrayOfPromiseAllResults) => {
+							return this.addDatasetHelpers.parseJSON(arrayOfPromiseAllResults);
+						})
+						.then((convertedSections) => {
+							resolve(
+								this.addDatasetHelpers.setDataToModelAndDisk(
+									id,
+									convertedSections,
+									kind,
+									content,
+									this.internalModel
+								)
+							);
+						});
+				})
 				.catch((err) => {
 					reject(new InsightError("InsightError: failed to parse" + err));
 				});
@@ -149,13 +159,15 @@ export default class InsightFacade implements IInsightFacade {
     */
 	public performQuery(query: unknown): Promise<InsightResult[]> {
 		return new Promise((resolve, reject) => {
-			let validator = new ValidateQueryHelper();
-			let performer = new PerformQueryHelper();
-			let options = new PerformQueryOptionsHelper();
+			let queryValidator = new ValidateQueryHelper();
+			let queryEngine = new PerformQueryHelper();
+			let optionsFilter = new PerformQueryOptionsHelper();
+			let id = "";
 
-			let id = validator.extractDatasetID(query); // the id of the dataset you are querying upon is determined by the first key of OPTIONS
-			if (id === "") {
-				return reject(new InsightError("InsightError: malformed id in dataset being queried"));
+			try {
+				id = queryValidator.extractDatasetID(query); // the id of the dataset you are querying upon is determined by the first key of OPTIONS
+			} catch (err) {
+				return reject(new InsightError(`InsightError: failing to extract id because ${err}`));
 			}
 
 			let keys = Array.from(this.internalModel.keys());
@@ -163,15 +175,15 @@ export default class InsightFacade implements IInsightFacade {
 				return reject(new InsightError(`InsightError: referenced dataset with id: ${id} not yet added yet`));
 			}
 
-			validator.validateQuery(query, id);
-			if (!validator.getValid()) {
+			queryValidator.validateQuery(query, id);
+			if (!queryValidator.getValid()) {
 				return reject(new InsightError("InsightError: query is not valid"));
 			}
 
 			let result: any[];
 			try {
-				result = performer.processQuery(query, this.internalModel.get(id));
-				result = options.processOptions(query, result);
+				result = queryEngine.processQuery(query, this.internalModel.get(id));
+				result = optionsFilter.processOptions(query, result);
 			} catch (err) {
 				return reject(new InsightError("InsightError: unexpected behavior while performing query: " + err));
 			}
@@ -200,7 +212,7 @@ export default class InsightFacade implements IInsightFacade {
 				let currInsightDataset: InsightDataset = {
 					id: id,
 					kind: InsightDatasetKind.Sections,
-					numRows: data.sectionData.length
+					numRows: data.sectionsData.length,
 				};
 				listDatasetsFromLocal.push(currInsightDataset);
 			});

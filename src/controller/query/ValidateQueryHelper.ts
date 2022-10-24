@@ -20,17 +20,17 @@ export default class ValidateQueryHelper {
 	 */
 	public extractDatasetID(query: any): string {
 		if (query === null || query === "undefined" || !(query instanceof Object)) {
-			return "";
+			throw new Error("query is null, undefined, or not an object");
 		}
 
 		let keys = Object.keys(query);
 		if (!keys.includes("OPTIONS")) {
-			return "";
+			throw new Error("OPTIONS clause is missing from query");
 		}
 
 		let optionsKeys = Object.keys(query["OPTIONS"]);
 		if (!optionsKeys.includes("COLUMNS")) {
-			return "";
+			throw new Error("COLUMNS clause is missing from query");
 		}
 
 		let columnsValue = query["OPTIONS"]["COLUMNS"];
@@ -40,7 +40,7 @@ export default class ValidateQueryHelper {
 			typeof columnsValue === "undefined" ||
 			typeof columnsValue !== "object"
 		) {
-			return "";
+			throw new Error("the value of COLUMNS is not an array, is empty, undefined, or not an object");
 		}
 		return columnsValue[0].split("_")[0];
 	}

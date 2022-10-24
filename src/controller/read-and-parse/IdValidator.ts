@@ -1,9 +1,8 @@
-import {InsightDatasetKind} from "./IInsightFacade";
+import {InsightDatasetKind} from "../IInsightFacade";
 import path from "path";
 import fs from "fs";
 
 export class IdValidator {
-
 	public fileDirectory: string;
 	constructor() {
 		this.fileDirectory = __dirname + "/../../data";
@@ -46,5 +45,4 @@ export class IdValidator {
 			return false;
 		}
 	}
-
 }
