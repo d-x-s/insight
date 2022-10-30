@@ -2594,7 +2594,7 @@ parent-module@^1.0.0:
   dependencies:
     callsites "^3.0.0"
 
-parse5@7.1.1:
+parse5@^7.1.1:
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/parse5/-/parse5-7.1.1.tgz#4649f940ccfb95d8754f37f73078ea20afe0c746"
   integrity sha512-kwpuwzB+px5WUg9pyK0IcK/shltJN5/OVhQagxhCQNtT9Y9QRZqNY2e1cmbu/paRh5LMnz/oVTVLBpjFmMZhSg==
