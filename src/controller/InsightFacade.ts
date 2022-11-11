@@ -17,6 +17,7 @@ import {AddDatasetHelpers} from "./read-and-parse/AddDatasetHelpers";
 import JSZip from "jszip";
 import * as fs from "fs";
 import path from "path";
+import Rooms from "./rooms/Rooms";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -114,8 +115,7 @@ export default class InsightFacade implements IInsightFacade {
 			// Assuming all inputs are valid, we can push this to the internal model.
 			return Promise.resolve(this.addDatasetToModel(id, content, kind));
 		} else {
-			let AddRoomsHelper = new RoomsHelper();
-			return Promise.resolve(AddRoomsHelper.addRooms(id, content, kind));
+			return Promise.resolve(Rooms.addDatasetRoom(id, content, kind));
 		}
 	}
 
