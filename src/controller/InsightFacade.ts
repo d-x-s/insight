@@ -10,13 +10,12 @@ import {
 import PerformQueryHelper from "./query/PerformQueryHelper";
 import ValidateQueryHelper from "./query/ValidateQueryHelper";
 import PerformQueryOptionsHelper from "./query/PerformQueryOptionsHelper";
-import {CourseDataset} from "./courses/CourseDataset";
-import RoomsHelper from "./rooms/RoomsHelper";
+import RoomsHelper from "./dataset-rooms/RoomsHelper";
 import {IdValidator} from "./read-and-parse/IdValidator";
-import {AddDatasetHelpers} from "./read-and-parse/AddDatasetHelpers";
-import JSZip from "jszip";
+import {CoursesHelper} from "./dataset-courses/CoursesHelper";
 import * as fs from "fs";
 import path from "path";
+import TransformationsHelper from "./query/TransformationsHelper";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -24,55 +23,14 @@ import path from "path";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	public internalModel: Map<string, CourseDataset>;
+	public internalModel: Map<string, any>;
 	public fileDirectory: string;
 	public idChecker: IdValidator;
-	public addDatasetHelpers: AddDatasetHelpers;
 
 	constructor() {
 		this.fileDirectory = __dirname + "/../../data";
 		this.internalModel = new Map();
 		this.idChecker = new IdValidator();
-		this.addDatasetHelpers = new AddDatasetHelpers();
-	}
-
-	// HELPER: Called by addDataset to handle parsing and adding dataset to model
-	private addDatasetToModel(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		let zipped: JSZip = new JSZip();
-		return new Promise<string[]>((resolve, reject) => {
-			let dataToProcess: Array<Promise<string>> = [];
-			zipped
-				.loadAsync(content, {base64: true})
-				.then((loadedZipFile) => {
-					return this.addDatasetHelpers.loadAsyncHelper(loadedZipFile, dataToProcess);
-				})
-				.then((value: Array<Promise<string>> | InsightError) => {
-					if (value instanceof InsightError) {
-						return value;
-					}
-					if (value.length === 0) {
-						reject(new InsightError("InsightError: empty directory"));
-					}
-					Promise.all(value)
-						.then((arrayOfPromiseAllResults) => {
-							return this.addDatasetHelpers.parseJSON(arrayOfPromiseAllResults);
-						})
-						.then((convertedSections) => {
-							resolve(
-								this.addDatasetHelpers.setDataToModelAndDisk(
-									id,
-									convertedSections,
-									kind,
-									content,
-									this.internalModel
-								)
-							);
-						});
-				})
-				.catch((err) => {
-					reject(new InsightError("InsightError: failed to parse" + err));
-				});
-		});
 	}
 
 	/*
@@ -111,11 +69,11 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		if (kind === InsightDatasetKind.Sections) {
-			// Assuming all inputs are valid, we can push this to the internal model.
-			return Promise.resolve(this.addDatasetToModel(id, content, kind));
+			let AddCoursesHelper = new CoursesHelper();
+			return Promise.resolve(AddCoursesHelper.addCoursesDatasetToModel(id, content, kind, this.internalModel));
 		} else {
 			let AddRoomsHelper = new RoomsHelper();
-			return Promise.resolve(AddRoomsHelper.addRooms(id, content, kind));
+			return Promise.resolve(AddRoomsHelper.addRoomsDatasetToModel(id, content, kind, this.internalModel));
 		}
 	}
 
@@ -161,6 +119,7 @@ export default class InsightFacade implements IInsightFacade {
 		return new Promise((resolve, reject) => {
 			let queryValidator = new ValidateQueryHelper();
 			let queryEngine = new PerformQueryHelper();
+			let transformer = new TransformationsHelper();
 			let optionsFilter = new PerformQueryOptionsHelper();
 			let id = "";
 
@@ -175,15 +134,28 @@ export default class InsightFacade implements IInsightFacade {
 				return reject(new InsightError(`InsightError: referenced dataset with id: ${id} not yet added yet`));
 			}
 
-			queryValidator.validateQuery(query, id);
-			if (!queryValidator.getValid()) {
-				return reject(new InsightError("InsightError: query is not valid"));
+			// retrieve the dataset and it's kind
+			let dataset = this.internalModel.get(id);
+			let kind = dataset.kind;
+			try {
+				queryValidator.validateQuery(query, id, kind);
+				if (!queryValidator.getValidStatus()) {
+					return reject(new InsightError("InsightError: query is not valid"));
+				}
+			} catch (err) {
+				return reject(new InsightError(`InsightError: query is not valid because of ${err}`));
 			}
 
 			let result: any[];
 			try {
-				result = queryEngine.processQuery(query, this.internalModel.get(id));
-				result = optionsFilter.processOptions(query, result);
+				result = queryEngine.processQuery(query, dataset, queryValidator.getTransformedStatus());
+
+				// TODO:do the TRANSFORMATION operations here
+				if (queryValidator.getTransformedStatus()) {
+					result = transformer.transform(query, result);
+				}
+
+				result = optionsFilter.processOptions(query, result, queryValidator.getTransformedStatus());
 			} catch (err) {
 				return reject(new InsightError("InsightError: unexpected behavior while performing query: " + err));
 			}

@@ -1,4 +1,4 @@
-export interface RoomData {
+export interface IRoomData {
 	fullname: string;
 	shortname: string;
 	number: number;

@@ -1,8 +1,8 @@
 import {InsightDatasetKind} from "../IInsightFacade";
-import {RoomData} from "./RoomData";
+import {IRoomData} from "./IRoomData";
 
-export interface RoomDataset {
+export interface IRoomDataset {
 	id: string;
-	roomsData: RoomData[];
+	roomsData: IRoomData[];
 	kind: InsightDatasetKind;
 }
