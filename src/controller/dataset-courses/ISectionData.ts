@@ -1,4 +1,4 @@
-export interface SectionData {
+export interface ISectionData {
 	dept: string;
 	id: string;
 	avg: number;

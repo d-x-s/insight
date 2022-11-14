@@ -1,16 +1,31 @@
+/* eslint-disable max-lines */
+import e from "express";
+import {InsightDatasetKind} from "../IInsightFacade";
+import ValidateTransformationsHelper from "./ValidateTransformationsHelper";
+
 export default class ValidateQueryHelper {
-	protected valid: boolean;
-	protected QKEYS = ["OPTIONS", "WHERE"];
+	protected isValid: boolean;
+	protected isTransformed: boolean;
+	protected kind: InsightDatasetKind;
+	protected QKEYS = ["OPTIONS", "WHERE", "TRANSFORMATIONS"];
 	protected OKEYS = ["ORDER", "COLUMNS"];
-	protected MFIELDS = ["avg", "pass", "fail", "audit", "year"];
-	protected SFIELDS = ["dept", "id", "instructor", "title", "uuid"];
+	protected COURSES_MFIELDS = ["avg", "pass", "fail", "audit", "year"];
+	protected COURSES_SFIELDS = ["dept", "id", "instructor", "title", "uuid"];
+	protected ROOMS_MFIELDS = ["lat", "lon", "seats"];
+	protected ROOMS_SFIELDS = ["fullname", "shortname", "number", "name"];
 
 	constructor() {
-		this.valid = true;
+		this.isValid = true;
+		this.isTransformed = false;
+		this.kind = InsightDatasetKind.Sections; // initialize to sections by default
 	}
 
-	public getValid() {
-		return this.valid;
+	public getValidStatus() {
+		return this.isValid;
+	}
+
+	public getTransformedStatus() {
+		return this.isTransformed;
 	}
 
 	/**
@@ -33,49 +48,83 @@ export default class ValidateQueryHelper {
 			throw new Error("COLUMNS clause is missing from query");
 		}
 
-		let columnsValue = query["OPTIONS"]["COLUMNS"];
+		let columnsValueArray = query["OPTIONS"]["COLUMNS"];
 		if (
-			!Array.isArray(columnsValue) ||
-			columnsValue.length === 0 ||
-			typeof columnsValue === "undefined" ||
-			typeof columnsValue !== "object"
+			!Array.isArray(columnsValueArray) ||
+			columnsValueArray.length === 0 ||
+			typeof columnsValueArray === "undefined" ||
+			typeof columnsValueArray !== "object"
 		) {
 			throw new Error("the value of COLUMNS is not an array, is empty, undefined, or not an object");
 		}
-		return columnsValue[0].split("_")[0];
+		// TODO: MIGHT NOT BE ABLE TO ALWAYS TAKE THE FIRST VALUE!
+		// for (let i = 0; i < columnsValueArray.length; i++) {
+		// 	if (columnsValueArray[i].includes("_")) {
+		// 		return columnsValueArray[i].split("_")[0];
+		// 	}
+		// }
+
+		// columnsValueArray.forEach((key) => {
+		// 	if (key.includes("_")) {
+		// 		return key.split("_")[0];
+		// 	}
+		// });
+
+		// look for the first valid id in columns
+		for (const columnKey of columnsValueArray) {
+			if (columnKey.includes("_")) {
+				return columnKey.split("_")[0];
+			}
+		}
+		throw new Error("could not find a valid key in COLUMNS");
 	}
 
-	public validateQuery(query: any, id: string) {
-		try {
-			const queryKeys = Object.keys(query);
+	public validateQuery(query: any, id: string, kind: InsightDatasetKind) {
+		this.kind = kind;
+		const queryKeys = Object.keys(query);
 
-			if (query === null || query === "undefined" || !(query instanceof Object)) {
-				this.valid = false;
+		if (query === null || query === "undefined" || !(query instanceof Object)) {
+			this.isValid = false;
+			return;
+		}
+
+		if (queryKeys.length > 3) {
+			this.isValid = false;
+			return;
+		}
+
+		for (let k of queryKeys) {
+			if (!this.QKEYS.includes(k)) {
+				this.isValid = false;
 				return;
 			}
-
-			if (queryKeys.length !== 2) {
-				this.valid = false;
-				return;
+			console.log(k);
+			console.log(this.isTransformed);
+			if (k === "TRANSFORMATIONS") {
+				this.isTransformed = true;
 			}
+			console.log("this line is running?");
+			console.log(this.isTransformed);
+		}
 
-			for (let k of queryKeys) {
-				if (!this.QKEYS.includes(k)) {
-					this.valid = false;
-					return;
-				}
-			}
+		this.validateFilter(query["WHERE"], id);
+		this.validateOptions(query["OPTIONS"], id);
 
-			this.validateFilter(query["WHERE"], id);
-			this.validateOptions(query["OPTIONS"], id);
-		} catch (error) {
-			console.log("error: " + error + " caught in validateQuery");
+		// if transformed we need to do some special handling as the structure of query is different
+		if (this.isTransformed) {
+			let transformationsHelper = new ValidateTransformationsHelper();
+			this.isValid = transformationsHelper.validateTransformations(
+				query["TRANSFORMATIONS"],
+				query["OPTIONS"]["COLUMNS"],
+				id,
+				kind
+			);
 		}
 	}
 
 	private validateFilter(query: any, id: string) {
 		if (typeof query === "undefined" || !(query instanceof Object)) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 		const whereKeys = Object.keys(query);
@@ -84,7 +133,7 @@ export default class ValidateQueryHelper {
 		}
 
 		if (whereKeys.length !== 1) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 
@@ -106,7 +155,7 @@ export default class ValidateQueryHelper {
 				this.validateNegation(query[filterKey], id);
 				break;
 			default:
-				this.valid = false;
+				this.isValid = false;
 				break;
 		}
 	}
@@ -118,14 +167,14 @@ export default class ValidateQueryHelper {
 			typeof queryLogicArray === "undefined" ||
 			typeof queryLogicArray !== "object"
 		) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 
 		queryLogicArray.forEach((element: any) => {
 			let logicComparisonKeys = Object.keys(element);
 			if (logicComparisonKeys.length !== 1) {
-				this.valid = false;
+				this.isValid = false;
 				return;
 			}
 			this.validateFilter(element, id);
@@ -134,12 +183,12 @@ export default class ValidateQueryHelper {
 
 	private validateMathComparison(mathComparator: any, id: string) {
 		if (typeof mathComparator === "undefined" || typeof mathComparator !== "object") {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 		const pairMComparatorKeys = Object.keys(mathComparator);
 		if (pairMComparatorKeys.length !== 1) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 		const keyMComparator = pairMComparatorKeys[0];
@@ -155,27 +204,34 @@ export default class ValidateQueryHelper {
 
 	private validateMValue(valueMComparator: any) {
 		if (typeof valueMComparator !== "number") {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 	}
 
 	private validateMField(keyMField: any) {
-		if (!this.MFIELDS.includes(keyMField)) {
-			this.valid = false;
-			return;
+		if (this.kind === InsightDatasetKind.Sections) {
+			if (!this.COURSES_MFIELDS.includes(keyMField)) {
+				this.isValid = false;
+				return;
+			}
+		} else {
+			if (!this.ROOMS_MFIELDS.includes(keyMField)) {
+				this.isValid = false;
+				return;
+			}
 		}
 	}
 
 	private validateStringComparison(stringComparator: any, id: string) {
 		if (typeof stringComparator === "undefined" || typeof stringComparator !== "object") {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 
 		const keySComparator = Object.keys(stringComparator);
 		if (keySComparator.length !== 1) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 
@@ -192,15 +248,22 @@ export default class ValidateQueryHelper {
 	}
 
 	private validateSField(sField: any) {
-		if (!this.SFIELDS.includes(sField)) {
-			this.valid = false;
-			return;
+		if (this.kind === InsightDatasetKind.Sections) {
+			if (!this.COURSES_SFIELDS.includes(sField)) {
+				this.isValid = false;
+				return;
+			}
+		} else {
+			if (!this.ROOMS_SFIELDS.includes(sField)) {
+				this.isValid = false;
+				return;
+			}
 		}
 	}
 
 	private validateSValue(inputString: any) {
 		if (typeof inputString !== "string") {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 		let asteriskCheck = inputString;
@@ -211,21 +274,22 @@ export default class ValidateQueryHelper {
 			asteriskCheck = asteriskCheck.substring(1, asteriskCheck.length);
 		}
 		if (asteriskCheck.includes("*")) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 	}
 
+	// TODO, FIT TO ROOMS SPECIFICATION (think it is OK tho)
 	private validateID(idToVerify: any, id: any) {
 		if (idToVerify.includes("_") || idToVerify.trim().length === 0 || idToVerify !== id) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 	}
 
 	private validateNegation(negation: any, id: string) {
 		if (typeof negation === "undefined" || !(negation instanceof Object) || Object.keys(negation).length !== 1) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 		this.validateFilter(negation, id);
@@ -233,20 +297,20 @@ export default class ValidateQueryHelper {
 
 	private validateOptions(options: any, id: string) {
 		if (typeof options === "undefined" || typeof options !== "object") {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 		const optionsKeys = Object.keys(options);
 		optionsKeys.forEach((element: any) => {
 			if (!this.OKEYS.includes(element)) {
-				this.valid = false;
+				this.isValid = false;
 				return;
 			}
 		});
 
 		if (optionsKeys.length === 1) {
 			if (optionsKeys[0] !== "COLUMNS") {
-				this.valid = false;
+				this.isValid = false;
 				return;
 			}
 			this.validateColumns(options["COLUMNS"], id);
@@ -256,6 +320,7 @@ export default class ValidateQueryHelper {
 		}
 	}
 
+	// TODO: in c2, ValidateTransformationsHelepr will take care of checking that keys match to GROUP and APPLY
 	private validateColumns(columnsArray: any, id: string) {
 		if (
 			!Array.isArray(columnsArray) ||
@@ -263,28 +328,92 @@ export default class ValidateQueryHelper {
 			typeof columnsArray === "undefined" ||
 			typeof columnsArray !== "object"
 		) {
-			this.valid = false;
+			this.isValid = false;
 			return;
 		}
 		columnsArray.forEach((element: any) => {
 			let key = element.split("_");
 			this.validateID(key[0], id);
-			if (!this.MFIELDS.includes(key[1]) && !this.SFIELDS.includes(key[1])) {
-				this.valid = false;
-				return;
+			if (this.kind === InsightDatasetKind.Sections) {
+				if (!this.COURSES_MFIELDS.includes(key[1]) && !this.COURSES_SFIELDS.includes(key[1])) {
+					this.isValid = false;
+					return;
+				}
+			} else {
+				if (!this.ROOMS_MFIELDS.includes(key[1]) && !this.ROOMS_SFIELDS.includes(key[1])) {
+					this.isValid = false;
+					return;
+				}
 			}
 		});
 	}
 
-	private validateOrder(orderValue: any, columnsArray: any) {
-		if (typeof orderValue === "undefined") {
-			this.valid = false;
+	// TODO: in C2, the order can either be a string or an object
+	private validateOrder(orderElement: any, columnsArray: any) {
+		if (typeof orderElement === "string") {
+			if (!columnsArray.includes(orderElement)) {
+				this.isValid = false;
+				return;
+			}
+		} else if (typeof orderElement === "object") {
+			this.validateOrderObject(orderElement, columnsArray);
+		} else {
+			this.isValid = false;
+			throw new Error("ORDER value is neither a string nor an object");
+		}
+
+		// if (typeof orderValue !== "string" || !columnsArray.includes(orderValue)) {
+		// 	this.isValid = false;
+		// 	return;
+		// }
+	}
+
+	private validateOrderObject(orderElement: any, columnsArray: any) {
+		let orderObjectKeys = Object.keys(orderElement);
+		if (orderObjectKeys.length !== 2) {
+			this.isValid = false;
 			return;
 		}
 
-		if (typeof orderValue !== "string" || !columnsArray.includes(orderValue)) {
-			this.valid = false;
-			return;
+		for (let objectKey of orderObjectKeys) {
+			if (objectKey !== "dir" && objectKey !== "keys") {
+				this.isValid = false;
+				return;
+			}
+
+			if (objectKey === "dir") {
+				if (typeof orderElement["dir"] !== "string") {
+					this.isValid = false;
+					return;
+				}
+				if (orderElement["dir"] !== "UP" && orderElement["dir"] !== "DOWN") {
+					this.isValid = false;
+					return;
+				}
+			}
+
+			if (objectKey === "keys") {
+				if (!Array.isArray(orderElement["keys"])) {
+					this.isValid = false;
+					return;
+				}
+
+				// ORDER KEYS MUST BE NON EMPTY ARRAY
+				let orderKeysArray = orderElement["keys"];
+				if (orderKeysArray.length === 0) {
+					this.isValid = false;
+					return;
+				}
+
+				// (ALL SORT KEYS MUST ALSO BE IN COLUMNS)
+				// ALL ORDER KEYS MUST BE IN COLUMNS
+				for (let key of orderKeysArray) {
+					if (!columnsArray.includes(key)) {
+						this.isValid = false;
+						return;
+					}
+				}
+			}
 		}
 	}
 }

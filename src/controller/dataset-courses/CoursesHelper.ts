@@ -1,18 +1,54 @@
 import JSZip from "jszip";
 import {InsightDatasetKind, InsightError} from "../IInsightFacade";
-import {SectionData} from "../courses/SectionData";
-import {CourseDataset} from "../courses/CourseDataset";
+import {ISectionData} from "./ISectionData";
+import {ICourseDataset} from "./ICourseDataset";
 import path from "path";
 import fs from "fs";
 
-export class AddDatasetHelpers {
+export class CoursesHelper {
 	public fileDirectory: string;
 
 	constructor() {
 		this.fileDirectory = __dirname + "/../../data";
 	}
 
-	public loadAsyncHelper(zipFile: JSZip, dataToPush: Array<Promise<string>>): any {
+	// HELPER: Called by addDataset to handle parsing and adding dataset to model
+	public addCoursesDatasetToModel(
+		id: string,
+		content: string,
+		kind: InsightDatasetKind,
+		model: Map<string, ICourseDataset>
+	): Promise<string[]> {
+		let zipped: JSZip = new JSZip();
+		return new Promise<string[]>((resolve, reject) => {
+			let dataToProcess: Array<Promise<string>> = [];
+			zipped
+				.loadAsync(content, {base64: true})
+				.then((loadedZipFile) => {
+					return this.loadAsyncHelper(loadedZipFile, dataToProcess);
+				})
+				.then((value: Array<Promise<string>> | InsightError) => {
+					if (value instanceof InsightError) {
+						return value;
+					}
+					if (value.length === 0) {
+						reject(new InsightError("InsightError: empty directory"));
+					}
+					Promise.all(value)
+						.then((arrayOfPromiseAllResults) => {
+							return this.parseJSON(arrayOfPromiseAllResults);
+						})
+						.then((convertedSections) => {
+							resolve(this.setDataToModelAndDisk(id, convertedSections, kind, content, model));
+						});
+				})
+				.catch((err) => {
+					reject(new InsightError("InsightError: failed to parse" + err));
+				});
+		});
+	}
+
+	private loadAsyncHelper(zipFile: JSZip, dataToPush: Array<Promise<string>>): any {
 		// TODO: expand to process "rooms" data
 		let fileFolder = zipFile.folder("courses");
 		if (fileFolder == null || fileFolder === undefined) {
@@ -32,7 +68,7 @@ export class AddDatasetHelpers {
 	}
 
 	// HELPER: parse passed in JSON file and convert into SectionData
-	public parseJSON(arrayOfPromiseAllResults: string[]): any {
+	private parseJSON(arrayOfPromiseAllResults: string[]): any {
 		let convertedSections: any = [];
 		try {
 			arrayOfPromiseAllResults.forEach((jsonPromise) => {
@@ -49,15 +85,15 @@ export class AddDatasetHelpers {
 	}
 
 	// HELPER: Sets data to internal model and to disk
-	public setDataToModelAndDisk(
+	private setDataToModelAndDisk(
 		id: string,
-		convertedSections: SectionData[],
+		convertedSections: ISectionData[],
 		kind: InsightDatasetKind,
 		content: string,
-		model: Map<string, CourseDataset>
+		model: Map<string, ICourseDataset>
 	): Promise<string[]> {
 		return new Promise<string[]>((resolve, reject) => {
-			let newDataset: CourseDataset = {
+			let newDataset: ICourseDataset = {
 				id: id,
 				sectionsData: convertedSections,
 				kind: kind,
@@ -79,8 +115,8 @@ export class AddDatasetHelpers {
 	}
 
 	// HELPER: Convert JSON to SectionData format
-	public mapToSectionDataFormat(rawSection: any) {
-		let newSection = {} as SectionData;
+	private mapToSectionDataFormat(rawSection: any) {
+		let newSection = {} as ISectionData;
 		newSection.audit = rawSection["Audit"];
 		newSection.avg = rawSection["Avg"];
 		newSection.dept = rawSection["Subject"];
