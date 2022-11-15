@@ -1,6 +1,4 @@
-import {ICourseDataset} from "../dataset-courses/ICourseDataset";
 import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
-import {ISectionData} from "../dataset-courses/ISectionData";
 
 export default class PerformQueryHelper {
 	protected kind: any;
