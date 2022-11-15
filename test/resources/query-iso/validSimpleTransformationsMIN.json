@@ -1,0 +1,107 @@
+{
+	"title": "validSimpleTransformationsMin",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"minimumGrade"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title"
+			],
+			"APPLY": [
+				{
+					"minimumGrade": {
+						"MIN": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "career planning",
+			"minimumGrade": 97.47
+		},
+		{
+			"sections_title": "thesis",
+			"minimumGrade": 98
+		},
+		{
+			"sections_title": "res mthd in educ",
+			"minimumGrade": 97.5
+		},
+		{
+			"sections_title": "multimedia sys",
+			"minimumGrade": 98.75
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"minimumGrade": 97.29
+		},
+		{
+			"sections_title": "educ stds autism",
+			"minimumGrade": 97.41
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"minimumGrade": 98.45
+		},
+		{
+			"sections_title": "acad assess schl",
+			"minimumGrade": 97.41
+		},
+		{
+			"sections_title": "sem in autism",
+			"minimumGrade": 97.69
+		},
+		{
+			"sections_title": "cor des ed res",
+			"minimumGrade": 97.09
+		},
+		{
+			"sections_title": "coll&uni teachng",
+			"minimumGrade": 97.67
+		},
+		{
+			"sections_title": "diff geometry i",
+			"minimumGrade": 97.25
+		},
+		{
+			"sections_title": "algb topology i",
+			"minimumGrade": 99.78
+		},
+		{
+			"sections_title": "algb geometry i",
+			"minimumGrade": 97.48
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"minimumGrade": 97.09
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"minimumGrade": 98.21
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"minimumGrade": 97.53
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"minimumGrade": 97.33
+		},
+		{
+			"sections_title": "work int health",
+			"minimumGrade": 98.98
+		}
+	]
+}

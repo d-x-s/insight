@@ -11,7 +11,7 @@ export default class RoomsHelper {
 
 	constructor() {
 		this.indexDirectory = "rooms/index.htm";
-		console.log("Roome Helper created");
+		// console.log("Roome Helper created");
 	}
 
 

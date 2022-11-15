@@ -16,23 +16,76 @@ export default class PerformQueryOptionsHelper {
 
 	private processColumns(columns: any[], rawResult: any[], isTransformed: boolean): any[] {
 		let resultFiltered: any[] = [];
-		rawResult.forEach((r) => {
-			const processedSectionObject: InsightResult = {};
-			columns.forEach((c: string) => {
+		if (isTransformed) {
+			// proceed directly
+		}
 
-				// TODO: HANDLE TRANSFORM KEYS
+		for (let r of rawResult) {
+			const processedSectionObject: InsightResult = {};
+
+			for (let c of columns) {
 				if (isTransformed) {
-					processedSectionObject[c] = r[c];
+					// TODO: cleanup
+					// receive a map here
+					// do map stuff
+					// console.log("Transformed, don't do anything");
+					return rawResult;
+
 				} else {
 					let columnPair = c.split("_");
 					let columnKey = columnPair[0];
 					let columnValue = columnPair[1];
 					processedSectionObject[c] = r[columnValue];
 				}
-			});
+			}
 			resultFiltered.push(processedSectionObject);
-		});
+		}
 		return resultFiltered;
+
+		// rawResult.forEach((r) => {
+
+		// 	const processedSectionObject: InsightResult = {};
+		// 	columns.forEach((c: string) => {
+
+		// 		// TODO: HANDLE TRANSFORM KEYS
+		// 		// if its transformed, TransformationsHelper should handle everything
+		// 		// what we get back is a singular result object
+		// 		// {
+
+		// 		// 	"result": [{
+
+		// 		// 		 "rooms_shortname": "OSBO",
+
+		// 		// 		 "maxSeats": 442
+
+		// 		// 	},  {
+
+		// 		// 		"rooms_shortname": "HEBB",
+
+		// 		// 		"maxSeats": 375
+
+		// 		//    }, {
+
+		// 		// 	   "rooms_shortname": "LSC",
+
+		// 		// 	   "maxSeats": 350
+
+		// 		//    }]
+
+		// 		//   }
+		// 		// you can return it right away
+		// 		if (isTransformed) {
+		// 			processedSectionObject[c] = r[c];
+		// 		} else {
+		// 			let columnPair = c.split("_");
+		// 			let columnKey = columnPair[0];
+		// 			let columnValue = columnPair[1];
+		// 			processedSectionObject[c] = r[columnValue];
+		// 		}
+		// 	});
+		// 	resultFiltered.push(processedSectionObject);
+		// });
+		// return resultFiltered;
 	}
 
 	private processOrder(order: any, resultUnsorted: any[]): any[] {

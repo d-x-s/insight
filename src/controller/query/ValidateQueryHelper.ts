@@ -84,6 +84,7 @@ export default class ValidateQueryHelper {
 		const queryKeys = Object.keys(query);
 
 		if (query === null || query === "undefined" || !(query instanceof Object)) {
+			console.log("Fail at 1");
 			this.isValid = false;
 			return;
 		}
@@ -98,19 +99,22 @@ export default class ValidateQueryHelper {
 				this.isValid = false;
 				return;
 			}
-			console.log(k);
-			console.log(this.isTransformed);
+			// console.log(k);
+			// console.log(this.isTransformed);
 			if (k === "TRANSFORMATIONS") {
 				this.isTransformed = true;
 			}
-			console.log("this line is running?");
-			console.log(this.isTransformed);
+			// console.log("this line is running?");
+			// console.log(this.isTransformed);
 		}
 
 		this.validateFilter(query["WHERE"], id);
-		this.validateOptions(query["OPTIONS"], id);
+		console.log("Status of query after Filter is " + this.getValidStatus());
+		this.validateOptions(query["OPTIONS"], query, id);
+		console.log("Status of query after Options is " + this.getValidStatus());
 
 		// if transformed we need to do some special handling as the structure of query is different
+		console.log("This query is transformed? " + this.isTransformed);
 		if (this.isTransformed) {
 			let transformationsHelper = new ValidateTransformationsHelper();
 			this.isValid = transformationsHelper.validateTransformations(
@@ -119,6 +123,7 @@ export default class ValidateQueryHelper {
 				id,
 				kind
 			);
+			console.log("Status of query after Transformations is " + this.getValidStatus());
 		}
 	}
 
@@ -295,7 +300,7 @@ export default class ValidateQueryHelper {
 		this.validateFilter(negation, id);
 	}
 
-	private validateOptions(options: any, id: string) {
+	private validateOptions(options: any, query: any, id: string) {
 		if (typeof options === "undefined" || typeof options !== "object") {
 			this.isValid = false;
 			return;
@@ -313,15 +318,16 @@ export default class ValidateQueryHelper {
 				this.isValid = false;
 				return;
 			}
-			this.validateColumns(options["COLUMNS"], id);
+			this.validateColumns(options["COLUMNS"], query, id);
+			console.log("Status of query after Columns is " + this.getValidStatus());
 		} else {
-			this.validateColumns(options["COLUMNS"], id);
+			this.validateColumns(options["COLUMNS"], query, id);
 			this.validateOrder(options["ORDER"], options["COLUMNS"]);
 		}
 	}
 
 	// TODO: in c2, ValidateTransformationsHelepr will take care of checking that keys match to GROUP and APPLY
-	private validateColumns(columnsArray: any, id: string) {
+	private validateColumns(columnsArray: any, query: any, id: string) {
 		if (
 			!Array.isArray(columnsArray) ||
 			columnsArray.length === 0 ||
@@ -331,7 +337,24 @@ export default class ValidateQueryHelper {
 			this.isValid = false;
 			return;
 		}
+
+		let applyTokens: any[] = [];
+		if (this.isTransformed) {
+			let applyArray = query["TRANSFORMATIONS"]["APPLY"];
+			for (let applyRule of applyArray) {
+				console.log(applyRule);
+				applyTokens.push(Object.keys(applyRule)[0]);
+			}
+		}
+
+
 		columnsArray.forEach((element: any) => {
+			// console.log(element);
+			// if there is an apply key in columns you need to check that is also in teh apply array
+			if (applyTokens.includes(element)) {
+				return;
+			}
+
 			let key = element.split("_");
 			this.validateID(key[0], id);
 			if (this.kind === InsightDatasetKind.Sections) {

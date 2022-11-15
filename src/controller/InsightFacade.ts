@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import {
 	IInsightFacade,
 	InsightDataset,
@@ -142,20 +143,28 @@ export default class InsightFacade implements IInsightFacade {
 				if (!queryValidator.getValidStatus()) {
 					return reject(new InsightError("InsightError: query is not valid"));
 				}
+				// console.log(queryValidator.getValidStatus());
 			} catch (err) {
 				return reject(new InsightError(`InsightError: query is not valid because of ${err}`));
 			}
 
+			// console.log("NOW ENTERING PROCESS QUERY FUNCTIONALITY");
 			let result: any[];
 			try {
+				// console.log("now entering processquery");
 				result = queryEngine.processQuery(query, dataset, queryValidator.getTransformedStatus());
+				// console.log("process query OK");
+				console.log(result);
 
 				// TODO:do the TRANSFORMATION operations here
 				if (queryValidator.getTransformedStatus()) {
+					// console.log("now entering transform");
 					result = transformer.transform(query, result);
+					// console.log("transform ok");
+					// console.log(result);
 				}
-
 				result = optionsFilter.processOptions(query, result, queryValidator.getTransformedStatus());
+
 			} catch (err) {
 				return reject(new InsightError("InsightError: unexpected behavior while performing query: " + err));
 			}
