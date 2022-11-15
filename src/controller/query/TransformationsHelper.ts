@@ -34,6 +34,17 @@ export default class TransformationsHelper {
 	Regarding maps: https://github.com/microsoft/TypeScript/issues/41045
 	*/
 
+	/*
+		TODO: ideally, we want to encode the fields of interest as the key itsel, allowing for quick map lookup times
+		currently I am using the most convenient method of iterating over the map of groups each time, searching for a match
+		we group based on certain keys
+		then of course in each group, for those keys, all members will have the same values
+		these values could be encoded directly as our key
+		by setting it to an object, then using stringify, and using that object string as a key
+		then this unique object string identifies that group
+		this would speed up search considerably
+		however there may be a learning curve associated with this implementation so I choose to do it the easier way for now
+	*/
 	private processGroup(groupArray: any[], rawResult: any[]): any {
 		// create a 2D array (an array of arrays), call this "groupedResult"
 		// that is, each element is an array of sections/rooms
