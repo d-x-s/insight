@@ -3,6 +3,7 @@ import {IRoomDataset} from "./IRoomDataset";
 import JSZip from "jszip";
 import parse5 from "parse5";
 import {IRoomData} from "./IRoomData";
+import {Element} from "parse5/dist/tree-adapters/default";
 
 export default class RoomsHelper {
 
@@ -25,16 +26,7 @@ export default class RoomsHelper {
 	// I think this is not intuitive and will add a lot of unneccesary checking logic
 	// therefore we go with the string:any key value pair for our Map and this preserve the majority of our original code (OCP)
 
-	// public addRoomsDatasetToModel(
-	// 	id: string,
-	// 	content: string,
-	// 	kind: InsightDatasetKind,
-	// 	model: Map<string, IRoomDataset>
-	// ): Promise<string[]> {
-	// 	// TODO: Retrieve geolocation of each building
-	// 	return Promise.reject(new InsightError("reject"));
-	// }
-
+	// analogous to addCoursesDatasetToModel
 
 	public addRoomsDatasetToModel(
 		id: string,
@@ -114,31 +106,51 @@ export default class RoomsHelper {
 
 			let parseFile = rawData.async("string").then((result) => {
 				let parsedResult = parse5.parse(result);
-				for (let node of parsedResult.childNodes) {
-					if (node.nodeName === "html") {
-						// this.htmlHelper(node);
-					}
-				}
+				this.processParsedResult(parsedResult);
 			}).catch((err) => {
 				reject(new InsightError("ERROR: could not parse Htm"));
 			});
 
-			// Promise.all(parseFile).then(() => {
-			// 		// TODO: add geolocation getters
-			// 	resolve(this);
-			// });
+			Promise.all([parseFile]).then(() => {
+				// TODO: add geolocation getters
+				// this.findGeolocationHelper();
+				// resolve(this);
+			});
 		});
 
 	}
 
-	// private htmlHelper(element: parse5.) {
-	// 	if (element == undefined || element == null) {
+	public processParsedResult(parsedResult: any): any {
+
+		if (parsedResult["nodeName"] === "tbody") {
+			// if (this.isValidTable(parsedResult) || this.isValidIndexTable(parsedResult))) {
+			return parsedResult;
+			// }
+		}
+
+		if (parsedResult["childNodes"].length === 0) {
+			return;
+		}
+
+		let trackCurr = 0;
+		while (trackCurr < parsedResult["childNodes"][trackCurr]) {
+			let curr = this.processParsedResult(parsedResult["childNodes"][trackCurr]);
+			if (curr) {
+				return curr;
+			}
+			trackCurr += 1;
+		}
+	}
+
+
+	//
+	// private htmlHelper(element: Element) {
+	// 	if (element === undefined || element == null) {
 	// 		return;
 	// 	}
 	//
-	//
 	// 	for (let node of element.childNodes) {
-	//
+	// 		if
 	// 	}
 	// }
 
