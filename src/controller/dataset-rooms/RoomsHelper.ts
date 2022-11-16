@@ -3,13 +3,18 @@ import {IRoomDataset} from "./IRoomDataset";
 import JSZip from "jszip";
 import parse5 from "parse5";
 import {IRoomData} from "./IRoomData";
+import {GeoLeocation} from "./GeoLocation";
 
 export default class RoomsHelper {
 
 	public indexDirectory: string;
+	public findLocation: GeoLeocation;
+	public internalIndex: any;
 
 	constructor() {
 		this.indexDirectory = "rooms/index.htm";
+		this.findLocation = new GeoLeocation();
+		this.internalIndex = {};
 		console.log("Rooms Helper created");
 	}
 
@@ -86,7 +91,7 @@ export default class RoomsHelper {
 				this.htmlIndexTable(parsedResultToHTMLTable);
 
 				// TODO: Finish GeoLocation function below
-				// return processLatAndLong();
+				// return this.findLocation.processLatAndLong();
 				return parsedResultToHTMLTable;
 			}).catch((err) => {
 				reject(new InsightError("ERROR: could not parse Htm"));
@@ -118,24 +123,40 @@ export default class RoomsHelper {
 		}
 	}
 
-	// HELPER: Passes in htmlTable and creates table to populate
+	// HELPER: Passes in htmlTable and creates table to populate internalIndex
 	public htmlIndexTable(htmlTable: any) {
-		// htmlTable;
+		htmlTable.forEach((row: any) => {
+			if (row["nodeName"] === "tr") {
+				let currRow: any;
+				let address = "";
+				row["childNodes"].forEach((cell: any) => {
+					if (cell["attrs"].length > 0 && cell["nodeName"] === "td") {
+						// this.searchCell(cell, currRow);
+						// address = this.verifyAddress(cell, address);
+					}
+				});
+				this.internalIndex[address] = {...currRow};
+			}
+		});
 	}
 
-	//
+
+	// HELPER:
+	public searchCell() {
+		// TODO: fill out
+	}
+
+
+	// HELPER
+	// public verifyAddress(cell: any, address: string): string {
+
+
+		// if ()
+	// }
+
+	// HELPER:
 	public getRoomsFromParsedData() {
 		// empty comment
 	}
 
-	// SPEC:
-	// (i) extend the query language to accommodate queries to a new dataset, i.e. Rooms; and
-	// (ii) enable more comprehensive queries about the datasets, i.e. aggregate results.
-	public performRoomQuery(): Promise<InsightResult[]> {
-		return Promise.reject(new InsightError("reject"));
-	}
-
-	private findGeolocation() {
-		// TODO: send a get request to http://cs310.students.cs.ubc.ca:11316/api/v1/project_team<TEAM NUMBER>/<ADDRESS>
-	}
 }
