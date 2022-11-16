@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import {InsightDatasetKind} from "../IInsightFacade";
 
 export default class ValidateTransformationsHelper {
@@ -29,7 +30,6 @@ export default class ValidateTransformationsHelper {
 		this.columnsArray = columnsArray;
 		this.datasetID = id;
 		this.kind = kind;
-
 		let transformationElements = Object.keys(transformationsObject);
 		if (!(transformationElements.includes("GROUP")) || !(transformationElements.includes("APPLY"))) {
 			this.isValid = false;
@@ -40,23 +40,20 @@ export default class ValidateTransformationsHelper {
 		applyArray.forEach((applyRule) => {
 			this.applyKeys.push(Object.keys(applyRule)[0]);
 		});
-
 		if (!this.validateTransformationsAgainstColumns(transformationsObject, columnsArray)) {
 			this.isValid = false;
 			return;
 		}
-
 		for (let objectKey of transformationElements) {
 			if (objectKey === "GROUP") {
-				return this.validateGroup(transformationsObject["GROUP"]);
+				this.validateGroup(transformationsObject["GROUP"]);
 			} else if (objectKey === "APPLY") {
-				return this.validateApply(transformationsObject["APPLY"]);
+				this.validateApply(transformationsObject["APPLY"]);
 			} else {
 				this.isValid = false;
 				return;
 			}
 		};
-		throw new Error("error when validating transformations, unreachable code");
 	}
 
 	private validateGroup(groupArray: any) {
@@ -78,7 +75,7 @@ export default class ValidateTransformationsHelper {
 
 	// The applykey in an APPLYRULE should be unique (no two APPLYRULEs should share an applykey with the same name).
 	private validateApply(applyArray: any) {
-		let applyKeys = [];
+		let applyKeys: any[] = [];
 
 		if (!this.isValidArray(applyArray)) {
 			this.isValid = false;
@@ -88,18 +85,18 @@ export default class ValidateTransformationsHelper {
 			this.isValid = false;
 			return;
 		}
-
-		for (let applyRule in applyArray) {
+		applyArray.forEach((applyRule: any) => {
 			if (Object.keys(applyRule).length !== 1) {
 				this.isValid = false;
 				return;
 			}
 			let applyKey = Object.keys(applyRule)[0];
 			applyKeys.push(applyKey);
-		}
+		});
 
 		// https://stackoverflow.com/questions/19655975/check-if-an-array-contains-duplicate-values
-		if (applyKeys.length !== new Set(applyKeys).size) {
+		let applyKeysSetSize = new Set(applyKeys).size;
+		if (applyKeys.length !== applyKeysSetSize) {
 			this.isValid = false;
 			return;
 		}
@@ -108,23 +105,13 @@ export default class ValidateTransformationsHelper {
 			this.isValid = false;
 			return;
 		}
-		throw new Error("error when validating apply, unreachable code");
 	}
 
 	private isValidApplyClause(applyArray: any): boolean {
-		// APPLYRULE ::= '{' applykey ': {' APPLYTOKEN ':' key '}}' where key ::= mkey | skey
-		// now we go thru each ApplyRule (which is an individual object in the APPLY array)
-		// and make sure:
-		// 1) the APPLYTOKEN is valid
-		// 2) the "key" value is valid (use isValidQueryKey)
-
-		// recall that COUNT can be used on both numeric and string fields
-		// so for any APPLYTOKEN that is NOT COUNT, then you need to check that it is paired with a numeric field
-		for (let applyRule in applyArray) {
-			let applyTokenAndKeyArray = Object.values(applyRule);
+		applyArray.forEach((applyRule: any) => {
+			let applyTokenAndKeyArray: any = Object.values(applyRule);
 			if (applyTokenAndKeyArray.length !== 1) {
 				return false;
-
 			}
 			let applyTokenAndKey = applyTokenAndKeyArray[0];
 
@@ -133,20 +120,17 @@ export default class ValidateTransformationsHelper {
 
 			}
 
-			let applyToken = Object.keys(applyTokenAndKey)[0];
-			let key = Object.values(applyTokenAndKey)[1];
-
-			if (!this.APPLYTOKENS.includes(applyToken)) {
+			let applyKey = Object.keys(applyTokenAndKey)[0];
+			let key: any = Object.values(applyTokenAndKey)[0];
+			if (!this.APPLYTOKENS.includes(applyKey)) {
 				return false;
 
 			}
-
-			if (applyToken !== "COUNT") {
-				let keyField = key.split("_")[1];
+			if (applyKey !== "COUNT") {
+				let keyField: any = key.split("_")[1];
 				if (this.kind === InsightDatasetKind.Sections) {
 					if (!this.COURSES_MFIELDS.includes(keyField)) {
 						return false;
-
 					}
 				} else {
 					if (!this.ROOMS_MFIELDS.includes(keyField)) {
@@ -154,12 +138,10 @@ export default class ValidateTransformationsHelper {
 					}
 				}
 			}
-
 			if (!this.isValidQueryKey(key)) {
 				return false;
 			}
-		}
-
+		});
 		return true;
 	}
 
@@ -189,7 +171,6 @@ export default class ValidateTransformationsHelper {
 		if (this.applyKeys.includes(key)) {
 			return true;
 		}
-
 		// otherwise we are looking at some standard keys
 		let keyID = key.split("_")[0];
 		let keyField = key.split("_")[1];
@@ -207,7 +188,6 @@ export default class ValidateTransformationsHelper {
 				return false;
 			};
 		}
-
 		return true;
 	}
 
