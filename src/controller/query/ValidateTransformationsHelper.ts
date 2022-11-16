@@ -1,5 +1,4 @@
 import {InsightDatasetKind} from "../IInsightFacade";
-import ValidateQueryHelper from "./ValidateQueryHelper";
 
 export default class ValidateTransformationsHelper {
 	protected COURSES_MFIELDS = ["avg", "pass", "fail", "audit", "year"];
@@ -10,18 +9,22 @@ export default class ValidateTransformationsHelper {
 	protected columnsArray: any;
 	protected datasetID: any;
 	protected kind: any;
-	protected validateQueryHelper: ValidateQueryHelper;
 	protected applyKeys: any[];
+	protected isValid: boolean;
 
 	constructor() {
-		this.validateQueryHelper = new ValidateQueryHelper();
 		this.applyKeys = [];
+		this.isValid = true;
+	}
+
+	public getValidStatus() {
+		return this.isValid;
 	}
 
 	public validateTransformations(transformationsObject: any,
 								   columnsArray: any,
 								   id: string,
-								   kind: InsightDatasetKind): boolean {
+								   kind: InsightDatasetKind) {
 
 		this.columnsArray = columnsArray;
 		this.datasetID = id;
@@ -29,86 +32,67 @@ export default class ValidateTransformationsHelper {
 
 		let transformationElements = Object.keys(transformationsObject);
 		if (!(transformationElements.includes("GROUP")) || !(transformationElements.includes("APPLY"))) {
-			// console.log("Transformations: returned false at Line 32");
-			return false;
+			this.isValid = false;
+			return;
 		}
 
 		let applyArray: any[] = transformationsObject["APPLY"];
 		applyArray.forEach((applyRule) => {
-			// console.log(applyRule);
 			this.applyKeys.push(Object.keys(applyRule)[0]);
 		});
-		// console.log("applyKeys looks like: " + this.applyKeys);
-		// console.log("applyKeys is an array? " + Array.isArray(this.applyKeys));
 
-		// for (let applyRule in applyArray) {
-		// 	console.log(applyRule);
-		// 	this.applyKeys.push(Object.keys(applyRule)[0]);
-		// }
-
-		// at this point we are guaranteed the GROUP and APPLY arrays
-		// console.log("columnsArray at line 50 looks like " + columnsArray);
 		if (!this.validateTransformationsAgainstColumns(transformationsObject, columnsArray)) {
-			// console.log("Transformations: returned false at Line 42");
-			return false;
+			this.isValid = false;
+			return;
 		}
 
-		// console.log("Now running line 56");
-		// console.log (transformationElements);
-
 		for (let objectKey of transformationElements) {
-			// console.log("objectKey of transformationElements is " + objectKey);
 			if (objectKey === "GROUP") {
-				// console.log("etnered line 62");
-				// console.log("Group Validation Status is " + this.validateGroup(transformationsObject["GROUP"]));
 				return this.validateGroup(transformationsObject["GROUP"]);
 			} else if (objectKey === "APPLY") {
-				// console.log("Apply Validation Status is " + this.validateApply(transformationsObject["APPLY"]));
 				return this.validateApply(transformationsObject["APPLY"]);
 			} else {
-				// console.log("failign at line 54");
-				return false;
+				this.isValid = false;
+				return;
 			}
 		};
 		throw new Error("error when validating transformations, unreachable code");
 	}
 
-	private validateGroup(groupArray: any): boolean {
-		console.log("entered validateGroup");
+	private validateGroup(groupArray: any) {
 		if (!this.isValidArray(groupArray)) {
-			console.log("Failing at line 73");
-			return false;
+			this.isValid = false;
+			return;
 		}
 		if (groupArray.length === 0) {
-			console.log("Failing at line 77");
-			return false;
+			this.isValid = false;
+			return;
 		}
 		for (let key of groupArray) {
 			if(!this.isValidQueryKey(key)) {
-				console.log("Failing at line 82");
-				return false;
+				this.isValid = false;
+				return;
 			}
 		}
-
-		return true;
-		console.log("This line shoukld nt run");
-		throw new Error("error when validating groups, unreachable code");
 	}
 
 	// The applykey in an APPLYRULE should be unique (no two APPLYRULEs should share an applykey with the same name).
-	private validateApply(applyArray: any): boolean {
+	private validateApply(applyArray: any) {
 		let applyKeys = [];
 
 		if (!this.isValidArray(applyArray)) {
-			return false;
+			this.isValid = false;
+			return;
 		}
 		if (applyArray.length === 0) {
-			return false;
+			this.isValid = false;
+			return;
 		}
 
 		for (let applyRule in applyArray) {
 			if (Object.keys(applyRule).length !== 1) {
-				return false;
+				this.isValid = false;
+				return;
 			}
 			let applyKey = Object.keys(applyRule)[0];
 			applyKeys.push(applyKey);
@@ -116,11 +100,13 @@ export default class ValidateTransformationsHelper {
 
 		// https://stackoverflow.com/questions/19655975/check-if-an-array-contains-duplicate-values
 		if (applyKeys.length !== new Set(applyKeys).size) {
-			return false;
+			this.isValid = false;
+			return;
 		}
 
 		if (!this.isValidApplyClause(applyArray)) {
-			return false;
+			this.isValid = false;
+			return;
 		}
 		throw new Error("error when validating apply, unreachable code");
 	}
@@ -138,11 +124,13 @@ export default class ValidateTransformationsHelper {
 			let applyTokenAndKeyArray = Object.values(applyRule);
 			if (applyTokenAndKeyArray.length !== 1) {
 				return false;
+
 			}
 			let applyTokenAndKey = applyTokenAndKeyArray[0];
 
 			if (Object.keys(applyTokenAndKey).length !== 1 || Object.values(applyTokenAndKey).length !== 1) {
 				return false;
+
 			}
 
 			let applyToken = Object.keys(applyTokenAndKey)[0];
@@ -150,6 +138,7 @@ export default class ValidateTransformationsHelper {
 
 			if (!this.APPLYTOKENS.includes(applyToken)) {
 				return false;
+
 			}
 
 			if (applyToken !== "COUNT") {
@@ -157,6 +146,7 @@ export default class ValidateTransformationsHelper {
 				if (this.kind === InsightDatasetKind.Sections) {
 					if (!this.COURSES_MFIELDS.includes(keyField)) {
 						return false;
+
 					}
 				} else {
 					if (!this.ROOMS_MFIELDS.includes(keyField)) {
@@ -169,6 +159,7 @@ export default class ValidateTransformationsHelper {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -176,67 +167,47 @@ export default class ValidateTransformationsHelper {
 	// so loop over each of COLUMNS KEY, and verify that it is either in GROUP array or APPLY array
 	private validateTransformationsAgainstColumns(transformationsObject: any, columnsArray: any,): boolean {
 		let groupArray = transformationsObject["GROUP"];
-		// console.log(groupArray);
 		let applyArray = this.applyKeys;
-		// console.log(this.applyKeys);
 
 		columnsArray.forEach((column: any) => {
-			console.log("a key of columns array is " + column);
 			if (!groupArray.includes(column) && !applyArray.includes(column)) {
-				console.log("status of validateTransformationsAgainstColumns is FALSE");
 				return false;
 			}
 		});
-		console.log("status of validateTransformationsAgainstColumns is TRUE");
-		return true;
 
-		// for (let key in columnsArray) {
-		// 	console.log("a key of columns array is " + key);
-		// 	if (!groupArray.includes(key) && !applyArray.includes(key)) {
-		// 		return false;
-		// 	}
-		// }
-		// return true;
+		return true;
 	}
 
 	// called from validate GROUP
 	// given some key like rooms_fullname, check that the dataset id and fields are valid
 	private isValidQueryKey(key: any): boolean {
 		if (typeof key !== "string") {
-			console.log("failing at line 198");
 			return false;
 		}
 
 		// if we encounter a key that is one of the apply keys
 		if (this.applyKeys.includes(key)) {
-			console.log("failing at line 204");
 			return true;
 		}
 
-		// otherwise we are looking at some standarad keys
+		// otherwise we are looking at some standard keys
 		let keyID = key.split("_")[0];
 		let keyField = key.split("_")[1];
 
 		if (keyID !== this.datasetID) {
-			console.log("failing at line 213");
 			return false;
 		}
 
-		console.log("the kidn is " + this.kind);
 		if (this.kind === InsightDatasetKind.Sections) {
 			if (!this.COURSES_MFIELDS.includes(keyField) && !(this.COURSES_SFIELDS.includes(keyField))) {
-				console.log("failing at line 219");
 				return false;
 			};
 		} else {
 			if (!this.ROOMS_MFIELDS.includes(keyField) && !(this.ROOMS_SFIELDS.includes(keyField))) {
-				console.log("failing at line 224");
 				return false;
 			};
 		}
 
-		// otherwise you've come across an invalid string
-		// console.log("failing at line 229");
 		return true;
 	}
 

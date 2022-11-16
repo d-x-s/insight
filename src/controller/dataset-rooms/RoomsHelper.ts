@@ -3,7 +3,6 @@ import {IRoomDataset} from "./IRoomDataset";
 import JSZip from "jszip";
 import parse5 from "parse5";
 import {IRoomData} from "./IRoomData";
-import {Element} from "parse5/dist/tree-adapters/default";
 
 export default class RoomsHelper {
 
@@ -11,7 +10,7 @@ export default class RoomsHelper {
 
 	constructor() {
 		this.indexDirectory = "rooms/index.htm";
-		// console.log("Roome Helper created");
+		console.log("Roome Helper created");
 	}
 
 
