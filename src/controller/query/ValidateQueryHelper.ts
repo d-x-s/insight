@@ -1,5 +1,4 @@
 /* eslint-disable max-lines */
-import e from "express";
 import {InsightDatasetKind} from "../IInsightFacade";
 import ValidateTransformationsHelper from "./ValidateTransformationsHelper";
 
@@ -96,6 +95,16 @@ export default class ValidateQueryHelper {
 
 		this.validateFilter(query["WHERE"], id);
 		this.validateOptions(query["OPTIONS"], query, id);
+
+		// TODO: TECHNICAL DEBT
+		// previously, execution would flow such that Transformations would ALWAYS be checked
+		// due to the design of ValidateTransformationsHelper, it will sometimes return true,
+		// which resulted in a bug this.isValid would be reset to true
+		// therefore I have added an additional variable "isValidTransformation" to prevent this
+		// this is necessary because ValidateQueryHelper does some checking related to TRANSFORMATIONS,
+		// such as checking that COLUMNS key matches to GROUP/APPLY keys if TRANSFORMATIONS is present
+		// in retrospect, this violates SRP, and all Transformatiosn related checking in this class
+		// needs to be moved to ValidateTransformationsHelper
 		if (this.isTransformed && this.isValidTransformation) {
 			let transformationsHelper = new ValidateTransformationsHelper();
 			transformationsHelper.validateTransformations(
@@ -327,9 +336,20 @@ export default class ValidateQueryHelper {
 
 		columnsArray.forEach((element: any) => {
 			// if there is an apply key in columns you need to check that is also in the apply array
-			if (applyTokens.includes(element)) {
-				return;
-			}
+			// if (applyTokens.includes(element)) {
+			// 	return;
+			// }
+
+			// Keys in COLUMNS must be in GROUP or APPLY when TRANSFORMATIONS is present
+			if (this.isTransformed) {
+				let groupsArray = query["TRANSFORMATIONS"]["GROUP"];
+				if (!groupsArray.includes(element) && !applyTokens.includes(element)) {
+					this.isValid = false;
+					this.isValidTransformation = false;
+					// throw new Error("set to false");
+					return;
+				}
+			};
 
 			let key = element.split("_");
 			this.validateID(key[0], id);
