@@ -29,17 +29,17 @@ export default class ValidateTransformationsHelper {
 
 		let transformationElements = Object.keys(transformationsObject);
 		if (!(transformationElements.includes("GROUP")) || !(transformationElements.includes("APPLY"))) {
-			console.log("Transformations: returned false at Line 32");
+			// console.log("Transformations: returned false at Line 32");
 			return false;
 		}
 
 		let applyArray: any[] = transformationsObject["APPLY"];
 		applyArray.forEach((applyRule) => {
-			console.log(applyRule);
+			// console.log(applyRule);
 			this.applyKeys.push(Object.keys(applyRule)[0]);
 		});
-		console.log("applyKeys looks like: " + this.applyKeys);
-		console.log("applyKeys is an array? " + Array.isArray(this.applyKeys));
+		// console.log("applyKeys looks like: " + this.applyKeys);
+		// console.log("applyKeys is an array? " + Array.isArray(this.applyKeys));
 
 		// for (let applyRule in applyArray) {
 		// 	console.log(applyRule);
@@ -47,26 +47,26 @@ export default class ValidateTransformationsHelper {
 		// }
 
 		// at this point we are guaranteed the GROUP and APPLY arrays
-		console.log("columnsArray at line 50 looks like " + columnsArray);
+		// console.log("columnsArray at line 50 looks like " + columnsArray);
 		if (!this.validateTransformationsAgainstColumns(transformationsObject, columnsArray)) {
-			console.log("Transformations: returned false at Line 42");
+			// console.log("Transformations: returned false at Line 42");
 			return false;
 		}
 
-		console.log("Now running line 56");
-		console.log (transformationElements);
+		// console.log("Now running line 56");
+		// console.log (transformationElements);
 
 		for (let objectKey of transformationElements) {
-			console.log("objectKey of transformationElements is " + objectKey);
+			// console.log("objectKey of transformationElements is " + objectKey);
 			if (objectKey === "GROUP") {
-				console.log("etnered line 62");
-				console.log("Group Validation Status is " + this.validateGroup(transformationsObject["GROUP"]));
+				// console.log("etnered line 62");
+				// console.log("Group Validation Status is " + this.validateGroup(transformationsObject["GROUP"]));
 				return this.validateGroup(transformationsObject["GROUP"]);
 			} else if (objectKey === "APPLY") {
-				console.log("Apply Validation Status is " + this.validateApply(transformationsObject["APPLY"]));
+				// console.log("Apply Validation Status is " + this.validateApply(transformationsObject["APPLY"]));
 				return this.validateApply(transformationsObject["APPLY"]);
 			} else {
-				console.log("failign at line 54");
+				// console.log("failign at line 54");
 				return false;
 			}
 		};
@@ -176,9 +176,9 @@ export default class ValidateTransformationsHelper {
 	// so loop over each of COLUMNS KEY, and verify that it is either in GROUP array or APPLY array
 	private validateTransformationsAgainstColumns(transformationsObject: any, columnsArray: any,): boolean {
 		let groupArray = transformationsObject["GROUP"];
-		console.log(groupArray);
+		// console.log(groupArray);
 		let applyArray = this.applyKeys;
-		console.log(this.applyKeys);
+		// console.log(this.applyKeys);
 
 		columnsArray.forEach((column: any) => {
 			console.log("a key of columns array is " + column);

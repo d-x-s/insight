@@ -1,0 +1,113 @@
+{
+	"title": "validSimpleTransformationsSortUP",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"sumOfSectionAverages"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"sumOfSectionAverages"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title"
+			],
+			"APPLY": [
+				{
+					"sumOfSectionAverages": {
+						"SUM": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "res mthd in educ",
+			"sumOfSectionAverages": 97.5
+		},
+		{
+			"sections_title": "coll&uni teachng",
+			"sumOfSectionAverages": 97.67
+		},
+		{
+			"sections_title": "sem in autism",
+			"sumOfSectionAverages": 97.69
+		},
+		{
+			"sections_title": "cor des ed res",
+			"sumOfSectionAverages": 194.18
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"sumOfSectionAverages": 194.18
+		},
+		{
+			"sections_title": "diff geometry i",
+			"sumOfSectionAverages": 194.5
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"sumOfSectionAverages": 194.66
+		},
+		{
+			"sections_title": "algb geometry i",
+			"sumOfSectionAverages": 194.96
+		},
+		{
+			"sections_title": "acad assess schl",
+			"sumOfSectionAverages": 195.19
+		},
+		{
+			"sections_title": "thesis",
+			"sumOfSectionAverages": 196
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"sumOfSectionAverages": 196.9
+		},
+		{
+			"sections_title": "multimedia sys",
+			"sumOfSectionAverages": 197.5
+		},
+		{
+			"sections_title": "work int health",
+			"sumOfSectionAverages": 197.96
+		},
+		{
+			"sections_title": "algb topology i",
+			"sumOfSectionAverages": 199.56
+		},
+		{
+			"sections_title": "career planning",
+			"sumOfSectionAverages": 294.13
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"sumOfSectionAverages": 393.84
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"sumOfSectionAverages": 489.72
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"sumOfSectionAverages": 589.22
+		},
+		{
+			"sections_title": "educ stds autism",
+			"sumOfSectionAverages": 590.89
+		}
+	]
+}

@@ -1,5 +1,4 @@
 import Decimal from "decimal.js";
-import {arrayBuffer} from "stream/consumers";
 import {InsightResult} from "../IInsightFacade";
 
 export default class TransformationsHelper {
@@ -101,22 +100,22 @@ export default class TransformationsHelper {
 			// console.log(applyRule);
 			applyTokens.push(Object.keys(applyRule)[0]);
 		});
-		console.log("applyTokens looks like" + applyTokens);
+		// console.log("applyTokens looks like" + applyTokens);
 
 		for (const[groupKey, group] of mapOfGroups) {
 			const processedDataObject: InsightResult = {};
 			for (let column of columns) {
 				let field = column.split("_")[1];
 				if (applyTokens.includes(column)) {
-					console.log("applyToken is being computed");
+					// console.log("applyToken is being computed");
 					let applyRule: any = applyArray.find((element) => (Object.keys(element)[0] === column));
 					let applyRuleInnerObject: any = Object.values(applyRule)[0];
 					let applyKey: any = Object.keys(applyRuleInnerObject)[0];
 					let applyID: any = Object.values(applyRuleInnerObject)[0];
 					let applyIDSplit: any = applyID.split("_")[1];
-					console.log("the apply key is " + applyKey);
-					console.log("tje field is " + field);
-					console.log("the applyIDSplit is " + applyIDSplit);
+					// console.log("the apply key is " + applyKey);
+					// console.log("tje field is " + field);
+					// console.log("the applyIDSplit is " + applyIDSplit);
 					processedDataObject[column] = this.computeAppliedKeyForSingleGroup(applyKey, applyIDSplit, group);
 				} else {
 					processedDataObject[column] = group[0][field];
@@ -129,7 +128,7 @@ export default class TransformationsHelper {
 	}
 
 	private computeAppliedKeyForSingleGroup(apply: string, key: string, group: any): number {
-		console.log(apply);
+		// console.log(apply);
 		switch(apply) {
 			// MIN/MAX should return the same number that is in the originating dataset.
 			case "MAX": {

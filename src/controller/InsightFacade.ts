@@ -154,7 +154,7 @@ export default class InsightFacade implements IInsightFacade {
 				// console.log("now entering processquery");
 				result = queryEngine.processQuery(query, dataset, queryValidator.getTransformedStatus());
 				// console.log("process query OK");
-				console.log(result);
+				// console.log(result);
 
 				// TODO:do the TRANSFORMATION operations here
 				if (queryValidator.getTransformedStatus()) {

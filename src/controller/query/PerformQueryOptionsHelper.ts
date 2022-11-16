@@ -16,19 +16,11 @@ export default class PerformQueryOptionsHelper {
 
 	private processColumns(columns: any[], rawResult: any[], isTransformed: boolean): any[] {
 		let resultFiltered: any[] = [];
-		if (isTransformed) {
-			// proceed directly
-		}
-
 		for (let r of rawResult) {
 			const processedSectionObject: InsightResult = {};
 
 			for (let c of columns) {
 				if (isTransformed) {
-					// TODO: cleanup
-					// receive a map here
-					// do map stuff
-					// console.log("Transformed, don't do anything");
 					return rawResult;
 
 				} else {
@@ -41,63 +33,43 @@ export default class PerformQueryOptionsHelper {
 			resultFiltered.push(processedSectionObject);
 		}
 		return resultFiltered;
-
-		// rawResult.forEach((r) => {
-
-		// 	const processedSectionObject: InsightResult = {};
-		// 	columns.forEach((c: string) => {
-
-		// 		// TODO: HANDLE TRANSFORM KEYS
-		// 		// if its transformed, TransformationsHelper should handle everything
-		// 		// what we get back is a singular result object
-		// 		// {
-
-		// 		// 	"result": [{
-
-		// 		// 		 "rooms_shortname": "OSBO",
-
-		// 		// 		 "maxSeats": 442
-
-		// 		// 	},  {
-
-		// 		// 		"rooms_shortname": "HEBB",
-
-		// 		// 		"maxSeats": 375
-
-		// 		//    }, {
-
-		// 		// 	   "rooms_shortname": "LSC",
-
-		// 		// 	   "maxSeats": 350
-
-		// 		//    }]
-
-		// 		//   }
-		// 		// you can return it right away
-		// 		if (isTransformed) {
-		// 			processedSectionObject[c] = r[c];
-		// 		} else {
-		// 			let columnPair = c.split("_");
-		// 			let columnKey = columnPair[0];
-		// 			let columnValue = columnPair[1];
-		// 			processedSectionObject[c] = r[columnValue];
-		// 		}
-		// 	});
-		// 	resultFiltered.push(processedSectionObject);
-		// });
-		// return resultFiltered;
 	}
 
 	private processOrder(order: any, resultUnsorted: any[]): any[] {
-		// TODO: if ORDER is an object then we need a special type of sorting
-		return resultUnsorted.sort((element1, element2) => {
-			if (element1[order] > element2[order]) {
-				return 1;
-			} else if (element1[order] < element2[order]) {
-				return -1;
-			} else {
-				return 0;
+		if (typeof order === "string") {
+			return resultUnsorted.sort((element1, element2) => {
+				return this.orderStringSortHelper(element1, element2, order);
+			});
+		} else {
+			let resultSorted: any[] = resultUnsorted.sort((element1, element2) => {
+				return this.orderObjectSortHelper(element1, element2, order);
+			});
+			if (order["dir"] === "DOWN") {
+				resultSorted.reverse();
 			}
-		});
+			return resultSorted;
+		}
+	}
+
+	private orderStringSortHelper(e1: any, e2: any, order: any): number {
+		if (e1[order] > e2[order]) {
+			return 1;
+		} else if (e1[order] < e2[order]) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+
+	private orderObjectSortHelper(e1: any, e2: any, order: any): number {
+		let orderKeys = order["keys"];
+		for (let key of orderKeys) {
+			if (e1[key] > e2[key])  {
+				return 1;
+			} else if (e1[key] < e2[key]) {
+				return -1;
+			}
+		}
+		return 0; // corresponds to case where two elements are identical across all the order keys
 	}
 }

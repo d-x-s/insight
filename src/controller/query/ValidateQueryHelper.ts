@@ -84,7 +84,7 @@ export default class ValidateQueryHelper {
 		const queryKeys = Object.keys(query);
 
 		if (query === null || query === "undefined" || !(query instanceof Object)) {
-			console.log("Fail at 1");
+			// console.log("Fail at 1");
 			this.isValid = false;
 			return;
 		}
@@ -109,12 +109,12 @@ export default class ValidateQueryHelper {
 		}
 
 		this.validateFilter(query["WHERE"], id);
-		console.log("Status of query after Filter is " + this.getValidStatus());
+		// console.log("Status of query after Filter is " + this.getValidStatus());
 		this.validateOptions(query["OPTIONS"], query, id);
-		console.log("Status of query after Options is " + this.getValidStatus());
+		// console.log("Status of query after Options is " + this.getValidStatus());
 
 		// if transformed we need to do some special handling as the structure of query is different
-		console.log("This query is transformed? " + this.isTransformed);
+		// console.log("This query is transformed? " + this.isTransformed);
 		if (this.isTransformed) {
 			let transformationsHelper = new ValidateTransformationsHelper();
 			this.isValid = transformationsHelper.validateTransformations(
@@ -123,7 +123,7 @@ export default class ValidateQueryHelper {
 				id,
 				kind
 			);
-			console.log("Status of query after Transformations is " + this.getValidStatus());
+			// console.log("Status of query after Transformations is " + this.getValidStatus());
 		}
 	}
 
@@ -319,7 +319,7 @@ export default class ValidateQueryHelper {
 				return;
 			}
 			this.validateColumns(options["COLUMNS"], query, id);
-			console.log("Status of query after Columns is " + this.getValidStatus());
+			// console.log("Status of query after Columns is " + this.getValidStatus());
 		} else {
 			this.validateColumns(options["COLUMNS"], query, id);
 			this.validateOrder(options["ORDER"], options["COLUMNS"]);
@@ -342,7 +342,7 @@ export default class ValidateQueryHelper {
 		if (this.isTransformed) {
 			let applyArray = query["TRANSFORMATIONS"]["APPLY"];
 			for (let applyRule of applyArray) {
-				console.log(applyRule);
+				// console.log(applyRule);
 				applyTokens.push(Object.keys(applyRule)[0]);
 			}
 		}
