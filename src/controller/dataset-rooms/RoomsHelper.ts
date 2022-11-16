@@ -25,8 +25,8 @@ export default class RoomsHelper {
 	// I think this is not intuitive and will add a lot of unneccesary checking logic
 	// therefore we go with the string:any key value pair for our Map and this preserve the majority of our original code (OCP)
 
+	// EFFECTS: After parsing, resolves id's of successfully pushed rooms
 	// analogous to addCoursesDatasetToModel
-
 	public addRoomsDatasetToModel(
 		id: string,
 		content: string,
@@ -51,36 +51,13 @@ export default class RoomsHelper {
 		});
 	}
 
-	public verifyValidityOfRooms(content: any) {
-		// check if valid zip file
-
-		// check if single .htm file per dataset in root of zip
-
-		// check if rooms c
-
-		return false;
-	}
-
-		// HELPER: takes in content and adds
-	public addRooms(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-
-		// TODO: Retrieve geolocation of each building
-
-		if (this.verifyValidityOfRooms(content)){
-			return Promise.reject(new InsightError("ERROR: Invalid room"));
-		}
-
-		return Promise.reject(new InsightError("reject"));
-	}
-
 	public parseRoom(content: string): Promise<IRoomData[]> {
-
 		return new Promise((resolve, reject) => {
-
 			JSZip.loadAsync(content, {base64: true})
 				.then((result) => {
 					this.parseHtm(result)
 						.then((parsed) => {
+							// this.getRoomsFromParsedData(parsed);
 							resolve(parsed);
 						}).catch((err) => {
 							reject(new InsightError("ERROR: Unable to parse Htm document"));
@@ -103,18 +80,18 @@ export default class RoomsHelper {
 				return new InsightError("ERROR: rawData was empty or undefined");
 			}
 
-			let parseFile = rawData.async("string").then((result) => {
+			rawData.async("string").then((result) => {
 				let parsedResult = parse5.parse(result);
-				this.processParsedResult(parsedResult);
+				let parsedResultToHTMLTable = this.processParsedResult(parsedResult);
+				this.htmlIndexTable(parsedResultToHTMLTable);
+
+				// TODO: Finish GeoLocation function below
+				// return processLatAndLong();
+				return parsedResultToHTMLTable;
 			}).catch((err) => {
 				reject(new InsightError("ERROR: could not parse Htm"));
 			});
 
-			Promise.all([parseFile]).then(() => {
-				// TODO: add geolocation getters
-				// this.findGeolocationHelper();
-				// resolve(this);
-			});
 		});
 
 	}
@@ -141,17 +118,15 @@ export default class RoomsHelper {
 		}
 	}
 
+	// HELPER: Passes in htmlTable and creates table to populate
+	public htmlIndexTable(htmlTable: any) {
+		// htmlTable;
+	}
 
 	//
-	// private htmlHelper(element: Element) {
-	// 	if (element === undefined || element == null) {
-	// 		return;
-	// 	}
-	//
-	// 	for (let node of element.childNodes) {
-	// 		if
-	// 	}
-	// }
+	public getRoomsFromParsedData() {
+		// empty comment
+	}
 
 	// SPEC:
 	// (i) extend the query language to accommodate queries to a new dataset, i.e. Rooms; and
