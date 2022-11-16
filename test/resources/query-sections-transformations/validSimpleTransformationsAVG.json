@@ -1,0 +1,107 @@
+{
+	"title": "validSimpleTransformations",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"overallAvg"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title"
+			],
+			"APPLY": [
+				{
+					"overallAvg": {
+						"AVG": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "career planning",
+			"overallAvg": 98.04
+		},
+		{
+			"sections_title": "thesis",
+			"overallAvg": 98
+		},
+		{
+			"sections_title": "res mthd in educ",
+			"overallAvg": 97.5
+		},
+		{
+			"sections_title": "multimedia sys",
+			"overallAvg": 98.75
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"overallAvg": 97.94
+		},
+		{
+			"sections_title": "educ stds autism",
+			"overallAvg": 98.48
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"overallAvg": 98.45
+		},
+		{
+			"sections_title": "acad assess schl",
+			"overallAvg": 97.59
+		},
+		{
+			"sections_title": "sem in autism",
+			"overallAvg": 97.69
+		},
+		{
+			"sections_title": "cor des ed res",
+			"overallAvg": 97.09
+		},
+		{
+			"sections_title": "coll&uni teachng",
+			"overallAvg": 97.67
+		},
+		{
+			"sections_title": "diff geometry i",
+			"overallAvg": 97.25
+		},
+		{
+			"sections_title": "algb topology i",
+			"overallAvg": 99.78
+		},
+		{
+			"sections_title": "algb geometry i",
+			"overallAvg": 97.48
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"overallAvg": 97.09
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"overallAvg": 98.46
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"overallAvg": 98.2
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"overallAvg": 97.33
+		},
+		{
+			"sections_title": "work int health",
+			"overallAvg": 98.98
+		}
+	]
+}

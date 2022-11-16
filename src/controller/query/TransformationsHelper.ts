@@ -1,15 +1,17 @@
-export default class TransformationsHelper {
-	constructor() {
-		console.log("Hello");
-	}
+import Decimal from "decimal.js";
+import {InsightResult} from "../IInsightFacade";
 
-	public transform(query: any, rawResult: any[]): any {
+export default class TransformationsHelper {
+	constructor() {/**/}
+
+	public transform(query: any, rawResult: any[]): any[] {
 		let transformationsObject = query["TRANSFORMATIONS"];
+		let optionsObject = query["OPTIONS"];
 		let group = transformationsObject["GROUP"];
 		let apply = transformationsObject["APPLY"];
 
 		let groupedResult = this.processGroup(group, rawResult);
-		let appliedResult = this.processApply(apply, groupedResult);
+		let appliedResult = this.processApply(apply, groupedResult, optionsObject);
 
 		return appliedResult;
 	}
@@ -49,22 +51,100 @@ export default class TransformationsHelper {
 			if (this.isMatchingGroup(dataObject, group[0], groupVariablesArray)) {
 				return groupKey;
 			}
-			throw new Error("group was not found");
 		}
+		throw new Error("group was not found");
 	}
 
 	private isMatchingGroup(dataObject: any, groupMember: any, groupVariablesArray: any): boolean {
 		for (let key of groupVariablesArray) {
-			if (dataObject[key] !== groupMember[key]) {
+			let keyString = String(key.split("_")[1]);
+			if (dataObject[keyString] !== groupMember[keyString]) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
-	private processApply(applyArray: any[], rawResult: any[]): any {
-		// stub
+	private processApply(applyArray: any[], mapOfGroups: any, optionsObject: any): any {
+		let resultApplied: any[] = [];
+		let columns = optionsObject["COLUMNS"];
+
+		let applyTokens: any[] = [];
+		applyArray.forEach((applyRule) => {
+			applyTokens.push(Object.keys(applyRule)[0]);
+		});
+
+		for (const[groupKey, group] of mapOfGroups) {
+			const processedDataObject: InsightResult = {};
+			for (let column of columns) {
+				let field = column.split("_")[1];
+				if (applyTokens.includes(column)) {
+					let applyRule: any = applyArray.find((element) => (Object.keys(element)[0] === column));
+					let applyRuleInnerObject: any = Object.values(applyRule)[0];
+					let applyKey: any = Object.keys(applyRuleInnerObject)[0];
+					let applyID: any = Object.values(applyRuleInnerObject)[0];
+					let applyIDSplit: any = applyID.split("_")[1];
+
+					let appliedResult = this.computeAppliedKeyForSingleGroup(applyKey, applyIDSplit, group);
+					if (appliedResult === -1) {
+						throw new Error("invalid apply key was encountered");
+					}
+					processedDataObject[column] = appliedResult;
+				} else {
+					processedDataObject[column] = group[0][field];
+				}
+			}
+			resultApplied.push(processedDataObject);
+		}
+		return resultApplied;
+	}
+
+	private computeAppliedKeyForSingleGroup(apply: string, key: string, group: any): number {
+		switch(apply) {
+			case "MAX": {
+				let maxAccumulator: number = group[0][key];
+				for (let element of group) {
+					if (element[key] > maxAccumulator) {
+						maxAccumulator = element[key];
+					}
+				}
+				return maxAccumulator;
+			}
+			case "MIN": {
+				let minAccumulator: number = group[0][key];
+				for (let element of group) {
+					if (element[key] < minAccumulator) {
+						minAccumulator = element[key];
+					}
+				}
+				return minAccumulator;
+			}
+			case "AVG": {
+				let total: Decimal = new Decimal(0);
+				for (let element of group) {
+					total = total.add(new Decimal(element[key]));
+				}
+				let avg: number = total.toNumber() / group.length;
+				return Number(avg.toFixed(2));
+			}
+			case "SUM": {
+				let sum: Decimal = new Decimal(0);
+				for (let element of group) {
+					sum = sum.add(new Decimal(element[key]));
+				}
+				return Number(sum.toFixed(2));
+			}
+			case "COUNT": {
+				let uniqueFields: any[] = [];
+				for (let element of group) {
+					if (!uniqueFields.includes(element[key])) {
+						uniqueFields.push(element[key]);
+					}
+				}
+				return uniqueFields.length;
+			}
+			default: return -1;
+		}
 	}
 }
 

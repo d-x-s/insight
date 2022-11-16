@@ -77,6 +77,7 @@ export default class PerformQueryHelper {
 		return !this.where(query["NOT"], section, kind);
 	}
 
+	// TODO: hardcoded, epxand to rooms
 	// MCOMPARISON ::= MCOMPARATOR ':{' mkey ':' number '}'
 	// mkey ::= idstring '_' mfield
 	// mfield ::= 'avg' | 'pass' | 'fail' | 'audit' | 'year'
@@ -113,6 +114,7 @@ export default class PerformQueryHelper {
 		}
 	}
 
+	// TODO: hardcoded, expand to rooms
 	// SCOMPARISON ::= 'IS:{' skey ':' [*]? inputstring [*]? '}'  // Asterisks should act as wildcards.
 	// skey ::= idstring '_' sfield
 	// sfield ::=  'dept' | 'id' | 'instructor' | 'title' | 'uuid'

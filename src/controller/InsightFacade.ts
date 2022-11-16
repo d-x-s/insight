@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import {
 	IInsightFacade,
 	InsightDataset,
@@ -149,13 +150,11 @@ export default class InsightFacade implements IInsightFacade {
 			let result: any[];
 			try {
 				result = queryEngine.processQuery(query, dataset, queryValidator.getTransformedStatus());
-
-				// TODO:do the TRANSFORMATION operations here
 				if (queryValidator.getTransformedStatus()) {
 					result = transformer.transform(query, result);
 				}
-
 				result = optionsFilter.processOptions(query, result, queryValidator.getTransformedStatus());
+
 			} catch (err) {
 				return reject(new InsightError("InsightError: unexpected behavior while performing query: " + err));
 			}

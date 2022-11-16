@@ -49,7 +49,6 @@ export class CoursesHelper {
 	}
 
 	private loadAsyncHelper(zipFile: JSZip, dataToPush: Array<Promise<string>>): any {
-		// TODO: expand to process "rooms" data
 		let fileFolder = zipFile.folder("courses");
 		if (fileFolder == null || fileFolder === undefined) {
 			return new InsightError("InsightError: null file folder, could not load");

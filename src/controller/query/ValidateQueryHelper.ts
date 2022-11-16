@@ -4,7 +4,8 @@ import {InsightDatasetKind} from "../IInsightFacade";
 import ValidateTransformationsHelper from "./ValidateTransformationsHelper";
 
 export default class ValidateQueryHelper {
-	protected isValid: boolean;
+	protected isValid: any;
+	protected isValidTransformation: any;
 	protected isTransformed: boolean;
 	protected kind: InsightDatasetKind;
 	protected QKEYS = ["OPTIONS", "WHERE", "TRANSFORMATIONS"];
@@ -16,6 +17,7 @@ export default class ValidateQueryHelper {
 
 	constructor() {
 		this.isValid = true;
+		this.isValidTransformation = true;
 		this.isTransformed = false;
 		this.kind = InsightDatasetKind.Sections; // initialize to sections by default
 	}
@@ -57,18 +59,6 @@ export default class ValidateQueryHelper {
 		) {
 			throw new Error("the value of COLUMNS is not an array, is empty, undefined, or not an object");
 		}
-		// TODO: MIGHT NOT BE ABLE TO ALWAYS TAKE THE FIRST VALUE!
-		// for (let i = 0; i < columnsValueArray.length; i++) {
-		// 	if (columnsValueArray[i].includes("_")) {
-		// 		return columnsValueArray[i].split("_")[0];
-		// 	}
-		// }
-
-		// columnsValueArray.forEach((key) => {
-		// 	if (key.includes("_")) {
-		// 		return key.split("_")[0];
-		// 	}
-		// });
 
 		// look for the first valid id in columns
 		for (const columnKey of columnsValueArray) {
@@ -98,27 +88,23 @@ export default class ValidateQueryHelper {
 				this.isValid = false;
 				return;
 			}
-			console.log(k);
-			console.log(this.isTransformed);
+
 			if (k === "TRANSFORMATIONS") {
 				this.isTransformed = true;
 			}
-			console.log("this line is running?");
-			console.log(this.isTransformed);
 		}
 
 		this.validateFilter(query["WHERE"], id);
-		this.validateOptions(query["OPTIONS"], id);
-
-		// if transformed we need to do some special handling as the structure of query is different
-		if (this.isTransformed) {
+		this.validateOptions(query["OPTIONS"], query, id);
+		if (this.isTransformed && this.isValidTransformation) {
 			let transformationsHelper = new ValidateTransformationsHelper();
-			this.isValid = transformationsHelper.validateTransformations(
+			transformationsHelper.validateTransformations(
 				query["TRANSFORMATIONS"],
 				query["OPTIONS"]["COLUMNS"],
 				id,
 				kind
 			);
+			this.isValid = transformationsHelper.getValidStatus();
 		}
 	}
 
@@ -279,7 +265,6 @@ export default class ValidateQueryHelper {
 		}
 	}
 
-	// TODO, FIT TO ROOMS SPECIFICATION (think it is OK tho)
 	private validateID(idToVerify: any, id: any) {
 		if (idToVerify.includes("_") || idToVerify.trim().length === 0 || idToVerify !== id) {
 			this.isValid = false;
@@ -295,7 +280,7 @@ export default class ValidateQueryHelper {
 		this.validateFilter(negation, id);
 	}
 
-	private validateOptions(options: any, id: string) {
+	private validateOptions(options: any, query: any, id: string) {
 		if (typeof options === "undefined" || typeof options !== "object") {
 			this.isValid = false;
 			return;
@@ -313,15 +298,14 @@ export default class ValidateQueryHelper {
 				this.isValid = false;
 				return;
 			}
-			this.validateColumns(options["COLUMNS"], id);
+			this.validateColumns(options["COLUMNS"], query, id);
 		} else {
-			this.validateColumns(options["COLUMNS"], id);
+			this.validateColumns(options["COLUMNS"], query, id);
 			this.validateOrder(options["ORDER"], options["COLUMNS"]);
 		}
 	}
 
-	// TODO: in c2, ValidateTransformationsHelepr will take care of checking that keys match to GROUP and APPLY
-	private validateColumns(columnsArray: any, id: string) {
+	private validateColumns(columnsArray: any, query: any, id: string) {
 		if (
 			!Array.isArray(columnsArray) ||
 			columnsArray.length === 0 ||
@@ -331,7 +315,22 @@ export default class ValidateQueryHelper {
 			this.isValid = false;
 			return;
 		}
+
+		let applyTokens: any[] = [];
+		if (this.isTransformed) {
+			let applyArray = query["TRANSFORMATIONS"]["APPLY"];
+			for (let applyRule of applyArray) {
+				applyTokens.push(Object.keys(applyRule)[0]);
+			}
+		}
+
+
 		columnsArray.forEach((element: any) => {
+			// if there is an apply key in columns you need to check that is also in the apply array
+			if (applyTokens.includes(element)) {
+				return;
+			}
+
 			let key = element.split("_");
 			this.validateID(key[0], id);
 			if (this.kind === InsightDatasetKind.Sections) {
@@ -348,7 +347,6 @@ export default class ValidateQueryHelper {
 		});
 	}
 
-	// TODO: in C2, the order can either be a string or an object
 	private validateOrder(orderElement: any, columnsArray: any) {
 		if (typeof orderElement === "string") {
 			if (!columnsArray.includes(orderElement)) {
@@ -359,35 +357,36 @@ export default class ValidateQueryHelper {
 			this.validateOrderObject(orderElement, columnsArray);
 		} else {
 			this.isValid = false;
+			this.isValidTransformation = false;
 			throw new Error("ORDER value is neither a string nor an object");
 		}
-
-		// if (typeof orderValue !== "string" || !columnsArray.includes(orderValue)) {
-		// 	this.isValid = false;
-		// 	return;
-		// }
 	}
 
+	// eslint-disable-next-line max-lines-per-function
 	private validateOrderObject(orderElement: any, columnsArray: any) {
 		let orderObjectKeys = Object.keys(orderElement);
 		if (orderObjectKeys.length !== 2) {
 			this.isValid = false;
+			this.isValidTransformation = false;
 			return;
 		}
 
 		for (let objectKey of orderObjectKeys) {
 			if (objectKey !== "dir" && objectKey !== "keys") {
 				this.isValid = false;
+				this.isValidTransformation = false;
 				return;
 			}
 
 			if (objectKey === "dir") {
 				if (typeof orderElement["dir"] !== "string") {
 					this.isValid = false;
+					this.isValidTransformation = false;
 					return;
 				}
 				if (orderElement["dir"] !== "UP" && orderElement["dir"] !== "DOWN") {
 					this.isValid = false;
+					this.isValidTransformation = false;
 					return;
 				}
 			}
@@ -395,21 +394,21 @@ export default class ValidateQueryHelper {
 			if (objectKey === "keys") {
 				if (!Array.isArray(orderElement["keys"])) {
 					this.isValid = false;
+					this.isValidTransformation = false;
 					return;
 				}
 
-				// ORDER KEYS MUST BE NON EMPTY ARRAY
 				let orderKeysArray = orderElement["keys"];
 				if (orderKeysArray.length === 0) {
 					this.isValid = false;
+					this.isValidTransformation = false;
 					return;
 				}
 
-				// (ALL SORT KEYS MUST ALSO BE IN COLUMNS)
-				// ALL ORDER KEYS MUST BE IN COLUMNS
 				for (let key of orderKeysArray) {
 					if (!columnsArray.includes(key)) {
 						this.isValid = false;
+						this.isValidTransformation = false;
 						return;
 					}
 				}
