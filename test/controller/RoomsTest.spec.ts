@@ -57,6 +57,7 @@ describe("Rooms", function() {
 			const id: string = "rooms";
 			const content: string = datasetContents.get("rooms") ?? "";
 			const expected: string[] = [id];
+
 			return insightFacade.addDataset(id, content, InsightDatasetKind.Rooms)
 				.then((result: string[]) => expect(result).to.deep.equal(expected));
 		});

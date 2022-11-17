@@ -24,7 +24,6 @@ export default class RoomsHelper {
 		console.log("Rooms Helper created");
 	}
 
-
 	// TODO!!!!!!!!!!!!!!!
 	// please make RoomsHelper a mirror of CoursesHelper
 	// note: remember that CoursesHelper used to be AddDatasetHelpers, which I have refactored
@@ -44,73 +43,79 @@ export default class RoomsHelper {
 		kind: InsightDatasetKind,
 		model: Map<string, IRoomDataset>
 	): Promise<string[]> {
-
+		let zipped: JSZip = new JSZip();
 		return new Promise<string[]> ((resolve, reject) => {
-			let newRoom: IRoomDataset = {
-				id: id,
-				roomsData: [],
-				kind: kind,
-			};
-			this.parseRoom(content).then((result) => {
-				console.log("parseRoom finished");
-				newRoom.roomsData = result;
-				model.set(id, newRoom);
-				let updateKeysAfterAdd: string[] = Array.from(model.keys());
-				resolve(updateKeysAfterAdd);
-			}).catch((err: any) => {
-				reject(new InsightError("Error unable to parse room dataset"));
-			});
-		});
-	}
-
-	public parseRoom(content: string): Promise<IRoomData[]> {
-		console.log("parse Room called");
-		return new Promise((resolve, reject) => {
-			JSZip.loadAsync(content, {base64: true})
-				.then((result) => {
-					console.log("load works");
-					this.parseHtm(result)
-						.then((parsed) => {
-							console.log("parsed", parsed);
-							this.getRoomsFromParsedData(parsed);
-							resolve(parsed);
-						}).catch((err) => {
-							reject(new InsightError("ERROR: Unable to parse Htm document"));
+			zipped.loadAsync(content, {base64: true})
+				.then((loadedZipFiles) => {
+					console.log(loadedZipFiles);
+					console.log("async done1");
+					let temp = this.loadAsyncHelper(loadedZipFiles);
+					console.log("bla");
+					return temp;
+				})
+				.then((value: Array<Promise<string>> | InsightError) => {
+					console.log("async done2");
+					if (value instanceof InsightError) {
+						return value;
+					}
+					if (value.length === 0) {
+						reject(new InsightError("InsightError: empty directory"));
+					}
+					console.log("async done3");
+					Promise.all(value)
+						.then((arrayOfPromiseAllResults) => {
+							return this.parseHtm(arrayOfPromiseAllResults);
+						})
+						.then((convertedRooms) => {
+							resolve(this.setDataToModelAndDisk(id, convertedRooms, kind, content, model));
 						});
-				}).catch((err) => {
-					reject(new InsightError("Error: Error while trying to parse Htm document"));
+				})
+				.catch((err) => {
+					reject(new InsightError("InsightError: failed to parse" + err));
 				});
 		});
-
-		return Promise.reject(new InsightError("ERROR: "));
 	}
 
-	public parseHtm(zipped: JSZip): Promise<IRoomData[]> {
+	private loadAsyncHelper(zipFiles: any): any {
+		console.log("async done1.5");
+
+		let dataToPush: Array<Promise<IRoomData>> = [];
+
+		let fileFolder = zipFiles.folder("rooms").file("index.htm").async("string");
+		console.log("fileFolder", fileFolder);
+		if (fileFolder == null) {
+			return new InsightError("InsightError: null file folder, could not load");
+		}
+		fileFolder.forEach((jsonFile: any) => {
+			if (fileFolder == null || fileFolder === undefined) {
+				return new InsightError("InsightError: null file folder, could not load");
+			}
+			let currFile = fileFolder.file(jsonFile);
+			if (currFile == null) {
+				return new InsightError("InsightError: current course being added is null");
+			}
+			dataToPush.push(currFile.async("text"));
+		});
+
+		console.log("data", dataToPush);
+		return dataToPush;
+	}
+
+	public parseHtm(filesToParse: string[]): Promise<IRoomData[]> {
 
 		console.log("Parse htm called");
 		return new Promise<IRoomData[]> ((resolve, reject) => {
 
-			let rawData = zipped.file(this.indexDirectory);
-
-			if (rawData == null || rawData === undefined) {
-				return new InsightError("ERROR: rawData was empty or undefined");
-			}
-
-			rawData.async("string").then((result) => {
-				console.log("async done");
-				let parsedResult = parse5.parse(result);
+			filesToParse.forEach((jsonPromise) => {
+				let parsedResult = parse5.parse(jsonPromise);
 				let parsedResultToHTMLTable = this.processParsedResult(parsedResult);
 				this.htmlIndexTable(parsedResultToHTMLTable);
 
 				this.findLocation.processLatAndLong(this.internalIndex).then(() => {
 					return resolve(parsedResultToHTMLTable);
 				});
-			}).catch((err) => {
-				reject(new InsightError("ERROR: could not parse Htm" + err));
 			});
-
 		});
-
 	}
 
 	public processParsedResult(parsedResult: any): any {
@@ -163,7 +168,6 @@ export default class RoomsHelper {
 		});
 	}
 
-
 	// HELPER: called to
 	public searchCell(cell: any, row: any) {
 		let allNames = "";
@@ -177,9 +181,7 @@ export default class RoomsHelper {
 		allNames.split(" ");
 
 		let fullName: string = "";
-
 		// check which index the name falls under
-
 		if (allNames.indexOf("views-field-title")) {
 			fullName = this.handleFieldTitle(cell);
 		} else if (allNames.indexOf("views-field-field-building-code")) {
@@ -187,7 +189,6 @@ export default class RoomsHelper {
 		}
 
 		row["fullname"] = fullName;
-
 	}
 
 	public handleFieldTitle(cell: any): string {
@@ -249,35 +250,35 @@ export default class RoomsHelper {
 	// 	return convertedSections;
 	// }
 	//
-	// // HELPER: Sets data to internal model and to disk
-	// private setDataToModelAndDisk(
-	// 	id: string,
-	// 	convertedSections: ISectionData[],
-	// 	kind: InsightDatasetKind,
-	// 	content: string,
-	// 	model: Map<string, ICourseDataset>
-	// ): Promise<string[]> {
-	// 	return new Promise<string[]>((resolve, reject) => {
-	// 		let newDataset: ICourseDataset = {
-	// 			id: id,
-	// 			sectionsData: convertedSections,
-	// 			kind: kind,
-	// 		};
-	// 		model.set(id, newDataset);
-	// 		let updateKeysAfterAdd: string[] = Array.from(model.keys());
-	// 		let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
-	// 		try {
-	// 			fs.writeFile(datasetFile, content, "base64", (err) => {
-	// 				if (err) {
-	// 					reject(new InsightError("InsightError: could not write to file"));
-	// 				}
-	// 			});
-	// 		} catch {
-	// 			return new InsightError("InsightError: could not delete dataset");
-	// 		}
-	// 		return resolve(updateKeysAfterAdd);
-	// 	});
-	// }
+	// HELPER: Sets data to internal model and to disk
+	private setDataToModelAndDisk(
+		id: string,
+		convertedSections: IRoomData[],
+		kind: InsightDatasetKind,
+		content: string,
+		model: Map<string, IRoomDataset>
+	): Promise<string[]> {
+		return new Promise<string[]>((resolve, reject) => {
+			let newDataset: IRoomDataset = {
+				id: id,
+				roomsData: convertedSections,
+				kind: kind,
+			};
+			model.set(id, newDataset);
+			let updateKeysAfterAdd: string[] = Array.from(model.keys());
+			let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
+			try {
+				fs.writeFile(datasetFile, content, "base64", (err) => {
+					if (err) {
+						reject(new InsightError("InsightError: could not write to file"));
+					}
+				});
+			} catch {
+				return new InsightError("InsightError: could not delete dataset");
+			}
+			return resolve(updateKeysAfterAdd);
+		});
+	}
 
 
 }
