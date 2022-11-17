@@ -219,7 +219,6 @@ export default class ValidateQueryHelper {
 		}
 	}
 
-	// eslint-disable-next-line max-lines-per-function
 	private validateOrderObject(orderElement: any, columnsArray: any) {
 		let orderObjectKeys = Object.keys(orderElement);
 		if (orderObjectKeys.length !== 2) {
@@ -227,14 +226,12 @@ export default class ValidateQueryHelper {
 			this.isValidTransformation = false;
 			return;
 		}
-
 		for (let objectKey of orderObjectKeys) {
 			if (objectKey !== "dir" && objectKey !== "keys") {
 				this.isValid = false;
 				this.isValidTransformation = false;
 				return;
 			}
-
 			if (objectKey === "dir") {
 				if (typeof orderElement["dir"] !== "string") {
 					this.isValid = false;
@@ -247,21 +244,18 @@ export default class ValidateQueryHelper {
 					return;
 				}
 			}
-
 			if (objectKey === "keys") {
 				if (!Array.isArray(orderElement["keys"])) {
 					this.isValid = false;
 					this.isValidTransformation = false;
 					return;
 				}
-
 				let orderKeysArray = orderElement["keys"];
 				if (orderKeysArray.length === 0) {
 					this.isValid = false;
 					this.isValidTransformation = false;
 					return;
 				}
-
 				for (let key of orderKeysArray) {
 					if (!columnsArray.includes(key)) {
 						this.isValid = false;
