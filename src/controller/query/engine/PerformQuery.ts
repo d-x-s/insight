@@ -1,4 +1,4 @@
-import PerformQueryOptionsHelper from "./PerformQueryOptionsHelper";
+import PerformQueryOptionsHelper from "./engine-helpers/PerformQueryOptionsHelper";
 
 export default class PerformQueryHelper {
 	protected kind: any;

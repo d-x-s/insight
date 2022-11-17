@@ -1,5 +1,4 @@
-/* eslint-disable max-lines-per-function */
-import {InsightDatasetKind} from "../IInsightFacade";
+import {InsightDatasetKind} from "../../../IInsightFacade";
 
 export default class ValidateTransformationsHelper {
 	protected COURSES_MFIELDS = ["avg", "pass", "fail", "audit", "year"];
@@ -22,16 +21,17 @@ export default class ValidateTransformationsHelper {
 		return this.isValid;
 	}
 
-	public validateTransformations(transformationsObject: any,
-								   columnsArray: any,
-								   id: string,
-								   kind: InsightDatasetKind) {
-
+	public validateTransformations(
+		transformationsObject: any,
+		columnsArray: any,
+		id: string,
+		kind: InsightDatasetKind
+	) {
 		this.columnsArray = columnsArray;
 		this.datasetID = id;
 		this.kind = kind;
 		let transformationElements = Object.keys(transformationsObject);
-		if (!(transformationElements.includes("GROUP")) || !(transformationElements.includes("APPLY"))) {
+		if (!transformationElements.includes("GROUP") || !transformationElements.includes("APPLY")) {
 			this.isValid = false;
 			return;
 		}
@@ -53,7 +53,7 @@ export default class ValidateTransformationsHelper {
 				this.isValid = false;
 				return;
 			}
-		};
+		}
 	}
 
 	private validateGroup(groupArray: any) {
@@ -66,7 +66,7 @@ export default class ValidateTransformationsHelper {
 			return;
 		}
 		for (let key of groupArray) {
-			if(!this.isValidQueryKey(key)) {
+			if (!this.isValidQueryKey(key)) {
 				this.isValid = false;
 				return;
 			}
@@ -117,14 +117,12 @@ export default class ValidateTransformationsHelper {
 
 			if (Object.keys(applyTokenAndKey).length !== 1 || Object.values(applyTokenAndKey).length !== 1) {
 				return false;
-
 			}
 
 			let applyKey = Object.keys(applyTokenAndKey)[0];
 			let key: any = Object.values(applyTokenAndKey)[0];
 			if (!this.APPLYTOKENS.includes(applyKey)) {
 				return false;
-
 			}
 			if (applyKey !== "COUNT") {
 				let keyField: any = key.split("_")[1];
@@ -147,7 +145,7 @@ export default class ValidateTransformationsHelper {
 
 	// If a GROUP is present, all COLUMNS keys must correspond to one of the GROUP keys or to applykeys defined in the APPLY block.
 	// so loop over each of COLUMNS KEY, and verify that it is either in GROUP array or APPLY array
-	private validateTransformationsAgainstColumns(transformationsObject: any, columnsArray: any,): boolean {
+	private validateTransformationsAgainstColumns(transformationsObject: any, columnsArray: any): boolean {
 		let groupArray = transformationsObject["GROUP"];
 		let applyArray = this.applyKeys;
 
@@ -180,23 +178,18 @@ export default class ValidateTransformationsHelper {
 		}
 
 		if (this.kind === InsightDatasetKind.Sections) {
-			if (!this.COURSES_MFIELDS.includes(keyField) && !(this.COURSES_SFIELDS.includes(keyField))) {
+			if (!this.COURSES_MFIELDS.includes(keyField) && !this.COURSES_SFIELDS.includes(keyField)) {
 				return false;
-			};
+			}
 		} else {
-			if (!this.ROOMS_MFIELDS.includes(keyField) && !(this.ROOMS_SFIELDS.includes(keyField))) {
+			if (!this.ROOMS_MFIELDS.includes(keyField) && !this.ROOMS_SFIELDS.includes(keyField)) {
 				return false;
-			};
+			}
 		}
 		return true;
 	}
 
 	private isValidArray(a: any): boolean {
-		return !(
-			!Array.isArray(a) ||
-			a.length === 0 ||
-			typeof a === "undefined" ||
-			typeof a !== "object"
-		);
+		return !(!Array.isArray(a) || a.length === 0 || typeof a === "undefined" || typeof a !== "object");
 	}
-};
+}

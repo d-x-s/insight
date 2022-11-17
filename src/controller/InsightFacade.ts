@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import {
 	IInsightFacade,
 	InsightDataset,
@@ -8,15 +7,15 @@ import {
 	NotFoundError,
 	ResultTooLargeError,
 } from "./IInsightFacade";
-import PerformQueryHelper from "./query/PerformQueryHelper";
-import ValidateQueryHelper from "./query/ValidateQueryHelper";
-import PerformQueryOptionsHelper from "./query/PerformQueryOptionsHelper";
+import PerformQueryHelper from "./query/engine/PerformQuery";
+import ValidateQueryHelper from "./query/validation/ValidateQuery";
+import PerformQueryOptionsHelper from "./query/engine/engine-helpers/PerformQueryOptionsHelper";
 import RoomsHelper from "./dataset-rooms/RoomsHelper";
 import {IdValidator} from "./read-and-parse/IdValidator";
 import {CoursesHelper} from "./dataset-courses/CoursesHelper";
 import * as fs from "fs";
 import path from "path";
-import TransformationsHelper from "./query/TransformationsHelper";
+import TransformationsHelper from "./query/engine/engine-helpers/TransformationsHelper";
 
 /**
  * This is the main programmatic entry point for the project.

@@ -1,4 +1,4 @@
-import {InsightResult} from "../IInsightFacade";
+import {InsightResult} from "../../../IInsightFacade";
 
 export default class PerformQueryOptionsHelper {
 	protected kind: any;
@@ -22,7 +22,6 @@ export default class PerformQueryOptionsHelper {
 			for (let c of columns) {
 				if (isTransformed) {
 					return rawResult;
-
 				} else {
 					let columnPair = c.split("_");
 					let columnKey = columnPair[0];
@@ -64,7 +63,7 @@ export default class PerformQueryOptionsHelper {
 	private orderObjectSortHelper(e1: any, e2: any, order: any): number {
 		let orderKeys = order["keys"];
 		for (let key of orderKeys) {
-			if (e1[key] > e2[key])  {
+			if (e1[key] > e2[key]) {
 				return 1;
 			} else if (e1[key] < e2[key]) {
 				return -1;
