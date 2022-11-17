@@ -150,20 +150,17 @@ export default class InsightFacade implements IInsightFacade {
 			let result: any[];
 			try {
 				result = queryEngine.processQuery(query, dataset, queryValidator.getTransformedStatus());
+				if (result.length > 5000) {
+					return reject(new ResultTooLargeError("ResultTooLargeError: query returns more than 5000 results"));
+				}
 				if (queryValidator.getTransformedStatus()) {
 					result = transformer.transform(query, result);
 				}
 				result = optionsFilter.processOptions(query, result, queryValidator.getTransformedStatus());
-
 			} catch (err) {
 				return reject(new InsightError("InsightError: unexpected behavior while performing query: " + err));
 			}
-
-			if (result.length > 5000) {
-				return reject(new ResultTooLargeError("ResultTooLargeError: query returned more than 5000 results"));
-			} else {
-				return resolve(result);
-			}
+			return resolve(result);
 		});
 	}
 
