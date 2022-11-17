@@ -62,7 +62,7 @@ export default class RoomsHelper {
 				.then((result) => {
 					this.parseHtm(result)
 						.then((parsed) => {
-							// this.getRoomsFromParsedData(parsed);
+							this.getRoomsFromParsedData(parsed);
 							resolve(parsed);
 						}).catch((err) => {
 							reject(new InsightError("ERROR: Unable to parse Htm document"));
@@ -91,10 +91,11 @@ export default class RoomsHelper {
 				this.htmlIndexTable(parsedResultToHTMLTable);
 
 				// TODO: Finish GeoLocation function below
-				// return this.findLocation.processLatAndLong();
-				return parsedResultToHTMLTable;
+				this.findLocation.processLatAndLong(this.internalIndex).then(() => {
+					return resolve(parsedResultToHTMLTable);
+				});
 			}).catch((err) => {
-				reject(new InsightError("ERROR: could not parse Htm"));
+				reject(new InsightError("ERROR: could not parse Htm" + err));
 			});
 
 		});
@@ -104,9 +105,9 @@ export default class RoomsHelper {
 	public processParsedResult(parsedResult: any): any {
 
 		if (parsedResult["nodeName"] === "tbody") {
-			// if (this.isValidTable(parsedResult) || this.isValidIndexTable(parsedResult))) {
-			return parsedResult;
-			// }
+			if (this.verifyParsedResult(parsedResult)) {
+				return parsedResult;
+			}
 		}
 
 		if (parsedResult["childNodes"].length === 0) {
@@ -123,6 +124,19 @@ export default class RoomsHelper {
 		}
 	}
 
+	public verifyParsedResult(parsedResult: any): boolean {
+		parsedResult["childNodes"].forEach((node: any) => {
+			if (node["nodeName"] === "tr") {
+				node["childNodes"].forEach((nodeCell: any) => {
+					if (nodeCell["nodeName"] === "td") {
+						return true;
+					}
+				});
+			}
+		});
+		return false;
+	}
+
 	// HELPER: Passes in htmlTable and creates table to populate internalIndex
 	public htmlIndexTable(htmlTable: any) {
 		htmlTable.forEach((row: any) => {
@@ -131,8 +145,8 @@ export default class RoomsHelper {
 				let address = "";
 				row["childNodes"].forEach((cell: any) => {
 					if (cell["attrs"].length > 0 && cell["nodeName"] === "td") {
-						// this.searchCell(cell, currRow);
-						// address = this.verifyAddress(cell, address);
+						this.searchCell(cell, currRow);
+						address = this.verifyAddress(cell, address);
 					}
 				});
 				this.internalIndex[address] = {...currRow};
@@ -141,21 +155,70 @@ export default class RoomsHelper {
 	}
 
 
-	// HELPER:
-	public searchCell() {
-		// TODO: fill out
+	// HELPER: called to
+	public searchCell(cell: any, row: any) {
+		let allNames = "";
+
+		cell["attrs"].forEach((singleAttr: any) => {
+			if (singleAttr["name"] === "class") {
+				allNames += singleAttr["value"];
+			}
+		});
+
+		allNames.split(" ");
+
+		let fullName: string = "";
+
+		// check which index the name falls under
+
+		if (allNames.indexOf("views-field-title")) {
+			fullName = this.handleFieldTitle(cell);
+		} else if (allNames.indexOf("views-field-field-building-code")) {
+			this.handleFieldBuildingCode(cell, row);
+		}
+
+		row["fullname"] = fullName;
+
 	}
 
+	public handleFieldTitle(cell: any): string {
+		cell["childNodes"].forEach((singleCell: any) => {
+			if (singleCell["nodeName"] === "a") {
+				singleCell["childNodes"].forEach((childNode: any) => {
+					if (childNode["nodeName"] === "#text") {
+						return childNode["value"];
+					}
+				});
+			}
+		});
+		return "";
+	}
+
+	public handleFieldBuildingCode(cell: any, row: any) {
+		row["shortname"] = cell["childNodes"][0]["value"].trim();
+	}
 
 	// HELPER
-	// public verifyAddress(cell: any, address: string): string {
+	public verifyAddress(cell: any, address: string): string {
 
+		let allValidAttrs = "";
 
-		// if ()
-	// }
+		cell["attrs"].forEach((singleAttr: any) => {
+			if (singleAttr["name"] === "class") {
+				allValidAttrs += singleAttr["value"];
+			}
+		});
+
+		allValidAttrs.split(" ");
+
+		if (allValidAttrs.indexOf("views-field-field-building-address") > -1) {
+			return cell["childNodes"][0]["value"].trim();
+		}
+		return address;
+	}
 
 	// HELPER:
-	public getRoomsFromParsedData() {
+	public getRoomsFromParsedData(parsedData: IRoomData[]) {
 		// empty comment
 	}
 
