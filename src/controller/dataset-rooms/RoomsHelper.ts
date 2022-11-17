@@ -4,17 +4,23 @@ import JSZip from "jszip";
 import parse5 from "parse5";
 import {IRoomData} from "./IRoomData";
 import {GeoLeocation} from "./GeoLocation";
+import {ISectionData} from "../dataset-courses/ISectionData";
+import {ICourseDataset} from "../dataset-courses/ICourseDataset";
+import path from "path";
+import fs from "fs";
 
 export default class RoomsHelper {
 
 	public indexDirectory: string;
 	public findLocation: GeoLeocation;
 	public internalIndex: any;
+	public fileDirectory: string;
 
 	constructor() {
 		this.indexDirectory = "rooms/index.htm";
 		this.findLocation = new GeoLeocation();
 		this.internalIndex = {};
+		this.fileDirectory = __dirname + "/../../data";
 		console.log("Rooms Helper created");
 	}
 
@@ -46,6 +52,7 @@ export default class RoomsHelper {
 				kind: kind,
 			};
 			this.parseRoom(content).then((result) => {
+				console.log("parseRoom finished");
 				newRoom.roomsData = result;
 				model.set(id, newRoom);
 				let updateKeysAfterAdd: string[] = Array.from(model.keys());
@@ -57,11 +64,14 @@ export default class RoomsHelper {
 	}
 
 	public parseRoom(content: string): Promise<IRoomData[]> {
+		console.log("parse Room called");
 		return new Promise((resolve, reject) => {
 			JSZip.loadAsync(content, {base64: true})
 				.then((result) => {
+					console.log("load works");
 					this.parseHtm(result)
 						.then((parsed) => {
+							console.log("parsed", parsed);
 							this.getRoomsFromParsedData(parsed);
 							resolve(parsed);
 						}).catch((err) => {
@@ -77,6 +87,7 @@ export default class RoomsHelper {
 
 	public parseHtm(zipped: JSZip): Promise<IRoomData[]> {
 
+		console.log("Parse htm called");
 		return new Promise<IRoomData[]> ((resolve, reject) => {
 
 			let rawData = zipped.file(this.indexDirectory);
@@ -86,11 +97,11 @@ export default class RoomsHelper {
 			}
 
 			rawData.async("string").then((result) => {
+				console.log("async done");
 				let parsedResult = parse5.parse(result);
 				let parsedResultToHTMLTable = this.processParsedResult(parsedResult);
 				this.htmlIndexTable(parsedResultToHTMLTable);
 
-				// TODO: Finish GeoLocation function below
 				this.findLocation.processLatAndLong(this.internalIndex).then(() => {
 					return resolve(parsedResultToHTMLTable);
 				});
@@ -104,10 +115,8 @@ export default class RoomsHelper {
 
 	public processParsedResult(parsedResult: any): any {
 
-		if (parsedResult["nodeName"] === "tbody") {
-			if (this.verifyParsedResult(parsedResult)) {
-				return parsedResult;
-			}
+		if (parsedResult["nodeName"] === "tbody" && this.verifyParsedResult(parsedResult)) {
+			return parsedResult;
 		}
 
 		if (parsedResult["childNodes"].length === 0) {
@@ -221,5 +230,54 @@ export default class RoomsHelper {
 	public getRoomsFromParsedData(parsedData: IRoomData[]) {
 		// empty comment
 	}
+
+
+	// // HELPER: parse passed in JSON file and convert into SectionData
+	// private parseJSON(arrayOfPromiseAllResults: string[]): any {
+	// 	let convertedSections: any = [];
+	// 	try {
+	// 		arrayOfPromiseAllResults.forEach((jsonPromise) => {
+	// 			let arrayOfSections = JSON.parse(jsonPromise)["result"];
+	// 			arrayOfSections.forEach((section: any) => {
+	// 				let mappedSection = this.mapToSectionDataFormat(section);
+	// 				convertedSections.push(mappedSection);
+	// 			});
+	// 		});
+	// 	} catch {
+	// 		return new InsightError("InsightError: could not parse JSON (invalid)");
+	// 	}
+	// 	return convertedSections;
+	// }
+	//
+	// // HELPER: Sets data to internal model and to disk
+	// private setDataToModelAndDisk(
+	// 	id: string,
+	// 	convertedSections: ISectionData[],
+	// 	kind: InsightDatasetKind,
+	// 	content: string,
+	// 	model: Map<string, ICourseDataset>
+	// ): Promise<string[]> {
+	// 	return new Promise<string[]>((resolve, reject) => {
+	// 		let newDataset: ICourseDataset = {
+	// 			id: id,
+	// 			sectionsData: convertedSections,
+	// 			kind: kind,
+	// 		};
+	// 		model.set(id, newDataset);
+	// 		let updateKeysAfterAdd: string[] = Array.from(model.keys());
+	// 		let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
+	// 		try {
+	// 			fs.writeFile(datasetFile, content, "base64", (err) => {
+	// 				if (err) {
+	// 					reject(new InsightError("InsightError: could not write to file"));
+	// 				}
+	// 			});
+	// 		} catch {
+	// 			return new InsightError("InsightError: could not delete dataset");
+	// 		}
+	// 		return resolve(updateKeysAfterAdd);
+	// 	});
+	// }
+
 
 }
