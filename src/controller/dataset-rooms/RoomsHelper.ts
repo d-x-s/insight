@@ -21,7 +21,6 @@ export default class RoomsHelper {
 		this.findLocation = new GeoLeocation();
 		this.internalIndex = {};
 		this.fileDirectory = __dirname + "/../../data";
-		console.log("Rooms Helper created");
 	}
 
 	// TODO!!!!!!!!!!!!!!!
@@ -47,14 +46,12 @@ export default class RoomsHelper {
 		return new Promise<string[]> ((resolve, reject) => {
 			zipped.loadAsync(content, {base64: true})
 				.then((loadedZipFiles) => {
-					console.log(loadedZipFiles);
-					console.log("async done1");
 					let temp = this.loadAsyncHelper(loadedZipFiles);
-					console.log("bla");
+					console.log("temp", temp);
 					return temp;
 				})
 				.then((value: Array<Promise<string>> | InsightError) => {
-					console.log("async done2");
+					console.log("async done2" + value);
 					if (value instanceof InsightError) {
 						return value;
 					}
@@ -77,27 +74,19 @@ export default class RoomsHelper {
 	}
 
 	private loadAsyncHelper(zipFiles: any): any {
-		console.log("async done1.5");
 
 		let dataToPush: Array<Promise<IRoomData>> = [];
 
-		let fileFolder = zipFiles.folder("rooms").file("index.htm").async("string");
-		console.log("fileFolder", fileFolder);
+		let fileFolder = zipFiles.folder("rooms/campus/discover/buildings-and-classrooms");
+
 		if (fileFolder == null) {
 			return new InsightError("InsightError: null file folder, could not load");
 		}
-		fileFolder.forEach((jsonFile: any) => {
-			if (fileFolder == null || fileFolder === undefined) {
-				return new InsightError("InsightError: null file folder, could not load");
-			}
-			let currFile = fileFolder.file(jsonFile);
-			if (currFile == null) {
-				return new InsightError("InsightError: current course being added is null");
-			}
-			dataToPush.push(currFile.async("text"));
+		fileFolder.forEach((buildingPath: any, file: any) => {
+			console.log(buildingPath, file);
+			dataToPush.push(file.async("string"));
 		});
 
-		console.log("data", dataToPush);
 		return dataToPush;
 	}
 
