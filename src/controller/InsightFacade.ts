@@ -177,10 +177,28 @@ export default class InsightFacade implements IInsightFacade {
 				if (!id || !data) {
 					reject(new InsightError("InsightError: invalid id or invalid data found"));
 				}
+				console.log("data sections", data.sectionsData?.length);
+				console.log("rooms sections", data.roomsData?.length);
+
+				let sectionsDataRows: number;
+				let roomsDataRows: number;
+
+				if (data.sectionsData?.length === undefined) {
+					sectionsDataRows = 0;
+				} else {
+					sectionsDataRows = data.sectionsData?.length;
+				}
+				if (data.roomsData?.length === undefined) {
+					roomsDataRows = 0;
+				} else {
+					roomsDataRows = data.roomsData?.length;
+				}
+				console.log("roomsDataRows", roomsDataRows);
+
 				let currInsightDataset: InsightDataset = {
 					id: id,
-					kind: InsightDatasetKind.Sections,
-					numRows: data.sectionsData.length,
+					kind: data.kind,
+					numRows: sectionsDataRows + roomsDataRows,
 				};
 				listDatasetsFromLocal.push(currInsightDataset);
 			});

@@ -12,11 +12,11 @@ export class GeoLeocation {
 		return new Promise((resolve, reject) => {
 			let promiseLatAndLong: any = [];
 
-			console.log("process called");
+			// console.log("process called");
 
 			let requestAddress = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/";
 
-			console.log("index", index);
+			// console.log("index", index);
 
 			for (let roomBuildingName in index) {
 				let geoLocationResult: any = {lat: null, lon: null};
@@ -25,7 +25,7 @@ export class GeoLeocation {
 				let appendAddress = encodeURIComponent(roomInfo.address);
 				let newAddress = requestAddress + appendAddress;
 
-				console.log("woohoo");
+				// console.log("woohoo");
 
 				promiseLatAndLong.push(this.processLatAndLongHelper(geoLocationResult, newAddress, roomInfo, index));
 			}
@@ -40,14 +40,14 @@ export class GeoLeocation {
 	public processLatAndLongHelper(currResult: any, address: string, roomInfo: any, index: any): Promise<any> {
 		// TODO: Send request to http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/<ADDRESS>
 
-		console.log("process1");
+		// console.log("process1");
 
 		// let promises: Promise<any> =
 		return new Promise<any>((resolve, reject) => {
 			http.get(address, (res: any) => {
 
 				// let res = JSON.parse(result);
-				console.log("fetching http");
+				// console.log("fetching http");
 				// console.log("res", res);
 
 				if (res.lat === undefined || res.lon === undefined) {

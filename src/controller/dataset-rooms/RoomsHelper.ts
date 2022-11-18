@@ -31,14 +31,14 @@ export default class RoomsHelper {
 		model: Map<string, IRoomDataset>
 	): Promise<string[]> {
 		let zipped: JSZip = new JSZip();
-		console.log("1");
+		// console.log("1");
 		return new Promise<string[]> ((resolve, reject) => {
 			zipped.loadAsync(content, {base64: true})
 				.then((loadedZipFiles) => {
-					console.log("point 1 reached loaded zipfiles" + loadedZipFiles);
+					// console.log("point 1 reached loaded zipfiles" + loadedZipFiles);
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
-					console.log("result IroomData", result);
+					// console.log("result IroomData", result);
 					resolve(this.setDataToModelAndDisk(id, result, kind, content, model));
 				})
 				.catch((err) => {
@@ -54,30 +54,30 @@ export default class RoomsHelper {
 			if (file == null) {
 				return new InsightError("file was null");
 			}
-			console.log("point 2 reached");
+			// console.log("point 2 reached");
 			parsedZip = file.async("string").then((fileContent) => {
-				console.log("point 2.5 reached");
+				// console.log("point 2.5 reached");
 				let parsedFileContent = parse(fileContent);
-				console.log("point 2.6 reached");
+				// console.log("point 2.6 reached");
 				for (let contentNode of parsedFileContent.childNodes) {
 					let currNodeName = contentNode.nodeName;
 					if (currNodeName === "html") {
 						this.parseNodeChildren(contentNode);
 					}
 				}
-				console.log("good");
+				// console.log("good");
 				return;
 			}).catch((err) => {
 				reject(new InsightError("unable to async" + err));
 			});
 
-			console.log("point 2.9 reached");
+			// console.log("point 2.9 reached");
 			Promise.all([parsedZip]).then(() => {
-				console.log("point 3 reached");
+				// console.log("point 3 reached");
 				this.findLocation.processLatAndLong(this.internalRooms)
 					.then(() => {
-						console.log("point 4 reached");
-						console.log(zipped);
+						// console.log("point 4 reached");
+						// console.log(zipped);
 						resolve(this.processRooms(zipped));
 					}).catch((err) => {
 						reject(new InsightError("ERROR: unable to process lat" + err));
@@ -89,21 +89,21 @@ export default class RoomsHelper {
 
 	public processRooms(zipped: any): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
-			console.log("point 5");
+			// console.log("point 5");
 			let dataToPush: Array<Promise<IRoomData>> = [];
 			let fileFolder = zipped.folder("campus/discover/buildings-and-classrooms");
 
 			if (fileFolder == null) {
 				return new InsightError("InsightError: null file folder, could not load");
 			}
-			console.log("point 5.5");
+			// console.log("point 5.5");
 
 			fileFolder.forEach((buildingPath: any, file: any) => {
 				// console.log("buildingPath", buildingPath);
 				// console.log("file", file);
 				dataToPush.push(file.async("string")
 					.then((result: any) => {
-						console.log("6.1 reached");
+						// console.log("6.1 reached");
 						this.processRoomsHelper(this.internalRooms[buildingPath], parse(result));
 					}).catch((err: any) => {
 						reject(new InsightError("Unable to process room" + err));
@@ -111,7 +111,7 @@ export default class RoomsHelper {
 			});
 
 			Promise.all(dataToPush).then(() => {
-				console.log("all");
+				// console.log("all");
 				resolve(this.internalIndex);
 			});
 		});
@@ -119,10 +119,10 @@ export default class RoomsHelper {
 
 
 	public processRoomsHelper(roomToProcess: any, res: any) {
-		console.log("point 6.5");
+		// console.log("point 6.5");
 		for (let resNode of res.childNodes) {
 			if (resNode.nodeName === "html") {
-				console.log("point7");
+				// console.log("point7");
 				return this.addProcessedRooms(roomToProcess, resNode);
 			}
 		}
