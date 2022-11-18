@@ -39,7 +39,6 @@ export default class RoomsHelper {
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
 					// console.log("result IroomData", result);
-					console.log("result Iroomdata", result);
 					resolve(this.setDataToModelAndDisk(id, result, kind, content, model));
 				})
 				.catch((err) => {
@@ -161,7 +160,6 @@ export default class RoomsHelper {
 							for (let t of paramChild.childNodes) {
 								if (t.nodeName === "#text") {
 									roomFullName = t.value;
-									console.log("roomFullName", roomFullName);
 								}
 							}
 							retrieveAttrs["name"] = roomFullName;

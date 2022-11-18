@@ -22,9 +22,8 @@ export class GeoLocation {
 
 				let roomInfo = internalRoomsInput[roomBuildingName];
 				let appendAddress = encodeURIComponent(roomInfo.address);
+				console.log("addy", appendAddress);
 				let newAddress = requestAddress + appendAddress;
-
-				// console.log("woohoo");
 
 				promiseLatAndLong.push(this.processLatAndLongHelper(geoLocationResult, newAddress,
 					roomInfo, internalRoomsInput));
@@ -46,21 +45,21 @@ export class GeoLocation {
 
 		// let promises: Promise<any> =
 		return new Promise((resolve, reject) => {
-			http.get(address, (res: any) => {
+			http.get(address, (result: any) => {
 
-				// let res = JSON.parse(result);
-				console.log("fetching http");
-				// console.log("res", res);
+				result.on("data", (tempRes: any) => {
 
-				if (res.lat === undefined || res.lon === undefined) {
-					reject(new InsightError("invalid lat or lon"));
-				} else {
-					console.log("res", res.lat, res.lon);
-					roomInfo.lat = res.lat;
-					roomInfo.lon = res.lon;
-					// fix this
-					internalRoomsIndex[roomInfo.shortname] = roomInfo;
-				}
+					let res = JSON.parse(tempRes);
+					if (res.lat === undefined || res.lon === undefined) {
+						reject(new InsightError("invalid lat or lon"));
+					} else {
+						console.log("res", res.lat, res.lon);
+						roomInfo.lat = res.lat;
+						roomInfo.lon = res.lon;
+						// fix this
+						internalRoomsIndex[roomInfo.shortname] = roomInfo;
+					}
+				});
 				// FIX THIS
 				resolve(true);
 			});
