@@ -31,6 +31,7 @@ export default class RoomsHelper {
 		model: Map<string, IRoomDataset>
 	): Promise<string[]> {
 		let zipped: JSZip = new JSZip();
+		console.log("1");
 		return new Promise<string[]> ((resolve, reject) => {
 			zipped.loadAsync(content, {base64: true})
 				.then((loadedZipFiles) => {
@@ -47,34 +48,29 @@ export default class RoomsHelper {
 
 	public handleRoomProcessing(zipped: JSZip): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
-			// console.log("zipped", zipped);
-			// let file = zipped.file(this.indexDirectory);
 			let file = zipped.file("index.htm");
-			console.log("file", file);
 			let parsedZip: any;
-			// if (file == null) {
-			// 	console.log("poin123232323232 reached");
-			// 	// return new InsightError("file was null");
-			// }
-			console.log("point 2 reached");
-			if (file != null) {
-				parsedZip = file.async("string").then((fileContent) => {
-					//  console.log(fileContent);
-					console.log("point 2.5 reached");
-					let parsedFileContent = parse(fileContent);
-					console.log("point 2.6 reached");
-					console.log(parsedFileContent);
-					for (let contentNode of parsedFileContent.childNodes) {
-						let currNodeName = contentNode.nodeName;
-						if (currNodeName === "html") {
-							this.parseNodeChildren(currNodeName);
-						}
-					}
-				});
+			if (file == null) {
+				return new InsightError("file was null");
 			}
+			console.log("point 2 reached");
+			parsedZip = file.async("string").then((fileContent) => {
+				console.log("point 2.5 reached");
+				let parsedFileContent = parse(fileContent);
+				console.log("point 2.6 reached");
+				for (let contentNode of parsedFileContent.childNodes) {
+					let currNodeName = contentNode.nodeName;
+					if (currNodeName === "html") {
+						this.parseNodeChildren(contentNode);
+					}
+				}
+			}).catch((err) => {
+				reject(new InsightError("unable to async"));
+			});
 
-			console.log("point 3 reached");
+			console.log("point 2.9 reached");
 			Promise.all([parsedZip]).then(() => {
+				console.log("point 3 reached");
 				this.findLocation.processLatAndLong(this.internalRooms)
 					.then(() => {
 						console.log("point 4 reached");
@@ -89,8 +85,9 @@ export default class RoomsHelper {
 
 	public processRooms(zipped: any): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
+			console.log("point 5");
 			let dataToPush: Array<Promise<IRoomData>> = [];
-			let fileFolder = zipped.folder("rooms/campus/discover/buildings-and-classrooms");
+			let fileFolder = zipped.folder("campus/discover/buildings-and-classrooms");
 
 			if (fileFolder == null) {
 				return new InsightError("InsightError: null file folder, could not load");
@@ -105,6 +102,7 @@ export default class RoomsHelper {
 			});
 
 			Promise.all(dataToPush).then(() => {
+				console.log("all");
 				resolve(this.internalIndex);
 			});
 		});
@@ -112,23 +110,27 @@ export default class RoomsHelper {
 
 
 	public processRoomsHelper(roomToProcess: any, res: any) {
-		for (let resNode of res) {
+		console.log("point 6.5");
+		for (let resNode of res.childNodes) {
+			console.log("resNode", resNode);
 			if (resNode.nodeName === "html") {
+				console.log("point7");
 				return this.addProcessedRooms(roomToProcess, resNode);
 			}
 		}
 	}
 
 	public addProcessedRooms(roomToAdd: any, res: any) {
-		for (let child of res) {
-			if (child.nodeName === "tbody") {
+		for (let child of res.childNodes) {
+			let currName = child.nodeName;
+			if (currName === "tbody") {
 				for (let childLayer of child.childNodes) {
 					if (childLayer.nodeName === "tr") {
 						this.populateIRoomData(roomToAdd, childLayer);
 					}
 				}
-			} else if (child.nodeName === "section") {
-				this.processRoomsHelper(roomToAdd, child);
+			} else if (currName === "body" || currName === "div" || currName === "table" || currName === "section") {
+				this.addProcessedRooms(roomToAdd, child);
 			}
 		}
 	}
@@ -167,23 +169,27 @@ export default class RoomsHelper {
 				}
 			}
 		}
-		return newRoom;
+		this.internalIndex.push(newRoom);
 	}
 
 
 	public parseNodeChildren(contentNode: any) {
-		if (contentNode == null) {
-			return;
-		}
-		let newRoom: IRoomData = {} as IRoomData;
-		for (let contentChildNode of contentNode.childNodes) {
-			if (contentChildNode.nodeName === "section") {
-				this.parseNodeChildren(contentChildNode);
-			} else if (contentChildNode.nodeName === "tbody") {
-				for (let child of contentChildNode.childNodes) {
-					if (child.nodeName === "tr") {
-						this.convertIntoBuilding(child, newRoom);
+		// if (contentNode == null) {
+		// 	return;
+		// }
+		if (contentNode != null) {
+			let newRoom: IRoomData = {} as IRoomData;
+			for (let contentChildNode of contentNode.childNodes) {
+				let currName = contentChildNode.nodeName;
+				if (currName === "tbody") {
+					for (let child of contentChildNode.childNodes) {
+						if (child.nodeName === "tr") {
+							this.convertIntoBuilding(child, newRoom);
+						}
 					}
+				} else if (currName === "body" || currName === "div" || currName === "table"
+					|| currName === "section") {
+					this.parseNodeChildren(contentChildNode);
 				}
 			}
 		}
@@ -210,6 +216,10 @@ export default class RoomsHelper {
 				}
 			}
 		}
+
+		if (newRoom.shortname != null) {
+			this.internalRooms[newRoom.shortname] = newRoom;
+		};
 	}
 
 	private trimText(paramToTrim: any) {

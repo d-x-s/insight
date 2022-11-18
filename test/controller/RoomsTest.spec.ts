@@ -63,8 +63,8 @@ describe("Rooms", function() {
 		});
 
 		it ("should pass if we use a valid id", function () {
-			const courses: string = datasetContents.get("Rooms") ?? "";
-			return insightFacade.addDataset("sections", courses, InsightDatasetKind.Sections)
+			const rooms: string = datasetContents.get("Rooms") ?? "";
+			return insightFacade.addDataset("rooms", rooms, InsightDatasetKind.Rooms)
 				.then((addedIds) => {
 					expect(addedIds).to.be.an.instanceOf(Array);
 					expect(addedIds).to.have.length(1);
