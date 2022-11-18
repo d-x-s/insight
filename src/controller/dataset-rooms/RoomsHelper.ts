@@ -4,21 +4,21 @@ import JSZip from "jszip";
 // import parse5 from "parse5";
 import {parse} from "parse5";
 import {IRoomData} from "./IRoomData";
-import {GeoLeocation} from "./GeoLocation";
+import {GeoLocation} from "./GeoLocation";
 import path from "path";
 import fs from "fs";
 
 export default class RoomsHelper {
 
 	public indexDirectory: string;
-	public findLocation: GeoLeocation;
+	public findLocation: GeoLocation;
 	public internalIndex: any;
 	public internalRooms: {[key: string]: IRoomData};
 	public fileDirectory: string;
 
 	constructor() {
 		this.indexDirectory = "index.htm";
-		this.findLocation = new GeoLeocation();
+		this.findLocation = new GeoLocation();
 		this.internalIndex = [];
 		this.internalRooms = {};
 		this.fileDirectory = __dirname + "/../../data";
@@ -39,6 +39,7 @@ export default class RoomsHelper {
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
 					// console.log("result IroomData", result);
+					console.log("result Iroomdata", result);
 					resolve(this.setDataToModelAndDisk(id, result, kind, content, model));
 				})
 				.catch((err) => {
@@ -99,7 +100,6 @@ export default class RoomsHelper {
 			// console.log("point 5.5");
 
 			fileFolder.forEach((buildingPath: any, file: any) => {
-				// console.log("buildingPath", buildingPath);
 				// console.log("file", file);
 				dataToPush.push(file.async("string")
 					.then((result: any) => {
@@ -161,13 +161,17 @@ export default class RoomsHelper {
 							for (let t of paramChild.childNodes) {
 								if (t.nodeName === "#text") {
 									roomFullName = t.value;
+									console.log("roomFullName", roomFullName);
 								}
 							}
 							retrieveAttrs["name"] = roomFullName;
 							retrieveAttrs["href"] = paramChild.attrs[0].value;
 						}
 					}
-					newRoom.name = roomFullName;
+					newRoom.name = newRoom.shortname + "_" + roomFullName;
+					newRoom.number = roomFullName;
+					newRoom.href = retrieveAttrs["href"];
+
 				} else if (currAttrs === "views-field views-field-field-room-capacity") {
 					newRoom.seats = this.trimText(param);
 				} else if (currAttrs === "views-field views-field-field-room-type") {
