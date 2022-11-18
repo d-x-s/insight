@@ -38,6 +38,7 @@ export default class RoomsHelper {
 					console.log("point 1 reached loaded zipfiles" + loadedZipFiles);
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
+					console.log("result IroomData", result);
 					resolve(this.setDataToModelAndDisk(id, result, kind, content, model));
 				})
 				.catch((err) => {
@@ -75,6 +76,7 @@ export default class RoomsHelper {
 				this.findLocation.processLatAndLong(this.internalRooms)
 					.then(() => {
 						console.log("point 4 reached");
+						console.log(zipped);
 						resolve(this.processRooms(zipped));
 					}).catch((err) => {
 						reject(new InsightError("ERROR: unable to process lat" + err));
@@ -131,7 +133,6 @@ export default class RoomsHelper {
 			if (currName === "tbody") {
 				for (let childLayer of child.childNodes) {
 					if (childLayer.nodeName === "tr") {
-						console.log("tr found");
 						this.populateIRoomData(roomToAdd, childLayer);
 					}
 				}
@@ -232,8 +233,7 @@ export default class RoomsHelper {
 		// console.log("param", paramToTrim);
 		for (let paramChild of paramToTrim.childNodes) {
 			if (paramChild.nodeName === "#text") {
-				console.log("text found");
-				let trimmed = (paramToTrim).value.replace("\n", "").trim();
+				let trimmed = (paramChild).value.replace("\n", "").trim();
 				return trimmed as string;
 			}
 		}
