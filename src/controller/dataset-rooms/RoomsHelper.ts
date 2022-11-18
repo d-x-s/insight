@@ -33,6 +33,7 @@ export default class RoomsHelper {
 		return new Promise<string[]> ((resolve, reject) => {
 			zipped.loadAsync(content, {base64: true})
 				.then((loadedZipFiles) => {
+					console.log("point 1 reached loaded zipfiles" + loadedZipFiles);
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
 					resolve(this.setDataToModelAndDisk(id, result, kind, content, model));
@@ -46,23 +47,30 @@ export default class RoomsHelper {
 	public handleRoomProcessing(zipped: JSZip): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
 			let file = zipped.file(this.indexDirectory);
+			console.log("file", file);
 			let parsedZip: any;
-			if (file == null) {
-				return new InsightError("file was null");
-			}
-			parsedZip = file.async("string").then((fileContent) => {
-				let parsedFileContent = parse5.parse(fileContent);
-				for (let contentNode of parsedFileContent.childNodes) {
-					let currNodeName = contentNode.nodeName;
-					if (currNodeName === "html") {
-						this.parseNodeChildren(currNodeName);
+			// if (file == null) {
+			// 	console.log("poin123232323232 reached");
+			// 	// return new InsightError("file was null");
+			// }
+			console.log("point 2 reached");
+			if (file != null) {
+				parsedZip = file.async("string").then((fileContent) => {
+					let parsedFileContent = parse5.parse(fileContent);
+					for (let contentNode of parsedFileContent.childNodes) {
+						let currNodeName = contentNode.nodeName;
+						if (currNodeName === "html") {
+							this.parseNodeChildren(currNodeName);
+						}
 					}
-				}
-			});
+				});
+			}
 
+			console.log("point 3 reached");
 			Promise.all([parsedZip]).then(() => {
 				this.findLocation.processLatAndLong(this.internalRooms)
 					.then(() => {
+						console.log("point 4 reached");
 						resolve(this.processRooms(zipped));
 					}).catch((err) => {
 						reject(new InsightError("ERROR: unable to process lat" + err));
