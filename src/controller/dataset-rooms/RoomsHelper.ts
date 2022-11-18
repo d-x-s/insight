@@ -1,7 +1,8 @@
 import {InsightDatasetKind, InsightError, InsightResult} from "../IInsightFacade";
 import {IRoomDataset} from "./IRoomDataset";
 import JSZip from "jszip";
-import parse5 from "parse5";
+// import parse5 from "parse5";
+import {parse} from "parse5";
 import {IRoomData} from "./IRoomData";
 import {GeoLeocation} from "./GeoLocation";
 import path from "path";
@@ -16,7 +17,7 @@ export default class RoomsHelper {
 	public fileDirectory: string;
 
 	constructor() {
-		this.indexDirectory = "rooms/index.htm";
+		this.indexDirectory = "index.htm";
 		this.findLocation = new GeoLeocation();
 		this.internalIndex = [];
 		this.internalRooms = {};
@@ -46,7 +47,9 @@ export default class RoomsHelper {
 
 	public handleRoomProcessing(zipped: JSZip): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
-			let file = zipped.file(this.indexDirectory);
+			// console.log("zipped", zipped);
+			// let file = zipped.file(this.indexDirectory);
+			let file = zipped.file("index.htm");
 			console.log("file", file);
 			let parsedZip: any;
 			// if (file == null) {
@@ -56,7 +59,11 @@ export default class RoomsHelper {
 			console.log("point 2 reached");
 			if (file != null) {
 				parsedZip = file.async("string").then((fileContent) => {
-					let parsedFileContent = parse5.parse(fileContent);
+					//  console.log(fileContent);
+					console.log("point 2.5 reached");
+					let parsedFileContent = parse(fileContent);
+					console.log("point 2.6 reached");
+					console.log(parsedFileContent);
 					for (let contentNode of parsedFileContent.childNodes) {
 						let currNodeName = contentNode.nodeName;
 						if (currNodeName === "html") {
@@ -91,7 +98,7 @@ export default class RoomsHelper {
 			fileFolder.forEach((buildingPath: any, file: any) => {
 				dataToPush.push(file.async("string")
 					.then((result: any) => {
-						this.processRoomsHelper(buildingPath, parse5.parse(result));
+						this.processRoomsHelper(buildingPath, parse(result));
 					}).catch((err: any) => {
 						reject(new InsightError("Unable to process room" + err));
 					}));
