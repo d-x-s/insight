@@ -177,8 +177,8 @@ export default class InsightFacade implements IInsightFacade {
 				if (!id || !data) {
 					reject(new InsightError("InsightError: invalid id or invalid data found"));
 				}
-				console.log("data sections", data.sectionsData?.length);
-				console.log("rooms sections", data.roomsData?.length);
+				// console.log("data sections", data.sectionsData?.length);
+				// console.log("rooms sections", data.roomsData?.length);
 
 				let sectionsDataRows: number;
 				let roomsDataRows: number;
