@@ -1,8 +1,10 @@
 import Decimal from "decimal.js";
-import {InsightResult} from "../IInsightFacade";
+import {InsightResult} from "../../../IInsightFacade";
 
 export default class TransformationsHelper {
-	constructor() {/**/}
+	constructor() {
+		/**/
+	}
 
 	public transform(query: any, rawResult: any[]): any[] {
 		let transformationsObject = query["TRANSFORMATIONS"];
@@ -15,7 +17,6 @@ export default class TransformationsHelper {
 
 		return appliedResult;
 	}
-
 
 	/*
 	TODO:
@@ -47,7 +48,7 @@ export default class TransformationsHelper {
 	}
 
 	private findGroup(dataObject: any, mapOfGroups: any, groupVariablesArray: any) {
-		for (const[groupKey, group] of mapOfGroups) {
+		for (const [groupKey, group] of mapOfGroups) {
 			if (this.isMatchingGroup(dataObject, group[0], groupVariablesArray)) {
 				return groupKey;
 			}
@@ -74,12 +75,12 @@ export default class TransformationsHelper {
 			applyTokens.push(Object.keys(applyRule)[0]);
 		});
 
-		for (const[groupKey, group] of mapOfGroups) {
+		for (const [groupKey, group] of mapOfGroups) {
 			const processedDataObject: InsightResult = {};
 			for (let column of columns) {
 				let field = column.split("_")[1];
 				if (applyTokens.includes(column)) {
-					let applyRule: any = applyArray.find((element) => (Object.keys(element)[0] === column));
+					let applyRule: any = applyArray.find((element) => Object.keys(element)[0] === column);
 					let applyRuleInnerObject: any = Object.values(applyRule)[0];
 					let applyKey: any = Object.keys(applyRuleInnerObject)[0];
 					let applyID: any = Object.values(applyRuleInnerObject)[0];
@@ -100,7 +101,7 @@ export default class TransformationsHelper {
 	}
 
 	private computeAppliedKeyForSingleGroup(apply: string, key: string, group: any): number {
-		switch(apply) {
+		switch (apply) {
 			case "MAX": {
 				let maxAccumulator: number = group[0][key];
 				for (let element of group) {
@@ -143,8 +144,8 @@ export default class TransformationsHelper {
 				}
 				return uniqueFields.length;
 			}
-			default: return -1;
+			default:
+				return -1;
 		}
 	}
 }
-

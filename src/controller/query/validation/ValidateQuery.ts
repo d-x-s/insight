@@ -1,13 +1,14 @@
-/* eslint-disable max-lines */
-import e from "express";
-import {InsightDatasetKind} from "../IInsightFacade";
-import ValidateTransformationsHelper from "./ValidateTransformationsHelper";
+import {InsightDatasetKind} from "../../IInsightFacade";
+import ValidateTransformationsHelper from "./validation-helpers/ValidateTransformationsHelper";
+import ValidateWhereHelper from "./validation-helpers/ValidateWhereHelper";
 
 export default class ValidateQueryHelper {
 	protected isValid: any;
 	protected isValidTransformation: any;
 	protected isTransformed: boolean;
 	protected kind: InsightDatasetKind;
+	protected validateTransformationsHelper: ValidateTransformationsHelper;
+	protected validateWhereHelper: ValidateWhereHelper;
 	protected QKEYS = ["OPTIONS", "WHERE", "TRANSFORMATIONS"];
 	protected OKEYS = ["ORDER", "COLUMNS"];
 	protected COURSES_MFIELDS = ["avg", "pass", "fail", "audit", "year"];
@@ -20,6 +21,8 @@ export default class ValidateQueryHelper {
 		this.isValidTransformation = true;
 		this.isTransformed = false;
 		this.kind = InsightDatasetKind.Sections; // initialize to sections by default
+		this.validateTransformationsHelper = new ValidateTransformationsHelper();
+		this.validateWhereHelper = new ValidateWhereHelper();
 	}
 
 	public getValidStatus() {
@@ -94,174 +97,33 @@ export default class ValidateQueryHelper {
 			}
 		}
 
-		this.validateFilter(query["WHERE"], id);
+		this.validateWhereHelper.validateFilter(query["WHERE"], id);
+		this.isValid = this.validateWhereHelper.getValidStatus();
+		// if (!this.validateWhereHelper.getValidStatus) {
+		// 	return;
+		// }
+		// TODO: TECHINCAL DEBT
+		// validateOptions should also be moved into its own class to respect Single Responsibility Principle
+		// unfortunately right now there is tight coupling between validateOptions and transformations, so I need to separate it out ASAP
 		this.validateOptions(query["OPTIONS"], query, id);
+
+		// TODO: TECHNICAL DEBT
+		// previously, execution would flow such that Transformations would ALWAYS be checked
+		// due to the design of ValidateTransformationsHelper, it will sometimes return true,
+		// which resulted in a bug this.isValid would be reset to true
+		// therefore I have added an additional variable "isValidTransformation" to prevent this
+		// this is necessary because ValidateQueryHelper does some checking related to TRANSFORMATIONS,
+		// such as checking that COLUMNS key matches to GROUP/APPLY keys if TRANSFORMATIONS is present
+		// in retrospect, this violates SRP, and all Transformatiosn related checking in this class
+		// needs to be moved to ValidateTransformationsHelper
 		if (this.isTransformed && this.isValidTransformation) {
-			let transformationsHelper = new ValidateTransformationsHelper();
-			transformationsHelper.validateTransformations(
+			this.validateTransformationsHelper.validateTransformations(
 				query["TRANSFORMATIONS"],
 				query["OPTIONS"]["COLUMNS"],
 				id,
 				kind
 			);
-			this.isValid = transformationsHelper.getValidStatus();
-		}
-	}
-
-	private validateFilter(query: any, id: string) {
-		if (typeof query === "undefined" || !(query instanceof Object)) {
-			this.isValid = false;
-			return;
-		}
-		const whereKeys = Object.keys(query);
-		if (whereKeys.length === 0) {
-			return; // empty where clause
-		}
-
-		if (whereKeys.length !== 1) {
-			this.isValid = false;
-			return;
-		}
-
-		let filterKey = whereKeys[0];
-		switch (filterKey) {
-			case "AND":
-			case "OR":
-				this.validateLogicComparison(query[filterKey], id);
-				break;
-			case "LT":
-			case "GT":
-			case "EQ":
-				this.validateMathComparison(query[filterKey], id);
-				break;
-			case "IS":
-				this.validateStringComparison(query[filterKey], id);
-				break;
-			case "NOT":
-				this.validateNegation(query[filterKey], id);
-				break;
-			default:
-				this.isValid = false;
-				break;
-		}
-	}
-
-	private validateLogicComparison(queryLogicArray: any, id: string) {
-		if (
-			!Array.isArray(queryLogicArray) ||
-			queryLogicArray.length === 0 ||
-			typeof queryLogicArray === "undefined" ||
-			typeof queryLogicArray !== "object"
-		) {
-			this.isValid = false;
-			return;
-		}
-
-		queryLogicArray.forEach((element: any) => {
-			let logicComparisonKeys = Object.keys(element);
-			if (logicComparisonKeys.length !== 1) {
-				this.isValid = false;
-				return;
-			}
-			this.validateFilter(element, id);
-		});
-	}
-
-	private validateMathComparison(mathComparator: any, id: string) {
-		if (typeof mathComparator === "undefined" || typeof mathComparator !== "object") {
-			this.isValid = false;
-			return;
-		}
-		const pairMComparatorKeys = Object.keys(mathComparator);
-		if (pairMComparatorKeys.length !== 1) {
-			this.isValid = false;
-			return;
-		}
-		const keyMComparator = pairMComparatorKeys[0];
-		const valueMComparator = mathComparator[keyMComparator];
-		this.validateMKey(keyMComparator, id);
-		this.validateMValue(valueMComparator);
-	}
-
-	private validateMKey(keyMComparator: string, id: string) {
-		this.validateID(keyMComparator.split("_")[0], id);
-		this.validateMField(keyMComparator.split("_")[1]);
-	}
-
-	private validateMValue(valueMComparator: any) {
-		if (typeof valueMComparator !== "number") {
-			this.isValid = false;
-			return;
-		}
-	}
-
-	private validateMField(keyMField: any) {
-		if (this.kind === InsightDatasetKind.Sections) {
-			if (!this.COURSES_MFIELDS.includes(keyMField)) {
-				this.isValid = false;
-				return;
-			}
-		} else {
-			if (!this.ROOMS_MFIELDS.includes(keyMField)) {
-				this.isValid = false;
-				return;
-			}
-		}
-	}
-
-	private validateStringComparison(stringComparator: any, id: string) {
-		if (typeof stringComparator === "undefined" || typeof stringComparator !== "object") {
-			this.isValid = false;
-			return;
-		}
-
-		const keySComparator = Object.keys(stringComparator);
-		if (keySComparator.length !== 1) {
-			this.isValid = false;
-			return;
-		}
-
-		const sKey = keySComparator[0];
-		const inputString = stringComparator[sKey];
-		this.validateSKey(sKey, id);
-		this.validateSValue(inputString);
-	}
-
-	private validateSKey(sKey: string, id: string) {
-		this.validateID(sKey.split("_")[0], id);
-		this.validateSField(sKey.split("_")[1]);
-		return;
-	}
-
-	private validateSField(sField: any) {
-		if (this.kind === InsightDatasetKind.Sections) {
-			if (!this.COURSES_SFIELDS.includes(sField)) {
-				this.isValid = false;
-				return;
-			}
-		} else {
-			if (!this.ROOMS_SFIELDS.includes(sField)) {
-				this.isValid = false;
-				return;
-			}
-		}
-	}
-
-	private validateSValue(inputString: any) {
-		if (typeof inputString !== "string") {
-			this.isValid = false;
-			return;
-		}
-		let asteriskCheck = inputString;
-		if (asteriskCheck.endsWith("*")) {
-			asteriskCheck = asteriskCheck.substring(0, asteriskCheck.length - 1);
-		}
-		if (asteriskCheck.startsWith("*")) {
-			asteriskCheck = asteriskCheck.substring(1, asteriskCheck.length);
-		}
-		if (asteriskCheck.includes("*")) {
-			this.isValid = false;
-			return;
+			this.isValid = this.validateTransformationsHelper.getValidStatus();
 		}
 	}
 
@@ -270,14 +132,6 @@ export default class ValidateQueryHelper {
 			this.isValid = false;
 			return;
 		}
-	}
-
-	private validateNegation(negation: any, id: string) {
-		if (typeof negation === "undefined" || !(negation instanceof Object) || Object.keys(negation).length !== 1) {
-			this.isValid = false;
-			return;
-		}
-		this.validateFilter(negation, id);
 	}
 
 	private validateOptions(options: any, query: any, id: string) {
@@ -324,11 +178,14 @@ export default class ValidateQueryHelper {
 			}
 		}
 
-
 		columnsArray.forEach((element: any) => {
-			// if there is an apply key in columns you need to check that is also in the apply array
-			if (applyTokens.includes(element)) {
-				return;
+			if (this.isTransformed) {
+				let groupsArray = query["TRANSFORMATIONS"]["GROUP"];
+				if (!groupsArray.includes(element) && !applyTokens.includes(element)) {
+					this.isValid = false;
+					this.isValidTransformation = false;
+					return;
+				}
 			}
 
 			let key = element.split("_");
@@ -362,7 +219,6 @@ export default class ValidateQueryHelper {
 		}
 	}
 
-	// eslint-disable-next-line max-lines-per-function
 	private validateOrderObject(orderElement: any, columnsArray: any) {
 		let orderObjectKeys = Object.keys(orderElement);
 		if (orderObjectKeys.length !== 2) {
@@ -370,14 +226,12 @@ export default class ValidateQueryHelper {
 			this.isValidTransformation = false;
 			return;
 		}
-
 		for (let objectKey of orderObjectKeys) {
 			if (objectKey !== "dir" && objectKey !== "keys") {
 				this.isValid = false;
 				this.isValidTransformation = false;
 				return;
 			}
-
 			if (objectKey === "dir") {
 				if (typeof orderElement["dir"] !== "string") {
 					this.isValid = false;
@@ -390,21 +244,18 @@ export default class ValidateQueryHelper {
 					return;
 				}
 			}
-
 			if (objectKey === "keys") {
 				if (!Array.isArray(orderElement["keys"])) {
 					this.isValid = false;
 					this.isValidTransformation = false;
 					return;
 				}
-
 				let orderKeysArray = orderElement["keys"];
 				if (orderKeysArray.length === 0) {
 					this.isValid = false;
 					this.isValidTransformation = false;
 					return;
 				}
-
 				for (let key of orderKeysArray) {
 					if (!columnsArray.includes(key)) {
 						this.isValid = false;
