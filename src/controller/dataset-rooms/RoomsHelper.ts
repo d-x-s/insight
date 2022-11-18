@@ -4,8 +4,6 @@ import JSZip from "jszip";
 import parse5 from "parse5";
 import {IRoomData} from "./IRoomData";
 import {GeoLeocation} from "./GeoLocation";
-import {ISectionData} from "../dataset-courses/ISectionData";
-import {ICourseDataset} from "../dataset-courses/ICourseDataset";
 import path from "path";
 import fs from "fs";
 
@@ -14,28 +12,17 @@ export default class RoomsHelper {
 	public indexDirectory: string;
 	public findLocation: GeoLeocation;
 	public internalIndex: any;
+	public internalRooms: {[key: string]: IRoomData};
 	public fileDirectory: string;
 
 	constructor() {
 		this.indexDirectory = "rooms/index.htm";
 		this.findLocation = new GeoLeocation();
-		this.internalIndex = {};
+		this.internalIndex = [];
+		this.internalRooms = {};
 		this.fileDirectory = __dirname + "/../../data";
 	}
 
-	// TODO!!!!!!!!!!!!!!!
-	// please make RoomsHelper a mirror of CoursesHelper
-	// note: remember that CoursesHelper used to be AddDatasetHelpers, which I have refactored
-	// code duplication is OK
-	// I think that if we mirror CoursesHelper and RoomsHelper, it will be far easier than adapting AddDatasetHelpers to accept both the Sections and Rooms kinds of datasets
-
-	// think about this, if we have separate INTERNALMODELS then when we remove a dataset, we need to check both because an id does not encode the kind of dataset
-	// but if we have separate datasets, then wheenver we add a new dataset, we need to check the other map so that the ids are unique across both
-	// I think this is not intuitive and will add a lot of unneccesary checking logic
-	// therefore we go with the string:any key value pair for our Map and this preserve the majority of our original code (OCP)
-
-	// EFFECTS: After parsing, resolves id's of successfully pushed rooms
-	// analogous to addCoursesDatasetToModel
 	public addRoomsDatasetToModel(
 		id: string,
 		content: string,
@@ -46,203 +33,184 @@ export default class RoomsHelper {
 		return new Promise<string[]> ((resolve, reject) => {
 			zipped.loadAsync(content, {base64: true})
 				.then((loadedZipFiles) => {
-					let temp = this.loadAsyncHelper(loadedZipFiles);
-					console.log("temp", temp);
-					return temp;
-				})
-				.then((value: Array<Promise<string>> | InsightError) => {
-					console.log("async done2" + value);
-					if (value instanceof InsightError) {
-						return value;
-					}
-					if (value.length === 0) {
-						reject(new InsightError("InsightError: empty directory"));
-					}
-					console.log("async done3");
-					Promise.all(value)
-						.then((arrayOfPromiseAllResults) => {
-							return this.parseHtm(arrayOfPromiseAllResults);
-						})
-						.then((convertedRooms) => {
-							resolve(this.setDataToModelAndDisk(id, convertedRooms, kind, content, model));
-						});
+					return this.handleRoomProcessing(loadedZipFiles);
+				}).then((result) => {
+					resolve(this.setDataToModelAndDisk(id, result, kind, content, model));
 				})
 				.catch((err) => {
-					reject(new InsightError("InsightError: failed to parse" + err));
+					reject(new InsightError("InsightError: failed to add" + err));
 				});
 		});
 	}
 
-	private loadAsyncHelper(zipFiles: any): any {
-
-		let dataToPush: Array<Promise<IRoomData>> = [];
-
-		let fileFolder = zipFiles.folder("rooms/campus/discover/buildings-and-classrooms");
-
-		if (fileFolder == null) {
-			return new InsightError("InsightError: null file folder, could not load");
-		}
-		fileFolder.forEach((buildingPath: any, file: any) => {
-			console.log(buildingPath, file);
-			dataToPush.push(file.async("string"));
-		});
-
-		return dataToPush;
-	}
-
-	public parseHtm(filesToParse: string[]): Promise<IRoomData[]> {
-
-		console.log("Parse htm called");
+	public handleRoomProcessing(zipped: JSZip): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
+			let file = zipped.file(this.indexDirectory);
+			let parsedZip: any;
+			if (file == null) {
+				return new InsightError("file was null");
+			}
+			parsedZip = file.async("string").then((fileContent) => {
+				let parsedFileContent = parse5.parse(fileContent);
+				for (let contentNode of parsedFileContent.childNodes) {
+					let currNodeName = contentNode.nodeName;
+					if (currNodeName === "html") {
+						this.parseNodeChildren(currNodeName);
+					}
+				}
+			});
 
-			filesToParse.forEach((jsonPromise) => {
-				let parsedResult = parse5.parse(jsonPromise);
-				let parsedResultToHTMLTable = this.processParsedResult(parsedResult);
-				this.htmlIndexTable(parsedResultToHTMLTable);
+			Promise.all([parsedZip]).then(() => {
+				this.findLocation.processLatAndLong(this.internalRooms)
+					.then(() => {
+						resolve(this.processRooms(zipped));
+					}).catch((err) => {
+						reject(new InsightError("ERROR: unable to process lat" + err));
+					});
+			});
 
-				this.findLocation.processLatAndLong(this.internalIndex).then(() => {
-					return resolve(parsedResultToHTMLTable);
-				});
+		});
+	}
+
+	public processRooms(zipped: any): Promise<IRoomData[]> {
+		return new Promise<IRoomData[]> ((resolve, reject) => {
+			let dataToPush: Array<Promise<IRoomData>> = [];
+			let fileFolder = zipped.folder("rooms/campus/discover/buildings-and-classrooms");
+
+			if (fileFolder == null) {
+				return new InsightError("InsightError: null file folder, could not load");
+			}
+			fileFolder.forEach((buildingPath: any, file: any) => {
+				dataToPush.push(file.async("string")
+					.then((result: any) => {
+						this.processRoomsHelper(buildingPath, parse5.parse(result));
+					}).catch((err: any) => {
+						reject(new InsightError("Unable to process room" + err));
+					}));
+			});
+
+			Promise.all(dataToPush).then(() => {
+				resolve(this.internalIndex);
 			});
 		});
 	}
 
-	public processParsedResult(parsedResult: any): any {
 
-		if (parsedResult["nodeName"] === "tbody" && this.verifyParsedResult(parsedResult)) {
-			return parsedResult;
+	public processRoomsHelper(roomToProcess: any, res: any) {
+		for (let resNode of res) {
+			if (resNode.nodeName === "html") {
+				return this.addProcessedRooms(roomToProcess, resNode);
+			}
 		}
+	}
 
-		if (parsedResult["childNodes"].length === 0) {
+	public addProcessedRooms(roomToAdd: any, res: any) {
+		for (let child of res) {
+			if (child.nodeName === "tbody") {
+				for (let childLayer of child.childNodes) {
+					if (childLayer.nodeName === "tr") {
+						this.populateIRoomData(roomToAdd, childLayer);
+					}
+				}
+			} else if (child.nodeName === "section") {
+				this.processRoomsHelper(roomToAdd, child);
+			}
+		}
+	}
+
+	public populateIRoomData(roomToAdd: any, node: any) {
+		if (node === null) {
 			return;
 		}
+		let newRoom = Object.assign({}, roomToAdd);
 
-		let trackCurr = 0;
-		while (trackCurr < parsedResult["childNodes"][trackCurr]) {
-			let curr = this.processParsedResult(parsedResult["childNodes"][trackCurr]);
-			if (curr) {
-				return curr;
+		for (let param of node.childNodes) {
+			if (param.nodeName === "td") {
+				let currAttrs = param.attrs[0]["value"];
+
+				if (currAttrs === "views-field views-field-field-room-number") {
+					let retrieveAttrs = {name: "", href: ""};
+					let roomFullName = "";
+					for (let paramChild of param) {
+						if (paramChild.nodeName === "a") {
+							for (let t of paramChild) {
+								if (t.nodeName === "#text") {
+									roomFullName = t.value;
+								}
+							}
+							retrieveAttrs["name"] = roomFullName;
+							retrieveAttrs["href"] = paramChild.attrs[0].value;
+						}
+					}
+					newRoom.name = roomFullName;
+				} else if (currAttrs === "views-field views-field-field-room-capacity") {
+					newRoom.seats = this.trimText(param);
+				} else if (currAttrs === "views-field views-field-field-room-type") {
+					newRoom.type = this.trimText(param);
+				} else if (currAttrs === "views-field views-field-field-room-furniture") {
+					newRoom.furniture = this.trimText(param);
+				}
 			}
-			trackCurr += 1;
+		}
+		return newRoom;
+	}
+
+
+	public parseNodeChildren(contentNode: any) {
+		if (contentNode == null) {
+			return;
+		}
+		let newRoom: IRoomData = {} as IRoomData;
+		for (let contentChildNode of contentNode.childNodes) {
+			if (contentChildNode.nodeName === "section") {
+				this.parseNodeChildren(contentChildNode);
+			} else if (contentChildNode.nodeName === "tbody") {
+				for (let child of contentChildNode.childNodes) {
+					if (child.nodeName === "tr") {
+						this.convertIntoBuilding(child, newRoom);
+					}
+				}
+			}
 		}
 	}
 
-	public verifyParsedResult(parsedResult: any): boolean {
-		parsedResult["childNodes"].forEach((node: any) => {
-			if (node["nodeName"] === "tr") {
-				node["childNodes"].forEach((nodeCell: any) => {
-					if (nodeCell["nodeName"] === "td") {
-						return true;
+	private convertIntoBuilding(child: any, newRoom: IRoomData) {
+		for (let childNode of child) {
+			if (childNode.nodeName === "td") {
+				let tempAttrs = childNode.attrs[0]["value"];
+				if (tempAttrs === "views-field views-field-title") {
+					for (let searchName of childNode.childNodes) {
+						if (searchName.nodeName === "a") {
+							for (let searchNameChild of searchName.nodeName) {
+								if (searchNameChild.nodeName === "#text") {
+									newRoom.fullname = (searchNameChild).value as string;
+								}
+							}
+						}
 					}
-				});
+				} else if (tempAttrs === "views-field views-field-field-building-code") {
+					newRoom.shortname = this.trimText(tempAttrs);
+				} else if (tempAttrs === "views-field views-field-field-building-address") {
+					newRoom.address = this.trimText(tempAttrs);
+				}
 			}
-		});
-		return false;
-	}
-
-	// HELPER: Passes in htmlTable and creates table to populate internalIndex
-	public htmlIndexTable(htmlTable: any) {
-		htmlTable.forEach((row: any) => {
-			if (row["nodeName"] === "tr") {
-				let currRow: any;
-				let address = "";
-				row["childNodes"].forEach((cell: any) => {
-					if (cell["attrs"].length > 0 && cell["nodeName"] === "td") {
-						this.searchCell(cell, currRow);
-						address = this.verifyAddress(cell, address);
-					}
-				});
-				this.internalIndex[address] = {...currRow};
-			}
-		});
-	}
-
-	// HELPER: called to
-	public searchCell(cell: any, row: any) {
-		let allNames = "";
-
-		cell["attrs"].forEach((singleAttr: any) => {
-			if (singleAttr["name"] === "class") {
-				allNames += singleAttr["value"];
-			}
-		});
-
-		allNames.split(" ");
-
-		let fullName: string = "";
-		// check which index the name falls under
-		if (allNames.indexOf("views-field-title")) {
-			fullName = this.handleFieldTitle(cell);
-		} else if (allNames.indexOf("views-field-field-building-code")) {
-			this.handleFieldBuildingCode(cell, row);
 		}
-
-		row["fullname"] = fullName;
 	}
 
-	public handleFieldTitle(cell: any): string {
-		cell["childNodes"].forEach((singleCell: any) => {
-			if (singleCell["nodeName"] === "a") {
-				singleCell["childNodes"].forEach((childNode: any) => {
-					if (childNode["nodeName"] === "#text") {
-						return childNode["value"];
-					}
-				});
+	private trimText(paramToTrim: any) {
+		for (let paramChild of paramToTrim) {
+			if (paramChild.nodeName === "#text") {
+				let trimmed = (paramToTrim).value.replace("\n", "").trim();
+				return trimmed as string;
 			}
-		});
+		}
 		return "";
 	}
 
-	public handleFieldBuildingCode(cell: any, row: any) {
-		row["shortname"] = cell["childNodes"][0]["value"].trim();
-	}
-
-	// HELPER
-	public verifyAddress(cell: any, address: string): string {
-
-		let allValidAttrs = "";
-
-		cell["attrs"].forEach((singleAttr: any) => {
-			if (singleAttr["name"] === "class") {
-				allValidAttrs += singleAttr["value"];
-			}
-		});
-
-		allValidAttrs.split(" ");
-
-		if (allValidAttrs.indexOf("views-field-field-building-address") > -1) {
-			return cell["childNodes"][0]["value"].trim();
-		}
-		return address;
-	}
-
-	// HELPER:
-	public getRoomsFromParsedData(parsedData: IRoomData[]) {
-		// empty comment
-	}
-
-
-	// // HELPER: parse passed in JSON file and convert into SectionData
-	// private parseJSON(arrayOfPromiseAllResults: string[]): any {
-	// 	let convertedSections: any = [];
-	// 	try {
-	// 		arrayOfPromiseAllResults.forEach((jsonPromise) => {
-	// 			let arrayOfSections = JSON.parse(jsonPromise)["result"];
-	// 			arrayOfSections.forEach((section: any) => {
-	// 				let mappedSection = this.mapToSectionDataFormat(section);
-	// 				convertedSections.push(mappedSection);
-	// 			});
-	// 		});
-	// 	} catch {
-	// 		return new InsightError("InsightError: could not parse JSON (invalid)");
-	// 	}
-	// 	return convertedSections;
-	// }
-	//
 	// HELPER: Sets data to internal model and to disk
 	private setDataToModelAndDisk(
 		id: string,
-		convertedSections: IRoomData[],
+		convertedRooms: IRoomData[],
 		kind: InsightDatasetKind,
 		content: string,
 		model: Map<string, IRoomDataset>
@@ -250,7 +218,7 @@ export default class RoomsHelper {
 		return new Promise<string[]>((resolve, reject) => {
 			let newDataset: IRoomDataset = {
 				id: id,
-				roomsData: convertedSections,
+				roomsData: convertedRooms,
 				kind: kind,
 			};
 			model.set(id, newDataset);
@@ -268,6 +236,5 @@ export default class RoomsHelper {
 			return resolve(updateKeysAfterAdd);
 		});
 	}
-
 
 }
