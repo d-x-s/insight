@@ -51,28 +51,6 @@ export default class RoomsHelper {
 		});
 	}
 
-	public verifyValidityOfRooms(content: any) {
-		// check if valid zip file
-
-		// check if single .htm file per dataset in root of zip
-
-		// check if rooms c
-
-		return false;
-	}
-
-		// HELPER: takes in content and adds
-	public addRooms(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-
-		// TODO: Retrieve geolocation of each building
-
-		if (this.verifyValidityOfRooms(content)){
-			return Promise.reject(new InsightError("ERROR: Invalid room"));
-		}
-
-		return Promise.reject(new InsightError("reject"));
-	}
-
 	public parseRoom(content: string): Promise<IRoomData[]> {
 
 		return new Promise((resolve, reject) => {
