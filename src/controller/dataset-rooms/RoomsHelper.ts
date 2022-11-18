@@ -64,6 +64,7 @@ export default class RoomsHelper {
 						this.parseNodeChildren(contentNode);
 					}
 				}
+				return;
 			}).catch((err) => {
 				reject(new InsightError("unable to async"));
 			});
@@ -92,11 +93,15 @@ export default class RoomsHelper {
 			if (fileFolder == null) {
 				return new InsightError("InsightError: null file folder, could not load");
 			}
+			console.log("point 5.5");
+
 			fileFolder.forEach((buildingPath: any, file: any) => {
 				dataToPush.push(file.async("string")
 					.then((result: any) => {
-						this.processRoomsHelper(buildingPath, parse(result));
+						console.log("6.1 reached");
+						this.processRoomsHelper(this.internalRooms[buildingPath], parse(result));
 					}).catch((err: any) => {
+						console.log(err);
 						reject(new InsightError("Unable to process room" + err));
 					}));
 			});
