@@ -65,6 +65,7 @@ export default class RoomsHelper {
 						this.parseNodeChildren(contentNode);
 					}
 				}
+				console.log("good");
 				return;
 			}).catch((err) => {
 				reject(new InsightError("unable to async" + err));

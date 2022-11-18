@@ -69,7 +69,7 @@ describe("Rooms", function() {
 					expect(addedIds).to.be.an.instanceOf(Array);
 					expect(addedIds).to.have.length(1);
 				}).catch((error: any) => {
-					expect.fail("test failed, no error have been thrown");
+					expect.fail("test failed, no error have been thrown" + error);
 				});
 		});
 
