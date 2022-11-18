@@ -43,9 +43,10 @@ export class GeoLeocation {
 		console.log("process1");
 
 		let promises: Promise<any> = new Promise<any>((resolve, reject) => {
-			http.get(address, (result: any) => {
+			http.get(address, (res: any) => {
 
-				let res = JSON.parse(result);
+				// let res = JSON.parse(result);
+				// console.log("res", res);
 
 				if (res.lat === undefined || res.lon === undefined) {
 					return new InsightError("invalid lat or lon");

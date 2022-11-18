@@ -66,7 +66,7 @@ export default class RoomsHelper {
 				}
 				return;
 			}).catch((err) => {
-				reject(new InsightError("unable to async"));
+				reject(new InsightError("unable to async" + err));
 			});
 
 			console.log("point 2.9 reached");
@@ -96,12 +96,13 @@ export default class RoomsHelper {
 			console.log("point 5.5");
 
 			fileFolder.forEach((buildingPath: any, file: any) => {
+				// console.log("buildingPath", buildingPath);
+				// console.log("file", file);
 				dataToPush.push(file.async("string")
 					.then((result: any) => {
 						console.log("6.1 reached");
 						this.processRoomsHelper(this.internalRooms[buildingPath], parse(result));
 					}).catch((err: any) => {
-						console.log(err);
 						reject(new InsightError("Unable to process room" + err));
 					}));
 			});
@@ -117,7 +118,6 @@ export default class RoomsHelper {
 	public processRoomsHelper(roomToProcess: any, res: any) {
 		console.log("point 6.5");
 		for (let resNode of res.childNodes) {
-			console.log("resNode", resNode);
 			if (resNode.nodeName === "html") {
 				console.log("point7");
 				return this.addProcessedRooms(roomToProcess, resNode);
@@ -131,6 +131,7 @@ export default class RoomsHelper {
 			if (currName === "tbody") {
 				for (let childLayer of child.childNodes) {
 					if (childLayer.nodeName === "tr") {
+						console.log("tr found");
 						this.populateIRoomData(roomToAdd, childLayer);
 					}
 				}
@@ -153,9 +154,9 @@ export default class RoomsHelper {
 				if (currAttrs === "views-field views-field-field-room-number") {
 					let retrieveAttrs = {name: "", href: ""};
 					let roomFullName = "";
-					for (let paramChild of param) {
+					for (let paramChild of param.childNodes) {
 						if (paramChild.nodeName === "a") {
-							for (let t of paramChild) {
+							for (let t of paramChild.childNodes) {
 								if (t.nodeName === "#text") {
 									roomFullName = t.value;
 								}
@@ -201,7 +202,7 @@ export default class RoomsHelper {
 	}
 
 	private convertIntoBuilding(child: any, newRoom: IRoomData) {
-		for (let childNode of child) {
+		for (let childNode of child.childNodes) {
 			if (childNode.nodeName === "td") {
 				let tempAttrs = childNode.attrs[0]["value"];
 				if (tempAttrs === "views-field views-field-title") {
