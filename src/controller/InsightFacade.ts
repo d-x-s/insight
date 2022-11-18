@@ -73,6 +73,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.resolve(AddCoursesHelper.addCoursesDatasetToModel(id, content, kind, this.internalModel));
 		} else {
 			let AddRoomsHelper = new RoomsHelper();
+			console.log("Rooms Init");
 			return Promise.resolve(AddRoomsHelper.addRoomsDatasetToModel(id, content, kind, this.internalModel));
 		}
 	}
