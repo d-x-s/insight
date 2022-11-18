@@ -1,5 +1,6 @@
 import * as http from "http";
 import {InsightError} from "../IInsightFacade";
+import InsightFacade from "../InsightFacade";
 
 export class GeoLeocation {
 
@@ -8,44 +9,65 @@ export class GeoLeocation {
 	}
 
 	public processLatAndLong(index: any) {
-		let promiseLatAndLong: Array<Promise<string>> = [];
-		Object.keys(index).forEach((indexKey: string) => {
-			promiseLatAndLong.push(this.processLatAndLongHelper(indexKey, index));
+		return new Promise((resolve, reject) => {
+			let promiseLatAndLong: any = [];
+
+			// console.log("process called");
+
+			let requestAddress = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/";
+
+			// console.log("index", index);
+
+			for (let roomBuildingName in index) {
+				let geoLocationResult: any = {lat: null, lon: null};
+
+				let roomInfo = index[roomBuildingName];
+				let appendAddress = encodeURIComponent(roomInfo.address);
+				let newAddress = requestAddress + appendAddress;
+
+				// console.log("woohoo");
+
+				promiseLatAndLong.push(this.processLatAndLongHelper(geoLocationResult, newAddress, roomInfo, index));
+			}
+
+			return Promise.all(promiseLatAndLong).then(() => {
+				resolve(true);
+			});
 		});
-		return Promise.all(promiseLatAndLong);
 	}
 
 	// HELPER:
-	public processLatAndLongHelper(address: string, internalIndex: any): Promise<any> {
+	public processLatAndLongHelper(currResult: any, address: string, roomInfo: any, index: any): Promise<any> {
 		// TODO: Send request to http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/<ADDRESS>
 
-		let geoLocationResult: any = {lat: null, lon: null};
-		let requestAddress = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/" + address;
+		// console.log("process1");
 
-		let promises: Promise<any> = new Promise<any>((resolve, reject) => {
-			http.get(requestAddress, (result) => {
-				let data = "";
-				result.setEncoding("utf8");
+		// let promises: Promise<any> =
+		return new Promise<any>((resolve, reject) => {
+			http.get(address, (res: any) => {
 
-				result.on("data", (currListener) => {
-					data += currListener;
-				});
-				result.on("end", () => {
-					geoLocationResult = JSON.parse(data);
-					internalIndex[address]["lon"] = geoLocationResult["lon"];
-					internalIndex[address]["lat"] = geoLocationResult["lat"];
-					resolve(geoLocationResult);
-				}).on("error", (err) => {
-					reject(new InsightError("Error processing Lat and Long" + err));
-				});
+				// let res = JSON.parse(result);
+				// console.log("fetching http");
+				// console.log("res", res);
+
+				if (res.lat === undefined || res.lon === undefined) {
+					reject(new InsightError("invalid lat or lon"));
+				} else {
+					console.log("res", res.lat, res.lon);
+					roomInfo.lat = res.lat;
+					roomInfo.lon = res.lon;
+					index.building[roomInfo.shortname] = roomInfo;
+				}
+				resolve(roomInfo);
 			});
 		}).catch((err) => {
 			return new InsightError("Error processing lat and long" + err);
 		});
 
-		return promises.then((result): any => {
-			return Promise.resolve(result);
-		});
+		// Promise.all([promises]).then((result): any => {
+		// 	console.log("res", result);
+		// 	return Promise.resolve(result);
+		// });
 	}
 
 
