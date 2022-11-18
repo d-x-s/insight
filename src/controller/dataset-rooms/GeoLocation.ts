@@ -7,8 +7,16 @@ export class GeoLeocation {
 		console.log("Geolocation class created");
 	}
 
+	public processLatAndLong(index: any) {
+		let promiseLatAndLong: Array<Promise<string>> = [];
+		Object.keys(index).forEach((indexKey: string) => {
+			promiseLatAndLong.push(this.processLatAndLongHelper(indexKey, index));
+		});
+		return Promise.all(promiseLatAndLong);
+	}
+
 	// HELPER:
-	public processLatAndLong(address: string): Promise<any> {
+	public processLatAndLongHelper(address: string, internalIndex: any): Promise<any> {
 		// TODO: Send request to http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/<ADDRESS>
 
 		let geoLocationResult: any = {lat: null, lon: null};
@@ -24,6 +32,8 @@ export class GeoLeocation {
 				});
 				result.on("end", () => {
 					geoLocationResult = JSON.parse(data);
+					internalIndex[address]["lon"] = geoLocationResult["lon"];
+					internalIndex[address]["lat"] = geoLocationResult["lat"];
 					resolve(geoLocationResult);
 				}).on("error", (err) => {
 					reject(new InsightError("Error processing Lat and Long" + err));
