@@ -42,30 +42,32 @@ export class GeoLeocation {
 
 		console.log("process1");
 
-		let promises: Promise<any> = new Promise<any>((resolve, reject) => {
+		// let promises: Promise<any> =
+		return new Promise<any>((resolve, reject) => {
 			http.get(address, (res: any) => {
 
 				// let res = JSON.parse(result);
+				console.log("fetching http");
 				// console.log("res", res);
 
 				if (res.lat === undefined || res.lon === undefined) {
-					return new InsightError("invalid lat or lon");
+					reject(new InsightError("invalid lat or lon"));
 				} else {
 					console.log("res", res.lat, res.lon);
 					roomInfo.lat = res.lat;
 					roomInfo.lon = res.lon;
 					index.building[roomInfo.shortname] = roomInfo;
 				}
-
+				resolve(roomInfo);
 			});
 		}).catch((err) => {
 			return new InsightError("Error processing lat and long" + err);
 		});
 
-		return promises.then((result): any => {
-			console.log("res", result);
-			return Promise.resolve(result);
-		});
+		// Promise.all([promises]).then((result): any => {
+		// 	console.log("res", result);
+		// 	return Promise.resolve(result);
+		// });
 	}
 
 

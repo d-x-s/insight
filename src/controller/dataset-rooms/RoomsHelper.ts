@@ -216,9 +216,9 @@ export default class RoomsHelper {
 						}
 					}
 				} else if (tempAttrs === "views-field views-field-field-building-code") {
-					newRoom.shortname = this.trimText(tempAttrs);
+					newRoom.shortname = this.trimText(childNode);
 				} else if (tempAttrs === "views-field views-field-field-building-address") {
-					newRoom.address = this.trimText(tempAttrs);
+					newRoom.address = this.trimText(childNode);
 				}
 			}
 		}
@@ -229,8 +229,10 @@ export default class RoomsHelper {
 	}
 
 	private trimText(paramToTrim: any) {
-		for (let paramChild of paramToTrim) {
+		// console.log("param", paramToTrim);
+		for (let paramChild of paramToTrim.childNodes) {
 			if (paramChild.nodeName === "#text") {
+				console.log("text found");
 				let trimmed = (paramToTrim).value.replace("\n", "").trim();
 				return trimmed as string;
 			}
