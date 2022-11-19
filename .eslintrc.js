@@ -115,5 +115,6 @@ module.exports = {
 		"lines-between-class-members": ["error", "always", {"exceptAfterSingleLine": true}],
 		"max-nested-callbacks": ["error", 2],
 		"max-statements-per-line": "error"
-	}
-}
+	},
+	"ignorePatterns": ["frontend/**/*"],
+};
