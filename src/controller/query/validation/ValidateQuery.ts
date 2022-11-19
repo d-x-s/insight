@@ -8,7 +8,6 @@ export default class ValidateQueryHelper {
 	protected isTransformed: boolean;
 	protected kind: InsightDatasetKind;
 	protected validateTransformationsHelper: ValidateTransformationsHelper;
-	protected validateWhereHelper: ValidateWhereHelper;
 	protected QKEYS = ["OPTIONS", "WHERE", "TRANSFORMATIONS"];
 	protected OKEYS = ["ORDER", "COLUMNS"];
 	protected COURSES_MFIELDS = ["avg", "pass", "fail", "audit", "year"];
@@ -22,7 +21,6 @@ export default class ValidateQueryHelper {
 		this.isTransformed = false;
 		this.kind = InsightDatasetKind.Sections; // initialize to sections by default
 		this.validateTransformationsHelper = new ValidateTransformationsHelper();
-		this.validateWhereHelper = new ValidateWhereHelper();
 	}
 
 	public getValidStatus() {
@@ -65,9 +63,9 @@ export default class ValidateQueryHelper {
 
 		// look for the first valid id in columns
 		for (const columnKey of columnsValueArray) {
-			console.log("look at column key");
+			// console.log("look at column key");
 			if (columnKey.includes("_")) {
-				console.log(columnKey);
+				// console.log(columnKey);
 				return columnKey.split("_")[0];
 			}
 		}
@@ -98,9 +96,13 @@ export default class ValidateQueryHelper {
 				this.isTransformed = true;
 			}
 		}
-
-		this.validateWhereHelper.validateFilter(query["WHERE"], id);
-		this.isValid = this.validateWhereHelper.getValidStatus();
+		console.log("Before validating where");
+		console.log(this.isValid);
+		let validateWhereHelper = new ValidateWhereHelper(kind);
+		validateWhereHelper.validateFilter(query["WHERE"], id);
+		this.isValid = validateWhereHelper.getValidStatus();
+		console.log("After validating where");
+		console.log(this.isValid);
 		// if (!this.validateWhereHelper.getValidStatus) {
 		// 	return;
 		// }

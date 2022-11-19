@@ -1,0 +1,41 @@
+{
+	"title": "In rooms dataset rooms, find entries whose Full Name is \"Student Recreation Centre\"; show Short Name and Full Name; sort in descending order by Short Name.",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"rooms_fullname": "Student Recreation Centre"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"rooms_fullname"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"rooms_shortname"
+				]
+			}
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_shortname": "SRC",
+			"rooms_fullname": "Student Recreation Centre"
+		},
+		{
+			"rooms_shortname": "SRC",
+			"rooms_fullname": "Student Recreation Centre"
+		},
+		{
+			"rooms_shortname": "SRC",
+			"rooms_fullname": "Student Recreation Centre"
+		}
+	]
+}

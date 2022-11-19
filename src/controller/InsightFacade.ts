@@ -73,7 +73,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.resolve(AddCoursesHelper.addCoursesDatasetToModel(id, content, kind, this.internalModel));
 		} else {
 			let AddRoomsHelper = new RoomsHelper(id);
-			console.log("Rooms Init");
+			// console.log("Rooms Init");
 			return Promise.resolve(AddRoomsHelper.addRoomsDatasetToModel(id, content, kind, this.internalModel));
 		}
 	}
@@ -130,8 +130,8 @@ export default class InsightFacade implements IInsightFacade {
 				return reject(new InsightError(`InsightError: failing to extract id because ${err}`));
 			}
 			let keys = Array.from(this.internalModel.keys());
-			console.log(keys);
-			console.log(id);
+			// console.log(keys);
+			// console.log(id);
 			if (!keys.includes(id)) {
 				return reject(new InsightError(`InsightError: referenced dataset with id: ${id} not yet added yet`));
 			}
@@ -148,7 +148,7 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			let result: any[];
 			try {
-				console.log("154");
+				// console.log("154");
 				// console.log(dataset);
 				result = queryEngine.processQuery(query, dataset, queryValidator.getTransformedStatus());
 				if (result.length > 5000) {
@@ -158,6 +158,7 @@ export default class InsightFacade implements IInsightFacade {
 					result = transformer.transform(query, result);
 				}
 				result = optionsFilter.processOptions(query, result, queryValidator.getTransformedStatus());
+				console.log(result);
 			} catch (err) {
 				return reject(new InsightError("InsightError: unexpected behavior while performing query: " + err));
 			}
@@ -194,7 +195,7 @@ export default class InsightFacade implements IInsightFacade {
 				} else {
 					roomsDataRows = data.roomsData?.length;
 				}
-				console.log("roomsDataRows", roomsDataRows);
+				// console.log("roomsDataRows", roomsDataRows);
 
 				let currInsightDataset: InsightDataset = {
 					id: id,
