@@ -17,14 +17,16 @@ export default class RoomsHelper {
 	public internalBuildings: any;
 	public buildingListObject: {[key: string]: IRoomData};
 	public fileDirectory: string;
+	public datasetID: string;
 
-	constructor() {
+	constructor(id: string) {
 		this.indexDirectory = "index.htm";
 		this.findLocation = new GeoLocation();
 		this.internalIndex = [];
 		this.internalBuildings = [];
 		this.buildingListObject = {};
 		this.fileDirectory = __dirname + "/../../data";
+		this.datasetID = id;
 	}
 
 	public addRoomsDatasetToModel(
@@ -41,17 +43,34 @@ export default class RoomsHelper {
 					// console.log("point 1 reached loaded zipfiles" + loadedZipFiles);
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
-					console.log(result);
-					// console.log("result IroomData", result);
-					// console.log(this.buildingListObject);
-					// console.log(this.internalBuildings);
-					// console.log(result);
-					resolve(this.setDataToModelAndDisk(id, result, kind, content, model));
+					let processedResults = this.processResult(result);
+					// console.log(processedResults);
+					resolve(this.setDataToModelAndDisk(id, processedResults, kind, content, model));
 				})
 				.catch((err) => {
 					reject(new InsightError("InsightError: failed to add" + err));
 				});
 		});
+	}
+
+	public processResult(result: any[]) {
+		// console.log(result);
+		let retArray: any = [];
+
+		result.forEach((room) => {
+			// console.log(room);
+			let newRoom: any  = {};
+			let objKeyArray = Object.keys(room);
+			// console.log(objKeyArray);
+
+			objKeyArray.forEach((key) => {
+				let newKey = this.datasetID + "_" + key;
+				// console.log(newKey);
+				newRoom[newKey] = room[key];
+			});
+			retArray.push(newRoom);
+		});
+		return retArray;
 	}
 
 	public handleRoomProcessing(zipped: JSZip): Promise<IRoomData[]> {
