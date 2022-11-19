@@ -10,74 +10,54 @@ export default class PerformQueryHelper {
 	}
 
 	public processQuery(query: any, dataset: any, isTransformed: boolean): any[] {
-		if (dataset === undefined) {
+		if (dataset === undefined || dataset.data === undefined) {
 			throw Error("the dataset being queried on is undefined");
 		}
+
 		if (Object.keys(query["WHERE"]).length === 0) {
-			return this.options.processOptions(query, dataset.data, isTransformed);
+			return dataset.data;
 		}
+
 		this.kind = dataset.kind;
-		// console.log("kind19");
-		// console.log(this.kind);
-		if (this.kind === InsightDatasetKind.Sections) {
-			return this.filterQuery(query["WHERE"], dataset.data, this.kind);
-		} else {
-			// console.log(dataset.data);
-			return this.filterQuery(query["WHERE"], dataset.data, this.kind);
-		}
+		return this.filterQuery(query["WHERE"], dataset.data);
 	}
 
 	// key idea:
 	// filter through SectionsData[], examining each individual section and seeing if it matches with the query
 	// if it is valid, return true and keep it in the list
 	// otherwise filter it out
-	private filterQuery(query: any, sections: any[], kind: any): any[] {
-		// console.log(sections);
-		// for (let s of sections) {
-		// 	// this.delay(1000).then(() => console.log(s));
-		// 	setTimeout(function(){
-		// 		console.log(s);
-		// 	}, 1000);
-		// }
-		// sections.forEach((s) => {
-		// 	this.delay(10000).then(() => console.log(s));
-		// });
-		// console.log(sections);
-		// console.log(JSON.stringify(sections));
-		let filtered = sections.filter((section) => {
-			// console.log(section);
-			return this.where(query, section, kind);
+	private filterQuery(query: any, dataList: any[]): any[] {
+		return dataList.filter((dataElement) => {
+			return this.where(query, dataElement);
 		});
-		// console.log(filtered);
-		return filtered;
 	}
 
-	private where(query: any, section: any, kind: any): boolean {
+	private where(query: any, dataElement: any): boolean {
 		let key = Object.keys(query)[0];
 
 		switch (key) {
 			case "AND":
-				return this.and(query, section, kind);
+				return this.and(query, dataElement);
 			case "OR":
-				return this.or(query, section, kind);
+				return this.or(query, dataElement);
 			case "LT":
 			case "GT":
 			case "EQ":
-				return this.mComparator(query, section, kind, key);
+				return this.mComparator(query, dataElement, key);
 			case "IS":
-				return this.sComparator(query, section, kind, key);
+				return this.sComparator(query, dataElement, key);
 			case "NOT":
-				return this.not(query, section, kind);
+				return this.not(query, dataElement);
 			default:
 				throw new Error("invalid where key: " + key + " encountered");
 		}
 	}
 
 	// if any of the sub-elements don't match the query, return false
-	private and(query: any, section: any, kind: any): boolean {
+	private and(query: any, dataElement: any): boolean {
 		let resultAnd = true;
 		for (let element of query["AND"]) {
-			if (this.where(element, section, kind) === false) {
+			if (this.where(element, dataElement) === false) {
 				resultAnd = false;
 			}
 		}
@@ -85,10 +65,10 @@ export default class PerformQueryHelper {
 	}
 
 	// if any of the sub-elements do match the query, return true
-	private or(query: any, section: any, kind: any): boolean {
+	private or(query: any, dataElement: any): boolean {
 		let resultOr = false;
 		for (let element of query["OR"]) {
-			if (this.where(element, section, kind) === true) {
+			if (this.where(element, dataElement) === true) {
 				resultOr = true;
 			}
 		}
@@ -96,129 +76,160 @@ export default class PerformQueryHelper {
 	}
 
 	// simply return the negated result of the check on the sub-elements
-	private not(query: any, section: any, kind: any): boolean {
-		return !this.where(query["NOT"], section, kind);
+	private not(query: any, dataElement: any): boolean {
+		return !this.where(query["NOT"], dataElement);
 	}
 
-	// TODO: hardcoded, epxand to rooms
 	// MCOMPARISON ::= MCOMPARATOR ':{' mkey ':' number '}'
 	// mkey ::= idstring '_' mfield
 	// mfield ::= 'avg' | 'pass' | 'fail' | 'audit' | 'year'
-	private mComparator(query: any, section: any, kind: any, comparator: string): boolean {
-		// console.log(section);
-		let mPair = query[comparator];
-		let mKey = Object.keys(mPair)[0];
-		let mNumber = mPair[mKey];
-		let mField = mKey.split("_")[1];
-		let sectionNumber = 0;
+	private mComparator(query: any, dataElement: any, comparator: string): boolean {
+		let mComparatorObject = query[comparator];
+
+		let mKey: any         = Object.keys(mComparatorObject)[0];
+		let mNumber: any      = Object.values(mComparatorObject)[0];
+
+		let mField            = mKey.split("_")[1];
+		let elementFieldValue = 0;
 
 		if (this.kind === InsightDatasetKind.Sections) {
-			if (mField === "avg") {
-				sectionNumber = section.avg;
-			} else if (mField === "pass") {
-				sectionNumber = section.pass;
-			} else if (mField === "fail") {
-				sectionNumber = section.fail;
-			} else if (mField === "audit") {
-				sectionNumber = section.audit;
-			} else if (mField === "year") {
-				sectionNumber = section.year;
-			} else {
-				throw new Error("invalid mField: " + mField + " encountered");
-			}
+			elementFieldValue = this.getSectionElementMathFieldValue(dataElement, mField);
 		} else {
-			if (mField === "lat") {
-				sectionNumber = section.lat;
-			} else if (mField === "lon") {
-				sectionNumber = section.lon;
-			} else if (mField === "seats") {
-				sectionNumber = section.seats;
-			} else {
-				throw new Error("invalid mField: " + mField + " encountered");
-			}
+			elementFieldValue = this.getRoomElementMathFieldValue(dataElement, mField);
 		}
 
 		switch (comparator) {
 			case "GT":
-				return sectionNumber > mNumber;
+				return elementFieldValue > mNumber;
 			case "LT":
-				return sectionNumber < mNumber;
+				return elementFieldValue < mNumber;
 			case "EQ":
-				return sectionNumber === mNumber;
+				return elementFieldValue === mNumber;
 			default:
 				throw new Error("invalid mComparator: " + comparator + " encountered");
 		}
 	}
 
-	// TODO: hardcoded, expand to rooms
+	private getSectionElementMathFieldValue(sectionElement: any, mField: string): number {
+		if (mField === "avg") {
+			return sectionElement.avg;
+
+		} else if (mField === "pass") {
+			return sectionElement.pass;
+
+		} else if (mField === "fail") {
+			return sectionElement.fail;
+
+		} else if (mField === "audit") {
+			return sectionElement.audit;
+
+		} else if (mField === "year") {
+			return sectionElement.year;
+
+		} else {
+			throw new Error("invalid mField: " + mField + " encountered");
+		}
+	};
+
+	private getRoomElementMathFieldValue(roomElement: any, mField: string): number {
+		if (mField === "lat") {
+			return roomElement.lat;
+
+		} else if (mField === "lon") {
+			return roomElement.lon;
+
+		} else if (mField === "seats") {
+			return roomElement.seats;
+
+		} else {
+			throw new Error("invalid mField: " + mField + " encountered");
+		}
+	};
+
 	// SCOMPARISON ::= 'IS:{' skey ':' [*]? inputstring [*]? '}'  // Asterisks should act as wildcards.
 	// skey ::= idstring '_' sfield
 	// sfield ::=  'dept' | 'id' | 'instructor' | 'title' | 'uuid'
-	private sComparator(query: any, section: any, kind: any, comparator: string): boolean {
-		// console.log("mComparator section");
-		// console.log(section);
-		let sPair = query[comparator];
-		let sKey = Object.keys(sPair)[0];
-		let sString = sPair[sKey];
-		let sField = sKey.split("_")[1];
-		let sectionString = "";
+	private sComparator(query: any, dataElement: any, comparator: string): boolean {
+		let sComparisonObject = query[comparator];
+
+		let sKey: any         = Object.keys(sComparisonObject)[0];
+		let inputString: any  = Object.values(sComparisonObject)[0];
+
+		let sField            = sKey.split("_")[1];
+		let elementFieldValue = "";
 
 		if (this.kind === InsightDatasetKind.Sections) {
-			if (sField === "dept") {
-				sectionString = section.dept;
-			} else if (sField === "id") {
-				sectionString = section.id;
-			} else if (sField === "instructor") {
-				sectionString = section.instructor;
-			} else if (sField === "title") {
-				sectionString = section.title;
-			} else if (sField === "uuid") {
-				sectionString = section.uuid;
-			} else {
-				throw new Error("invalid SField: " + sField + " encountered");
-			}
+			elementFieldValue = this.getSectionElementStringFieldValue(dataElement, sField);
 		} else {
-			sectionString = this.roomStringHelper(section, sField);
-			// console.log(section);
-			// console.log("sectioNString");
-			// console.log(section);
-			// console.log(sectionString);
+			elementFieldValue = this.getRoomElementStringFieldValue(dataElement, sField);
 		}
 
-		if (sString === "*" || sString === "**") {
+		if (inputString === "*" || inputString === "**") {
 			return true;
-		} else if (sString.startsWith("*") && sString.endsWith("*")) {
-			let sStringTrim = sString.substring(1, sString.length - 1);
-			return sectionString.includes(sStringTrim);
-		} else if (sString.startsWith("*")) {
-			let sStringTrim = sString.substring(1, sString.length);
-			return sectionString.endsWith(sStringTrim);
-		} else if (sString.endsWith("*")) {
-			let sStringTrim = sString.substring(0, sString.length - 1);
-			return sectionString.startsWith(sStringTrim);
+
+		} else if (inputString.startsWith("*") && inputString.endsWith("*")) {
+			let sStringTrim = inputString.substring(1, inputString.length - 1);
+			return elementFieldValue.includes(sStringTrim);
+
+		} else if (inputString.startsWith("*")) {
+			let sStringTrim = inputString.substring(1, inputString.length);
+			return elementFieldValue.endsWith(sStringTrim);
+
+		} else if (inputString.endsWith("*")) {
+			let sStringTrim = inputString.substring(0, inputString.length - 1);
+			return elementFieldValue.startsWith(sStringTrim);
+
 		} else {
-			return sectionString === sString;
+			return elementFieldValue === inputString;
 		}
 	}
 
-	private roomStringHelper(section: any, sField: string): string {
-		let sFieldExplicit = sField.toString();
-		if (sFieldExplicit === "shortname") {
-			return section.shortname;
-		} else if (sFieldExplicit === "fullname") {
-			return section.fullname;
-		} else if (sFieldExplicit === "address") {
-			return section.address;
-		} else if (sFieldExplicit === "name") {
-			return section.name;
-		} else if (sFieldExplicit === "href") {
-			return section.href;
-		} else if (sFieldExplicit === "number") {
-			return section.number;
-		} else if (sFieldExplicit === "furniture") {
-			return section.furniture;
-		} else if (sFieldExplicit === "type") {
-			return section.type;
+	private getSectionElementStringFieldValue(sectionElement: any, sField: string): string {
+		if (sField === "dept") {
+			return sectionElement.dept;
+
+		} else if (sField === "id") {
+			return sectionElement.id;
+
+		} else if (sField === "instructor") {
+			return sectionElement.instructor;
+
+		} else if (sField === "title") {
+			return sectionElement.title;
+
+		} else if (sField === "uuid") {
+			return sectionElement.uuid;
+
+		} else {
+			throw new Error("invalid SField: " + sField + " encountered");
+		}
+	};
+
+	private getRoomElementStringFieldValue(roomElement: any, sField: string): string {
+		if (sField === "shortname") {
+			return roomElement.shortname;
+
+		} else if (sField === "fullname") {
+			return roomElement.fullname;
+
+		} else if (sField === "address") {
+			return roomElement.address;
+
+		} else if (sField === "name") {
+			return roomElement.name;
+
+		} else if (sField === "href") {
+			return roomElement.href;
+
+		} else if (sField === "number") {
+			return roomElement.number;
+
+		} else if (sField === "furniture") {
+			return roomElement.furniture;
+
+		} else if (sField === "type") {
+			return roomElement.type;
+
 		} else {
 			throw new Error("invalid SField: " + sField + " encountered");
 		}

@@ -78,6 +78,4 @@ export class GeoLocation {
 		// 	return Promise.resolve(result);
 		// });
 	}
-
-
 }
