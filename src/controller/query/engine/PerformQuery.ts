@@ -1,3 +1,4 @@
+import {InsightDatasetKind} from "../../IInsightFacade";
 import PerformQueryOptionsHelper from "./engine-helpers/PerformQueryOptionsHelper";
 
 export default class PerformQueryHelper {
@@ -13,10 +14,17 @@ export default class PerformQueryHelper {
 			throw Error("the dataset being queried on is undefined");
 		}
 		if (Object.keys(query["WHERE"]).length === 0) {
-			return this.options.processOptions(query, dataset.sectionsData, isTransformed);
+			return this.options.processOptions(query, dataset.data, isTransformed);
 		}
 		this.kind = dataset.kind;
-		return this.filterQuery(query["WHERE"], dataset.sectionsData, this.kind);
+		console.log("kind19");
+		console.log(this.kind);
+		if (this.kind === InsightDatasetKind.Sections) {
+			return this.filterQuery(query["WHERE"], dataset.data, this.kind);
+		} else {
+			// console.log(dataset.data);
+			return this.filterQuery(query["WHERE"], dataset.data, this.kind);
+		}
 	}
 
 	// key idea:
@@ -24,7 +32,9 @@ export default class PerformQueryHelper {
 	// if it is valid, return true and keep it in the list
 	// otherwise filter it out
 	private filterQuery(query: any, sections: any[], kind: any): any[] {
+		console.log(sections);
 		return sections.filter((section) => {
+			// console.log(section);
 			return this.where(query, section, kind);
 		});
 	}
@@ -82,24 +92,35 @@ export default class PerformQueryHelper {
 	// mkey ::= idstring '_' mfield
 	// mfield ::= 'avg' | 'pass' | 'fail' | 'audit' | 'year'
 	private mComparator(query: any, section: any, kind: any, comparator: string): boolean {
+		console.log(section);
 		let mPair = query[comparator];
 		let mKey = Object.keys(mPair)[0];
 		let mNumber = mPair[mKey];
 		let mField = mKey.split("_")[1];
 		let sectionNumber = 0;
 
-		if (mField === "avg") {
-			sectionNumber = section.avg;
-		} else if (mField === "pass") {
-			sectionNumber = section.pass;
-		} else if (mField === "fail") {
-			sectionNumber = section.fail;
-		} else if (mField === "audit") {
-			sectionNumber = section.audit;
-		} else if (mField === "year") {
-			sectionNumber = section.year;
+		if (this.kind === InsightDatasetKind.Sections) {
+			if (mField === "avg") {
+				sectionNumber = section.avg;
+			} else if (mField === "pass") {
+				sectionNumber = section.pass;
+			} else if (mField === "fail") {
+				sectionNumber = section.fail;
+			} else if (mField === "audit") {
+				sectionNumber = section.audit;
+			} else if (mField === "year") {
+				sectionNumber = section.year;
+			} else {
+				throw new Error("invalid mField: " + mField + " encountered");
+			}
 		} else {
-			throw new Error("invalid mField: " + mField + " encountered");
+			if (mField === "lat") {
+				sectionNumber = section.lat;
+			} else if (mField === "lon") {
+				sectionNumber = section.lon;
+			} else {
+				throw new Error("invalid mField: " + mField + " encountered");
+			}
 		}
 
 		switch (comparator) {
@@ -119,24 +140,33 @@ export default class PerformQueryHelper {
 	// skey ::= idstring '_' sfield
 	// sfield ::=  'dept' | 'id' | 'instructor' | 'title' | 'uuid'
 	private sComparator(query: any, section: any, kind: any, comparator: string): boolean {
+		// console.log("mComparator section");
+		// console.log(section);
 		let sPair = query[comparator];
 		let sKey = Object.keys(sPair)[0];
 		let sString = sPair[sKey];
 		let sField = sKey.split("_")[1];
 		let sectionString = "";
 
-		if (sField === "dept") {
-			sectionString = section.dept;
-		} else if (sField === "id") {
-			sectionString = section.id;
-		} else if (sField === "instructor") {
-			sectionString = section.instructor;
-		} else if (sField === "title") {
-			sectionString = section.title;
-		} else if (sField === "uuid") {
-			sectionString = section.uuid;
+		if (this.kind === InsightDatasetKind.Sections) {
+			if (sField === "dept") {
+				sectionString = section.dept;
+			} else if (sField === "id") {
+				sectionString = section.id;
+			} else if (sField === "instructor") {
+				sectionString = section.instructor;
+			} else if (sField === "title") {
+				sectionString = section.title;
+			} else if (sField === "uuid") {
+				sectionString = section.uuid;
+			} else {
+				throw new Error("invalid SField: " + sField + " encountered");
+			}
 		} else {
-			throw new Error("invalid SField: " + sField + " encountered");
+			sectionString = this.roomStringHelper(section, sField);
+			console.log("sectioNString");
+			console.log(section);
+			console.log(sectionString);
 		}
 
 		if (sString === "*" || sString === "**") {
@@ -152,6 +182,30 @@ export default class PerformQueryHelper {
 			return sectionString.startsWith(sStringTrim);
 		} else {
 			return sectionString === sString;
+		}
+	}
+
+	private roomStringHelper(section: any, sField: string): string {
+		if (sField === "shortname") {
+			return section.shortname;
+		} else if (sField === "fullname") {
+			return section.fullname;
+		} else if (sField === "address") {
+			return section.address;
+		} else if (sField === "name") {
+			return section.name;
+		} else if (sField === "number") {
+			return section.number;
+		} else if (sField === "href") {
+			return section.href;
+		} else if (sField === "seats") {
+			return section.seats;
+		} else if (sField === "furniture") {
+			return section.furniture;
+		} else if (sField === "type") {
+			return section.type;
+		} else {
+			throw new Error("invalid SField: " + sField + " encountered");
 		}
 	}
 }

@@ -65,7 +65,9 @@ export default class ValidateQueryHelper {
 
 		// look for the first valid id in columns
 		for (const columnKey of columnsValueArray) {
+			console.log("look at column key");
 			if (columnKey.includes("_")) {
+				console.log(columnKey);
 				return columnKey.split("_")[0];
 			}
 		}

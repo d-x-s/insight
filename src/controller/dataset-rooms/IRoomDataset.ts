@@ -3,6 +3,6 @@ import {IRoomData} from "./IRoomData";
 
 export interface IRoomDataset {
 	id: string;
-	roomsData: IRoomData[];
+	data: IRoomData[];
 	kind: InsightDatasetKind;
 }
