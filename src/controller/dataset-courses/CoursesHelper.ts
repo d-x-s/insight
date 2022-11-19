@@ -94,7 +94,7 @@ export class CoursesHelper {
 		return new Promise<string[]>((resolve, reject) => {
 			let newDataset: ICourseDataset = {
 				id: id,
-				sectionsData: convertedSections,
+				data: convertedSections,
 				kind: kind,
 			};
 			model.set(id, newDataset);

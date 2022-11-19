@@ -3,6 +3,6 @@ import {ISectionData} from "./ISectionData";
 
 export interface ICourseDataset {
 	id: string;
-	sectionsData: ISectionData[];
+	data: ISectionData[];
 	kind: InsightDatasetKind;
 }

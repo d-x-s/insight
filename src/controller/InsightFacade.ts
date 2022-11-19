@@ -129,12 +129,12 @@ export default class InsightFacade implements IInsightFacade {
 			} catch (err) {
 				return reject(new InsightError(`InsightError: failing to extract id because ${err}`));
 			}
-
 			let keys = Array.from(this.internalModel.keys());
+			console.log(keys);
+			console.log(id);
 			if (!keys.includes(id)) {
 				return reject(new InsightError(`InsightError: referenced dataset with id: ${id} not yet added yet`));
 			}
-
 			// retrieve the dataset and it's kind
 			let dataset = this.internalModel.get(id);
 			let kind = dataset.kind;
@@ -146,9 +146,10 @@ export default class InsightFacade implements IInsightFacade {
 			} catch (err) {
 				return reject(new InsightError(`InsightError: query is not valid because of ${err}`));
 			}
-
 			let result: any[];
 			try {
+				console.log("154");
+				// console.log(dataset);
 				result = queryEngine.processQuery(query, dataset, queryValidator.getTransformedStatus());
 				if (result.length > 5000) {
 					return reject(new ResultTooLargeError("ResultTooLargeError: query returns more than 5000 results"));

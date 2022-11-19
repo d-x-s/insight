@@ -41,7 +41,7 @@ export default class RoomsHelper {
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
 					let processedResults = this.processResult(result);
-					console.log(processedResults);
+					// console.log(processedResults);
 					resolve(this.setDataToModelAndDisk(id, processedResults, kind, content, model));
 				})
 				.catch((err) => {
@@ -255,10 +255,13 @@ export default class RoomsHelper {
 		return new Promise<string[]>((resolve, reject) => {
 			let newDataset: IRoomDataset = {
 				id: id,
-				roomsData: convertedRooms,
+				data: convertedRooms,
 				kind: kind,
 			};
+			console.log("model");
+			console.log(model);
 			model.set(id, newDataset);
+			console.log(model);
 			let updateKeysAfterAdd: string[] = Array.from(model.keys());
 			let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
 			try {
