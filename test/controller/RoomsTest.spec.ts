@@ -7,9 +7,7 @@
 // 	InsightError} from "../../src/controller/IInsightFacade";
 // import {expect} from "chai";
 
-
 // import {folderTest} from "@ubccpsc310/folder-test";
-
 
 // describe("Rooms", function() {
 

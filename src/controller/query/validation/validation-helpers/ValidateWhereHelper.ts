@@ -11,9 +11,9 @@ export default class ValidateWhereHelper {
 	protected ROOMS_MFIELDS = ["lat", "lon", "seats"];
 	protected ROOMS_SFIELDS = ["fullname", "shortname", "number", "name"];
 
-	constructor() {
+	constructor(kind: InsightDatasetKind) {
 		this.isValid = true;
-		this.kind = InsightDatasetKind.Sections; // initialize to sections by default
+		this.kind = kind; // initialize to sections by default
 	}
 
 	public getValidStatus() {
@@ -122,6 +122,8 @@ export default class ValidateWhereHelper {
 	}
 
 	private validateStringComparison(stringComparator: any, id: string) {
+		// console.log(stringComparator);
+		// console.log(id);
 		if (typeof stringComparator === "undefined" || typeof stringComparator !== "object") {
 			this.isValid = false;
 			return;
@@ -146,13 +148,18 @@ export default class ValidateWhereHelper {
 	}
 
 	private validateSField(sField: any) {
+		console.log("etner validateSField");
+		console.log("kind " + this.kind);
 		if (this.kind === InsightDatasetKind.Sections) {
+			console.log("examining the sfield of sections");
 			if (!this.COURSES_SFIELDS.includes(sField)) {
 				this.isValid = false;
 				return;
 			}
 		} else {
+			console.log("examining the sfield");
 			if (!this.ROOMS_SFIELDS.includes(sField)) {
+				console.log("it is being set to false?");
 				this.isValid = false;
 				return;
 			}

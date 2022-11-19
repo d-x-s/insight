@@ -1,0 +1,48 @@
+{
+	"title": "In rooms dataset rooms grouped by Short Name and Full Name, find entries whose Full Name is \"Student Recreation Centre\"; show Short Name, Full Name and maxSeats, where maxSeats is the MAX of Seats; sort in descending order by maxSeats.",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"rooms_fullname": "Student Recreation Centre"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"rooms_fullname",
+				"maxSeats"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"maxSeats"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname",
+				"rooms_fullname"
+			],
+			"APPLY": [
+				{
+					"maxSeats": {
+						"MAX": "rooms_seats"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_shortname": "SRC",
+			"rooms_fullname": "Student Recreation Centre",
+			"maxSeats": 299
+		}
+	]
+}

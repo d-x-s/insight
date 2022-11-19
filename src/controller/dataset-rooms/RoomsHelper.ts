@@ -40,9 +40,22 @@ export default class RoomsHelper {
 				.then((loadedZipFiles) => {
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
-					let processedResults = this.processResult(result);
+					// let processedResults = this.processResult(result);
 					// console.log(processedResults);
-					resolve(this.setDataToModelAndDisk(id, processedResults, kind, content, model));
+					// CUT OUT OBJECTS WITH MISSING KEYS
+					let filteredResult = result.filter((res) => {
+						// console.log(Object.keys(res).length);
+						let length: number = Object.keys(res).length;
+						let lengthString = length.toString();
+						if (lengthString === "11") {
+							return true;
+						} else {
+							return false;
+						}
+					});
+					// console.log(result);
+					// console.log(filteredResult.length);
+					resolve(this.setDataToModelAndDisk(id, filteredResult, kind, content, model));
 				})
 				.catch((err) => {
 					reject(new InsightError("InsightError: failed to add" + err));
@@ -173,7 +186,7 @@ export default class RoomsHelper {
 					newRoom.href = retrieveAttrs["href"];
 
 				} else if (currAttrs === "views-field views-field-field-room-capacity") {
-					newRoom.seats = this.trimText(param);
+					newRoom.seats = Number(this.trimText(param));
 				} else if (currAttrs === "views-field views-field-field-room-type") {
 					newRoom.type = this.trimText(param);
 				} else if (currAttrs === "views-field views-field-field-room-furniture") {
@@ -223,7 +236,10 @@ export default class RoomsHelper {
 						}
 					}
 				} else if (tempAttrs === "views-field views-field-field-building-code") {
-					newRoom.shortname = this.trimText(childNode);
+					if (typeof this.trimText(childNode) === "string") {
+						// console.log(this.trimText(childNode));
+						newRoom.shortname = this.trimText(childNode);
+					}
 				} else if (tempAttrs === "views-field views-field-field-building-address") {
 					newRoom.address = this.trimText(childNode);
 				}
@@ -258,10 +274,10 @@ export default class RoomsHelper {
 				data: convertedRooms,
 				kind: kind,
 			};
-			console.log("model");
-			console.log(model);
+			// console.log("model");
+			// console.log(model);
 			model.set(id, newDataset);
-			console.log(model);
+			// console.log(model);
 			let updateKeysAfterAdd: string[] = Array.from(model.keys());
 			let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
 			try {

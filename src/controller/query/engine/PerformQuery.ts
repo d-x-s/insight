@@ -17,8 +17,8 @@ export default class PerformQueryHelper {
 			return this.options.processOptions(query, dataset.data, isTransformed);
 		}
 		this.kind = dataset.kind;
-		console.log("kind19");
-		console.log(this.kind);
+		// console.log("kind19");
+		// console.log(this.kind);
 		if (this.kind === InsightDatasetKind.Sections) {
 			return this.filterQuery(query["WHERE"], dataset.data, this.kind);
 		} else {
@@ -32,11 +32,24 @@ export default class PerformQueryHelper {
 	// if it is valid, return true and keep it in the list
 	// otherwise filter it out
 	private filterQuery(query: any, sections: any[], kind: any): any[] {
-		console.log(sections);
-		return sections.filter((section) => {
+		// console.log(sections);
+		// for (let s of sections) {
+		// 	// this.delay(1000).then(() => console.log(s));
+		// 	setTimeout(function(){
+		// 		console.log(s);
+		// 	}, 1000);
+		// }
+		// sections.forEach((s) => {
+		// 	this.delay(10000).then(() => console.log(s));
+		// });
+		// console.log(sections);
+		// console.log(JSON.stringify(sections));
+		let filtered = sections.filter((section) => {
 			// console.log(section);
 			return this.where(query, section, kind);
 		});
+		// console.log(filtered);
+		return filtered;
 	}
 
 	private where(query: any, section: any, kind: any): boolean {
@@ -92,7 +105,7 @@ export default class PerformQueryHelper {
 	// mkey ::= idstring '_' mfield
 	// mfield ::= 'avg' | 'pass' | 'fail' | 'audit' | 'year'
 	private mComparator(query: any, section: any, kind: any, comparator: string): boolean {
-		console.log(section);
+		// console.log(section);
 		let mPair = query[comparator];
 		let mKey = Object.keys(mPair)[0];
 		let mNumber = mPair[mKey];
@@ -118,6 +131,8 @@ export default class PerformQueryHelper {
 				sectionNumber = section.lat;
 			} else if (mField === "lon") {
 				sectionNumber = section.lon;
+			} else if (mField === "seats") {
+				sectionNumber = section.seats;
 			} else {
 				throw new Error("invalid mField: " + mField + " encountered");
 			}
@@ -164,9 +179,10 @@ export default class PerformQueryHelper {
 			}
 		} else {
 			sectionString = this.roomStringHelper(section, sField);
-			console.log("sectioNString");
-			console.log(section);
-			console.log(sectionString);
+			// console.log(section);
+			// console.log("sectioNString");
+			// console.log(section);
+			// console.log(sectionString);
 		}
 
 		if (sString === "*" || sString === "**") {
@@ -186,23 +202,22 @@ export default class PerformQueryHelper {
 	}
 
 	private roomStringHelper(section: any, sField: string): string {
-		if (sField === "shortname") {
+		let sFieldExplicit = sField.toString();
+		if (sFieldExplicit === "shortname") {
 			return section.shortname;
-		} else if (sField === "fullname") {
+		} else if (sFieldExplicit === "fullname") {
 			return section.fullname;
-		} else if (sField === "address") {
+		} else if (sFieldExplicit === "address") {
 			return section.address;
-		} else if (sField === "name") {
+		} else if (sFieldExplicit === "name") {
 			return section.name;
-		} else if (sField === "number") {
-			return section.number;
-		} else if (sField === "href") {
+		} else if (sFieldExplicit === "href") {
 			return section.href;
-		} else if (sField === "seats") {
-			return section.seats;
-		} else if (sField === "furniture") {
+		} else if (sFieldExplicit === "number") {
+			return section.number;
+		} else if (sFieldExplicit === "furniture") {
 			return section.furniture;
-		} else if (sField === "type") {
+		} else if (sFieldExplicit === "type") {
 			return section.type;
 		} else {
 			throw new Error("invalid SField: " + sField + " encountered");

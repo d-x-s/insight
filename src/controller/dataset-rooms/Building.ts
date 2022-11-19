@@ -3,7 +3,7 @@
 export class Building {
 
 	constructor() {
-		console.log("building created");
+		// console.log("building created");
 	}
 
 	public addBuildingToModel(building: any, cell: any) {
