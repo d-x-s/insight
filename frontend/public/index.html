@@ -6,31 +6,27 @@
 		<link href="/style.css" rel="stylesheet" />
 	</head>
 	<body>
-<!--		<button id="click-me-button" class="button" >Click Me!</button>-->
+		<button id="click-me-button" class="button" >Click Me!</button>
 
-<!--		<script type="text/javascript" src="/frontend.js"></script>-->
+<!--		&lt;!&ndash; Load React &ndash;&gt;-->
+<!--		<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>-->
+<!--		<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>-->
 
-		<!-- Load React -->
-		<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-		<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<!--		&lt;!&ndash; Load our React component. &ndash;&gt;-->
+<!--		<script src="handleReact.js"></script>-->
 
-		<!-- Load our React component. -->
-		<script src="handleReact.js"></script>
 
 
 		<div id="input-rooms">
-			<form action="handleReact.js">
-				<label for="firstRoom">First Room:</label>
-				<input type="text" id="firstRoom" name="firstRoom"><br><br>
-				<label for="secondRoom">Second Room:</label>
-				<input type="text" id="secondRoom" name="secondRoom"><br><br>
-				<label for="submit">Submit</label>
-				<input type="button" id="submit" name="submit"><br><br>
-			</form>
+			<label for="firstRoom">First Room:</label>
+			<input type="text" id="firstRoom" name="firstRoom"><br><br>
+			<label for="secondRoom">Second Room:</label>
+			<input type="text" id="secondRoom" name="secondRoom"><br><br>
+			<button id="submit-rooms" class="button" name="submit">Submit</button>
 		</div>
 
 		<div id="input-instructor">
-			<form action="handleReact.js">
+			<form action="frontend.js">
 				<label for="instructor">Instructor Name:</label>
 				<input type="text" id="instructor" name="instructor"><br><br>
 				<label for="calculate">Calculate</label>
@@ -39,6 +35,8 @@
 		</div>
 
 
-		<div id="like_button_container"></div>
+<!--		<div id="like_button_container"></div>-->
+
+		<script type="text/javascript" src="frontend.js"></script>
 	</body>
 </html>
