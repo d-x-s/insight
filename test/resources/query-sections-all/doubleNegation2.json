@@ -1,0 +1,40 @@
+{
+	"title": "DoubleNegation2",
+	"input": {
+		"WHERE": {
+			"NOT": {
+				"NOT": {
+					"EQ": {
+						"sections_avg": 50
+					}
+				}
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_year",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "psyc",
+			"sections_year": 2009,
+			"sections_avg": 50
+		},
+		{
+			"sections_dept": "chbe",
+			"sections_year": 2012,
+			"sections_avg": 50
+		},
+		{
+			"sections_dept": "busi",
+			"sections_year": 2013,
+			"sections_avg": 50
+		}
+	]
+}

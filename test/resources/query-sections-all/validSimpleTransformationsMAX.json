@@ -1,0 +1,107 @@
+{
+	"title": "validSimpleTransformationsMAX",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"maximumGrade"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title"
+			],
+			"APPLY": [
+				{
+					"maximumGrade": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "career planning",
+			"maximumGrade": 99.19
+		},
+		{
+			"sections_title": "thesis",
+			"maximumGrade": 98
+		},
+		{
+			"sections_title": "res mthd in educ",
+			"maximumGrade": 97.5
+		},
+		{
+			"sections_title": "multimedia sys",
+			"maximumGrade": 98.75
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"maximumGrade": 98.7
+		},
+		{
+			"sections_title": "educ stds autism",
+			"maximumGrade": 98.8
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"maximumGrade": 98.45
+		},
+		{
+			"sections_title": "acad assess schl",
+			"maximumGrade": 97.78
+		},
+		{
+			"sections_title": "sem in autism",
+			"maximumGrade": 97.69
+		},
+		{
+			"sections_title": "cor des ed res",
+			"maximumGrade": 97.09
+		},
+		{
+			"sections_title": "coll&uni teachng",
+			"maximumGrade": 97.67
+		},
+		{
+			"sections_title": "diff geometry i",
+			"maximumGrade": 97.25
+		},
+		{
+			"sections_title": "algb topology i",
+			"maximumGrade": 99.78
+		},
+		{
+			"sections_title": "algb geometry i",
+			"maximumGrade": 97.48
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"maximumGrade": 97.09
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"maximumGrade": 98.71
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"maximumGrade": 98.58
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"maximumGrade": 97.33
+		},
+		{
+			"sections_title": "work int health",
+			"maximumGrade": 98.98
+		}
+	]
+}

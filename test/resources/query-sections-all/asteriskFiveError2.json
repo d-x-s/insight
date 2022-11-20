@@ -1,0 +1,21 @@
+{
+	"title": "AsteriskFiveError2",
+	"input": {
+		"WHERE": {
+			"NOT": {
+				"IS": {
+					"sections_instructor": "*"
+				}
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

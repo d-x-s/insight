@@ -1,0 +1,19 @@
+{
+	"title": "MisspelledColumns1",
+	"input": {
+		"WHERE": {
+			"LT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

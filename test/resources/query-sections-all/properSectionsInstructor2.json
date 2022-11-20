@@ -1,0 +1,46 @@
+{
+	"title": "properSectionsInstructor2",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_instructor": "stern, louise"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_instructor"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "sowk",
+			"sections_id": "200",
+			"sections_avg": 78.96,
+			"sections_instructor": "stern, louise"
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_id": "200",
+			"sections_avg": 80,
+			"sections_instructor": "stern, louise"
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_id": "200",
+			"sections_avg": 81.08,
+			"sections_instructor": "stern, louise"
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_id": "531",
+			"sections_avg": 83.56,
+			"sections_instructor": "stern, louise"
+		}
+	]
+}

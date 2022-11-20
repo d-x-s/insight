@@ -1,0 +1,19 @@
+{
+	"title": "sectionsAuditInvalid2",
+	"input": {
+		"WHERE": {
+			"LT": {
+				"sections_audit": 80
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sectionsavg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

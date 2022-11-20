@@ -1,0 +1,64 @@
+{
+	"title": "validEQSectionAvg",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"sections_avg": 50
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_avg",
+				"sections_pass",
+				"sections_fail",
+				"sections_audit",
+				"sections_year",
+				"sections_dept",
+				"sections_id",
+				"sections_instructor",
+				"sections_title",
+				"sections_uuid"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_avg": 50,
+			"sections_pass": 1,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_year": 2009,
+			"sections_dept": "psyc",
+			"sections_id": "315",
+			"sections_instructor": "king, mary ann",
+			"sections_title": "childhood & adol",
+			"sections_uuid": "78941"
+		},
+		{
+			"sections_avg": 50,
+			"sections_pass": 7,
+			"sections_fail": 0,
+			"sections_audit": 0,
+			"sections_year": 2012,
+			"sections_dept": "chbe",
+			"sections_id": "474",
+			"sections_instructor": "",
+			"sections_title": "proc ctrl eng",
+			"sections_uuid": "56484"
+		},
+		{
+			"sections_avg": 50,
+			"sections_pass": 3,
+			"sections_fail": 2,
+			"sections_audit": 0,
+			"sections_year": 2013,
+			"sections_dept": "busi",
+			"sections_id": "441",
+			"sections_instructor": "",
+			"sections_title": "rl es manage i",
+			"sections_uuid": "11135"
+		}
+	]
+}

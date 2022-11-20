@@ -1,0 +1,24 @@
+{
+	"title": "DoubleNegation",
+	"input": {
+		"WHERE": {
+			"NOT": {
+				"NOT": {
+					"EQ": {
+						"sections_avg": 2
+					}
+				}
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_year",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

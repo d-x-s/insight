@@ -1,0 +1,130 @@
+{
+	"title": "properSectionsTitle",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_title": "intr soc welfare"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_instructor",
+				"sections_title",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 72.95
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "rivkin, shelley",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 72.95
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 75.48
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 75.48
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 77.75
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "rivkin, shelley",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 77.75
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 78.6
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "vedan, richard",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 78.6
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 78.96
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "stern, louise",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 78.96
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 79.03
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "rivkin, shelley",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 79.03
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "stern, louise",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 80
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 80.31
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "rivkin, shelley",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 80.31
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 81.08
+		},
+		{
+			"sections_dept": "sowk",
+			"sections_instructor": "stern, louise",
+			"sections_title": "intr soc welfare",
+			"sections_avg": 81.08
+		}
+	]
+}

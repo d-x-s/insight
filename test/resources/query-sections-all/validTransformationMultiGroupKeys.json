@@ -1,0 +1,280 @@
+{
+	"title": "validTransformationMultiGroupKeys",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"sections_year",
+				"sumOfSectionAverages"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"sumOfSectionAverages"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title",
+				"sections_avg",
+				"sections_year"
+			],
+			"APPLY": [
+				{
+					"sumOfSectionAverages": {
+						"SUM": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "thesis",
+			"sections_year": 2013,
+			"sumOfSectionAverages": 196
+		},
+		{
+			"sections_title": "algb topology i",
+			"sections_year": 2009,
+			"sumOfSectionAverages": 99.78
+		},
+		{
+			"sections_title": "algb topology i",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 99.78
+		},
+		{
+			"sections_title": "career planning",
+			"sections_year": 2012,
+			"sumOfSectionAverages": 99.19
+		},
+		{
+			"sections_title": "work int health",
+			"sections_year": 2015,
+			"sumOfSectionAverages": 98.98
+		},
+		{
+			"sections_title": "work int health",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.98
+		},
+		{
+			"sections_title": "educ stds autism",
+			"sections_year": 2014,
+			"sumOfSectionAverages": 98.8
+		},
+		{
+			"sections_title": "educ stds autism",
+			"sections_year": 2012,
+			"sumOfSectionAverages": 98.76
+		},
+		{
+			"sections_title": "educ stds autism",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.76
+		},
+		{
+			"sections_title": "multimedia sys",
+			"sections_year": 2009,
+			"sumOfSectionAverages": 98.75
+		},
+		{
+			"sections_title": "multimedia sys",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.75
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"sections_year": 2011,
+			"sumOfSectionAverages": 98.71
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.71
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"sections_year": 2009,
+			"sumOfSectionAverages": 98.7
+		},
+		{
+			"sections_title": "educ stds autism",
+			"sections_year": 2012,
+			"sumOfSectionAverages": 98.58
+		},
+		{
+			"sections_title": "educ stds autism",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.58
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"sections_year": 2010,
+			"sumOfSectionAverages": 98.58
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.58
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"sections_year": 2013,
+			"sumOfSectionAverages": 98.5
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.5
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"sections_year": 2011,
+			"sumOfSectionAverages": 98.45
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.45
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.36
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"sections_year": 2015,
+			"sumOfSectionAverages": 98.21
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 98.21
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"sections_year": 2009,
+			"sumOfSectionAverages": 98.08
+		},
+		{
+			"sections_title": "acad assess schl",
+			"sections_year": 2009,
+			"sumOfSectionAverages": 97.78
+		},
+		{
+			"sections_title": "sem in autism",
+			"sections_year": 2013,
+			"sumOfSectionAverages": 97.69
+		},
+		{
+			"sections_title": "coll&uni teachng",
+			"sections_year": 2007,
+			"sumOfSectionAverages": 97.67
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"sections_year": 2015,
+			"sumOfSectionAverages": 97.53
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.53
+		},
+		{
+			"sections_title": "res mthd in educ",
+			"sections_year": 2015,
+			"sumOfSectionAverages": 97.5
+		},
+		{
+			"sections_title": "algb geometry i",
+			"sections_year": 2010,
+			"sumOfSectionAverages": 97.48
+		},
+		{
+			"sections_title": "algb geometry i",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.48
+		},
+		{
+			"sections_title": "career planning",
+			"sections_year": 2009,
+			"sumOfSectionAverages": 97.47
+		},
+		{
+			"sections_title": "career planning",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.47
+		},
+		{
+			"sections_title": "educ stds autism",
+			"sections_year": 2011,
+			"sumOfSectionAverages": 97.41
+		},
+		{
+			"sections_title": "acad assess schl",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.41
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"sections_year": 2010,
+			"sumOfSectionAverages": 97.33
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.33
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"sections_year": 2010,
+			"sumOfSectionAverages": 97.29
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.29
+		},
+		{
+			"sections_title": "diff geometry i",
+			"sections_year": 2016,
+			"sumOfSectionAverages": 97.25
+		},
+		{
+			"sections_title": "diff geometry i",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.25
+		},
+		{
+			"sections_title": "cor des ed res",
+			"sections_year": 2007,
+			"sumOfSectionAverages": 97.09
+		},
+		{
+			"sections_title": "cor des ed res",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.09
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"sections_year": 2010,
+			"sumOfSectionAverages": 97.09
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"sections_year": 1900,
+			"sumOfSectionAverages": 97.09
+		}
+	]
+}

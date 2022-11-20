@@ -55,7 +55,8 @@ export default class InsightFacade implements IInsightFacade {
 			let AddCoursesHelper = new CoursesHelper();
 			return Promise.resolve(AddCoursesHelper.addCoursesDatasetToModel(id, content, kind, this.internalModel));
 		} else {
-			let AddRoomsHelper = new RoomsHelper(id);
+			console.log("entered line 58");
+			let AddRoomsHelper = new RoomsHelper(id, kind);
 			return Promise.resolve(AddRoomsHelper.addRoomsDatasetToModel(id, content, kind, this.internalModel));
 		}
 	}
@@ -139,30 +140,30 @@ export default class InsightFacade implements IInsightFacade {
 	public listDatasets(): Promise<InsightDataset[]> {
 		let listDatasetsFromLocal: InsightDataset[] = [];
 		return new Promise<InsightDataset[]>((resolve, reject) => {
-			this.internalModel.forEach((data, id) => {
-				if (!id || !data) {
+			this.internalModel.forEach((dataset, id) => {
+				if (!id || !dataset) {
 					reject(new InsightError("InsightError: invalid id or invalid data found"));
 				}
 
-				let sectionsDataRows: number;
-				let roomsDataRows: number;
+				// let sectionsDataRows: number;
+				// let roomsDataRows: number;
 
-				if (data.sectionsData?.length === undefined) {
-					sectionsDataRows = 0;
-				} else {
-					sectionsDataRows = data.sectionsData?.length;
-				}
+				// if (data.sectionsData?.length === undefined) {
+				// 	sectionsDataRows = 0;
+				// } else {
+				// 	sectionsDataRows = data.sectionsData?.length;
+				// }
 
-				if (data.roomsData?.length === undefined) {
-					roomsDataRows = 0;
-				} else {
-					roomsDataRows = data.roomsData?.length;
-				}
+				// if (data.roomsData?.length === undefined) {
+				// 	roomsDataRows = 0;
+				// } else {
+				// 	roomsDataRows = data.roomsData?.length;
+				// }
 
 				let currInsightDataset: InsightDataset = {
 					id: id,
-					kind: data.kind,
-					numRows: sectionsDataRows + roomsDataRows,
+					kind: dataset.kind,
+					numRows: dataset.data.length // BUGNOTE
 				};
 
 				listDatasetsFromLocal.push(currInsightDataset);
