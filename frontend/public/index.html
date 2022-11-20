@@ -6,8 +6,39 @@
 		<link href="/style.css" rel="stylesheet" />
 	</head>
 	<body>
-		<button id="click-me-button" class="button" >Click Me!</button>
+<!--		<button id="click-me-button" class="button" >Click Me!</button>-->
 
-		<script type="text/javascript" src="/frontend.js"></script>
+<!--		<script type="text/javascript" src="/frontend.js"></script>-->
+
+		<!-- Load React -->
+		<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+		<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+		<!-- Load our React component. -->
+		<script src="handleReact.js"></script>
+
+
+		<div id="input-rooms">
+			<form action="handleReact.js">
+				<label for="firstRoom">First Room:</label>
+				<input type="text" id="firstRoom" name="firstRoom"><br><br>
+				<label for="secondRoom">Second Room:</label>
+				<input type="text" id="secondRoom" name="secondRoom"><br><br>
+				<label for="submit">Submit</label>
+				<input type="button" id="submit" name="submit"><br><br>
+			</form>
+		</div>
+
+		<div id="input-instructor">
+			<form action="handleReact.js">
+				<label for="instructor">Instructor Name:</label>
+				<input type="text" id="instructor" name="instructor"><br><br>
+				<label for="calculate">Calculate</label>
+				<input type="button" id="calculate" name="calculate"><br><br>
+			</form>
+		</div>
+
+
+		<div id="like_button_container"></div>
 	</body>
 </html>
