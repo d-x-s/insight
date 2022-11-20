@@ -1,0 +1,19 @@
+{
+	"title": "sectionsAuditInvalid4",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"sections_audit": 4090
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

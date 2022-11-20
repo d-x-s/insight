@@ -1,0 +1,19 @@
+{
+	"title": "sectionsFailEQReturn",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"sections_fail": 50000
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

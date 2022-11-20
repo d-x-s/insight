@@ -1,0 +1,19 @@
+{
+	"title": "moreThanHundred",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 100
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

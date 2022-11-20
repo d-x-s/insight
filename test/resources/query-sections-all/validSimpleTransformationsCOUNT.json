@@ -1,0 +1,107 @@
+{
+	"title": "validSimpleTransformationsCount",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"countUniqueFields"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title"
+			],
+			"APPLY": [
+				{
+					"countUniqueFields": {
+						"COUNT": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "career planning",
+			"countUniqueFields": 2
+		},
+		{
+			"sections_title": "thesis",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "res mthd in educ",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "multimedia sys",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"countUniqueFields": 4
+		},
+		{
+			"sections_title": "educ stds autism",
+			"countUniqueFields": 4
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "acad assess schl",
+			"countUniqueFields": 2
+		},
+		{
+			"sections_title": "sem in autism",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "cor des ed res",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "coll&uni teachng",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "diff geometry i",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "algb topology i",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "algb geometry i",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"countUniqueFields": 2
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"countUniqueFields": 3
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"countUniqueFields": 1
+		},
+		{
+			"sections_title": "work int health",
+			"countUniqueFields": 1
+		}
+	]
+}

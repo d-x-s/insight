@@ -1,0 +1,132 @@
+{
+	"title": "validTransformationsMultipleAPPLYKey",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"overallAvg",
+				"maximumAvg"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title"
+			],
+			"APPLY": [
+				{
+					"overallAvg": {
+						"AVG": "sections_avg"
+					}
+				},
+				{
+					"maximumAvg": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_title": "career planning",
+			"overallAvg": 98.04,
+			"maximumAvg": 99.19
+		},
+		{
+			"sections_title": "thesis",
+			"overallAvg": 98,
+			"maximumAvg": 98
+		},
+		{
+			"sections_title": "res mthd in educ",
+			"overallAvg": 97.5,
+			"maximumAvg": 97.5
+		},
+		{
+			"sections_title": "multimedia sys",
+			"overallAvg": 98.75,
+			"maximumAvg": 98.75
+		},
+		{
+			"sections_title": "assess lrn diffi",
+			"overallAvg": 97.94,
+			"maximumAvg": 98.7
+		},
+		{
+			"sections_title": "educ stds autism",
+			"overallAvg": 98.48,
+			"maximumAvg": 98.8
+		},
+		{
+			"sections_title": "dev el sk df&hrd",
+			"overallAvg": 98.45,
+			"maximumAvg": 98.45
+		},
+		{
+			"sections_title": "acad assess schl",
+			"overallAvg": 97.59,
+			"maximumAvg": 97.78
+		},
+		{
+			"sections_title": "sem in autism",
+			"overallAvg": 97.69,
+			"maximumAvg": 97.69
+		},
+		{
+			"sections_title": "cor des ed res",
+			"overallAvg": 97.09,
+			"maximumAvg": 97.09
+		},
+		{
+			"sections_title": "coll&uni teachng",
+			"overallAvg": 97.67,
+			"maximumAvg": 97.67
+		},
+		{
+			"sections_title": "diff geometry i",
+			"overallAvg": 97.25,
+			"maximumAvg": 97.25
+		},
+		{
+			"sections_title": "algb topology i",
+			"overallAvg": 99.78,
+			"maximumAvg": 99.78
+		},
+		{
+			"sections_title": "algb geometry i",
+			"overallAvg": 97.48,
+			"maximumAvg": 97.48
+		},
+		{
+			"sections_title": "harmonic anal i",
+			"overallAvg": 97.09,
+			"maximumAvg": 97.09
+		},
+		{
+			"sections_title": "cl pro prim care",
+			"overallAvg": 98.46,
+			"maximumAvg": 98.71
+		},
+		{
+			"sections_title": "fam nrs pract",
+			"overallAvg": 98.2,
+			"maximumAvg": 98.58
+		},
+		{
+			"sections_title": "eth&profl issues",
+			"overallAvg": 97.33,
+			"maximumAvg": 97.33
+		},
+		{
+			"sections_title": "work int health",
+			"overallAvg": 98.98,
+			"maximumAvg": 98.98
+		}
+	]
+}

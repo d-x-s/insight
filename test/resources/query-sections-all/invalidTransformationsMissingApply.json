@@ -1,0 +1,39 @@
+{
+	"title": "invalidTransformationsMissingApply",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 89
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_title",
+				"sections_year",
+				"sumOfSectionAverages"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"sumOfSectionAverages"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title",
+				"sections_avg",
+				"sections_year"
+			],
+			"APPL": [
+				{
+					"sumOfSectionAverages": {
+						"SUM": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

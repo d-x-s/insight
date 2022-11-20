@@ -1,0 +1,21 @@
+{
+	"title": "AsteriskUUID1",
+	"input": {
+		"WHERE": {
+			"NOT": {
+				"IS": {
+					"sections_uuid": "*"
+				}
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

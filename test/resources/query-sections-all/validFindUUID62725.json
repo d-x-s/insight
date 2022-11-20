@@ -1,0 +1,44 @@
+{
+	"title": "validFindUUID62725",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_uuid": "62725"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_instructor",
+				"sections_title",
+				"sections_fail",
+				"sections_pass",
+				"sections_audit",
+				"sections_uuid",
+				"sections_year"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "adhe",
+			"sections_id": "329",
+			"sections_avg": 67.5,
+			"sections_instructor": "palacios, carolina",
+			"sections_title": "dev wkshp/sem",
+			"sections_fail": 1,
+			"sections_pass": 25,
+			"sections_audit": 0,
+			"sections_uuid": "62725",
+			"sections_year": 2013
+		}
+	]
+}

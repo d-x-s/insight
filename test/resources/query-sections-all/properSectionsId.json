@@ -1,0 +1,20 @@
+{
+	"title": "properSectionsId",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_id": "499b"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

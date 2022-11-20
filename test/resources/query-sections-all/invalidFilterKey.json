@@ -1,0 +1,41 @@
+{
+	"title": "validFindSpecificSection",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"iz": {
+						"sections_dept": "adhe"
+					}
+				},
+				{
+					"iz": {
+						"sections_id": "329"
+					}
+				},
+				{
+					"fl": {
+						"sections_uuid": "62725"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_instructor",
+				"sections_title",
+				"sections_fail",
+				"sections_pass",
+				"sections_audit",
+				"sections_uuid",
+				"sections_year"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

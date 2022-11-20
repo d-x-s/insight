@@ -1,0 +1,60 @@
+{
+	"title": "sectionsFailEQReturn",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"sections_fail": 50
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "chem",
+			"sections_avg": 59.83
+		},
+		{
+			"sections_dept": "chem",
+			"sections_avg": 61.54
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 65
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 66.48
+		},
+		{
+			"sections_dept": "busi",
+			"sections_avg": 66.86
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 67.83
+		},
+		{
+			"sections_dept": "bioc",
+			"sections_avg": 68.09
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 68.65
+		},
+		{
+			"sections_dept": "bioc",
+			"sections_avg": 68.69
+		},
+		{
+			"sections_dept": "japn",
+			"sections_avg": 70.66
+		}
+	]
+}

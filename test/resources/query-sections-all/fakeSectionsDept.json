@@ -1,0 +1,19 @@
+{
+	"title": "fakeSectionsDept",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_dept": "test2"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

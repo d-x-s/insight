@@ -17,8 +17,9 @@ export default class RoomsHelper {
 	public buildingListObject: {[key: string]: IRoomData};
 	public fileDirectory: string;
 	public datasetID: string;
+	protected kind: InsightDatasetKind;
 
-	constructor(id: string) {
+	constructor(id: string, kind: any) {
 		this.indexDirectory = "index.htm";
 		this.findLocation = new GeoLocation();
 		this.internalIndex = [];
@@ -26,6 +27,7 @@ export default class RoomsHelper {
 		this.buildingListObject = {};
 		this.fileDirectory = __dirname + "/../../data";
 		this.datasetID = id;
+		this.kind = kind;
 	}
 
 	public addRoomsDatasetToModel(
@@ -40,21 +42,20 @@ export default class RoomsHelper {
 				.then((loadedZipFiles) => {
 					return this.handleRoomProcessing(loadedZipFiles);
 				}).then((result) => {
-					// let processedResults = this.processResult(result);
-					// console.log(processedResults);
-					// CUT OUT OBJECTS WITH MISSING KEYS
+					console.log("entered line 45");
+					if (result instanceof InsightError) {
+						reject(new InsightError("InsightError: failed to add" + result));
+					}
+
 					let filteredResult = result.filter((res) => {
-						// console.log(Object.keys(res).length);
 						let length: number = Object.keys(res).length;
 						let lengthString = length.toString();
-						if (lengthString === "11") {
+						if (lengthString === "11") { // BUGNOTE
 							return true;
 						} else {
 							return false;
 						}
 					});
-					// console.log(result);
-					// console.log(filteredResult.length);
 					resolve(this.setDataToModelAndDisk(id, filteredResult, kind, content, model));
 				})
 				.catch((err) => {
@@ -81,27 +82,28 @@ export default class RoomsHelper {
 
 	public handleRoomProcessing(zipped: JSZip): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
-			let indexHtmFile = zipped.file("index.htm");
 			let parsedZip: any;
-			if (indexHtmFile == null) {
-				return new InsightError("file was null");
-			}
-			parsedZip = indexHtmFile.async("string").then((indexHtmFileContent) => {
-				let parsedFileContentDocument = parse(indexHtmFileContent);
-				for (let contentNode of parsedFileContentDocument.childNodes) {
-					let currNodeName = contentNode.nodeName;
-					if (currNodeName === "html") {
-						this.indexHtmBuildingHelper(contentNode);
-					}
-				}
-				return;
-			}).catch((err) => {
-				reject(new InsightError("unable to async" + err));
-			});
 
-			console.log("point 2.9 reached");
+			let indexHtmFile = zipped.file("index.htm");
+			if (indexHtmFile !== null) { // compiler insists on an additional null check
+				parsedZip = indexHtmFile.async("string").then((indexHtmFileContent) => {
+					let parsedFileContentDocument = parse(indexHtmFileContent);
+					for (let contentNode of parsedFileContentDocument.childNodes) {
+						let currNodeName = contentNode.nodeName;
+						if (currNodeName === "html") {
+							this.indexHtmBuildingHelper(contentNode);
+						}
+					}
+					return;
+				}).catch((err) => {
+					reject(new InsightError("unable to async" + err));
+				});
+			} else {
+				reject(new InsightError("file was null")); // BUGNOTE
+			}
+
+			// use square brackets to explicitly pass in parsedZip as object
 			Promise.all([parsedZip]).then(() => {
-				console.log("point 3 reached");
 				this.findLocation.processLatAndLong(this.buildingListObject)
 					.then(() => {
 						resolve(this.processRooms(zipped));
@@ -116,7 +118,7 @@ export default class RoomsHelper {
 	public processRooms(zipped: any): Promise<IRoomData[]> {
 		return new Promise<IRoomData[]> ((resolve, reject) => {
 			let dataToPush: Array<Promise<IRoomData>> = [];
-			let fileFolder = zipped.folder("campus/discover/buildings-and-classrooms");
+			let fileFolder = zipped.folder("campus/discover/buildings-and-classrooms"); // BUGNOTE
 			if (fileFolder == null) {
 				return new InsightError("InsightError: null file folder, could not load");
 			}
@@ -162,7 +164,7 @@ export default class RoomsHelper {
 		if (node === null) {
 			return;
 		}
-		let newRoom = Object.assign({}, roomToAdd);
+		let newRoom = Object.assign({}, roomToAdd); // BUGNOTE
 		for (let param of node.childNodes) {
 			if (param.nodeName === "td") {
 				let currAttrs = param.attrs[0]["value"];
@@ -186,7 +188,7 @@ export default class RoomsHelper {
 					newRoom.href = retrieveAttrs["href"];
 
 				} else if (currAttrs === "views-field views-field-field-room-capacity") {
-					newRoom.seats = Number(this.trimText(param));
+					newRoom.seats = Number(this.trimText(param)); // BUGNOTE
 				} else if (currAttrs === "views-field views-field-field-room-type") {
 					newRoom.type = this.trimText(param);
 				} else if (currAttrs === "views-field views-field-field-room-furniture") {
@@ -196,7 +198,6 @@ export default class RoomsHelper {
 		}
 		this.internalIndex.push(newRoom);
 	}
-
 
 	public indexHtmBuildingHelper(contentNode: any) {
 		if (contentNode != null) {
@@ -208,8 +209,10 @@ export default class RoomsHelper {
 							this.convertIntoBuilding(tr);
 						}
 					}
-				} else if (currName === "body" || currName === "div" || currName === "table"
-					|| currName === "section") {
+				} else if (currName === "body"  ||
+					       currName === "div"   ||
+						   currName === "table" ||
+						   currName === "section") {
 					this.indexHtmBuildingHelper(contentNodeChild);
 				}
 			}
@@ -274,10 +277,7 @@ export default class RoomsHelper {
 				data: convertedRooms,
 				kind: kind,
 			};
-			// console.log("model");
-			// console.log(model);
 			model.set(id, newDataset);
-			// console.log(model);
 			let updateKeysAfterAdd: string[] = Array.from(model.keys());
 			let datasetFile = path.join(this.fileDirectory, "/" + id + ".zip");
 			try {

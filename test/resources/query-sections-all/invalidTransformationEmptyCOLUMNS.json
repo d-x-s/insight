@@ -1,0 +1,35 @@
+{
+	"title": "invalidTransformationEmptyCOLUMNS",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"sumOfSectionAverages"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_title",
+				"sections_avg",
+				"sections_year"
+			],
+			"APPLY": [
+				{
+					"sumOfSectionAverages": {
+						"SUM": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

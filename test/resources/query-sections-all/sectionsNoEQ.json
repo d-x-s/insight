@@ -1,0 +1,19 @@
+{
+	"title": "sectionsNoEQ",
+	"input": {
+		"WHERE": {
+			"EQ": {
+				"sections_pass": 123041
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}

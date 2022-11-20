@@ -1,0 +1,41 @@
+{
+	"title": "invalidFilterKeyAnd",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "adhe"
+					}
+				},
+				{
+					"IS": {
+						"sections_id": "329"
+					}
+				},
+				{
+					"IS": {
+						"sections_uuid": "62725"
+					}
+				}
+			]
+		},
+		"oPtIoNs": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_id",
+				"sections_avg",
+				"sections_instructor",
+				"sections_title",
+				"sections_fail",
+				"sections_pass",
+				"sections_audit",
+				"sections_uuid",
+				"sections_year"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

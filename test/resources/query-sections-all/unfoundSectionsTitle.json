@@ -1,0 +1,21 @@
+{
+	"title": "unfoundSectionsTitle",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_title": "intr socwelfare"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_instructor",
+				"sections_title",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": []
+}
