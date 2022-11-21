@@ -86,6 +86,21 @@ export default class Server {
 
 		// TODO: your other endpoints should go here
 
+		// addDataset
+		// use put instead of post:
+		// https://stackoverflow.com/questions/107390/whats-the-difference-between-a-post-and-a-put-http-request
+		this.express.put("/dataset/:id/:kind", Server.put);
+
+		// removeDataset
+		this.express.delete("/dataset/:id", Server.del);
+
+		// performQuery
+		this.express.post("/query", Server.post);
+
+		// listDataset
+		// this.express.get("/dataset");
+
+
 	}
 
 	// The next two methods handle the echo service.
@@ -108,4 +123,89 @@ export default class Server {
 			return "Message not provided";
 		}
 	}
+
+	// The next two methods handle the echo service.
+	// These are almost certainly not the best place to put these, but are here for your reference.
+	// By updating the Server.echo function pointer above, these methods can be easily moved.
+	private static put(req: Request, res: Response) {
+		try {
+			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
+			const response = Server.performEcho(req.params.msg);
+			res.status(200).json({result: response});
+		} catch (err) {
+			res.status(400).json({error: err});
+		}
+	}
+
+	private static performPut(msg: string): string {
+		if (typeof msg !== "undefined" && msg !== null) {
+			return `${msg}...${msg}`;
+		} else {
+			return "Message not provided";
+		}
+	}
+
+	// The next two methods handle the echo service.
+	// These are almost certainly not the best place to put these, but are here for your reference.
+	// By updating the Server.echo function pointer above, these methods can be easily moved.
+	private static del(req: Request, res: Response) {
+		try {
+			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
+			const response = Server.performEcho(req.params.msg);
+			res.status(200).json({result: response});
+		} catch (err) {
+			res.status(400).json({error: err});
+		}
+	}
+
+	private static performDel(msg: string): string {
+		if (typeof msg !== "undefined" && msg !== null) {
+			return `${msg}...${msg}`;
+		} else {
+			return "Message not provided";
+		}
+	}
+
+	// The next two methods handle the echo service.
+	// These are almost certainly not the best place to put these, but are here for your reference.
+	// By updating the Server.echo function pointer above, these methods can be easily moved.
+	private static post(req: Request, res: Response) {
+		try {
+			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
+			const response = Server.performEcho(req.params.msg);
+			res.status(200).json({result: response});
+		} catch (err) {
+			res.status(400).json({error: err});
+		}
+	}
+
+	private static performPost(msg: string): string {
+		if (typeof msg !== "undefined" && msg !== null) {
+			return `${msg}...${msg}`;
+		} else {
+			return "Message not provided";
+		}
+	}
+
+	// The next two methods handle the echo service.
+	// These are almost certainly not the best place to put these, but are here for your reference.
+	// By updating the Server.echo function pointer above, these methods can be easily moved.
+	private static get(req: Request, res: Response) {
+		try {
+			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
+			const response = Server.performEcho(req.params.msg);
+			res.status(200).json({result: response});
+		} catch (err) {
+			res.status(400).json({error: err});
+		}
+	}
+
+	private static performGet(msg: string): string {
+		if (typeof msg !== "undefined" && msg !== null) {
+			return `${msg}...${msg}`;
+		} else {
+			return "Message not provided";
+		}
+	}
+
 }

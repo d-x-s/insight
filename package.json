@@ -14,7 +14,9 @@
 		"express": "4.18.2",
 		"fs-extra": "10.0.0",
 		"jszip": "3.7.1",
-		"parse5": "7.1.1"
+		"parse5": "7.1.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
 		"@tsconfig/node16": "1.0.2",
@@ -50,5 +52,7 @@
 		"lint": "eslint src test --ext .ts",
 		"fix": "yarn lint --fix",
 		"start": "ts-node src/App.ts"
-	}
+	},
+	"main": "index.js",
+	"repository": "https://github.students.cs.ubc.ca/CPSC310-2022W-T1/project_team132.git"
 }
