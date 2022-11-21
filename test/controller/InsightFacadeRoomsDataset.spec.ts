@@ -143,10 +143,8 @@ describe("Rooms", function() {
 			try {
 				const rooms: string = datasetContents.get("rooms") ?? "";
 				await insightFacade.addDataset("id", rooms, InsightDatasetKind.Rooms);
-				console.log("addDataset complete");
 				await insightFacade.removeDataset("id");
 			} catch(error: any) {
-				console.log("error", error);
 				expect.fail("test failed, should pass for simple add/remove");
 			};
 		});
@@ -190,9 +188,7 @@ describe("Rooms", function() {
 
 				const insightDatasetRooms1 = insightDatasets1.find((dataset) => dataset.id === "id-1");
 				expect(insightDatasetRooms1).to.exist;
-				if (insightDatasetRooms1 != null) {
-					console.log("numRows11", insightDatasetRooms1.numRows);
-				}
+
 				expect (insightDatasetRooms1).to.deep.equal({
 					id: "id-1",
 					kind: InsightDatasetKind.Rooms,

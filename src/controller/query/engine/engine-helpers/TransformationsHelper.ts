@@ -19,16 +19,15 @@ export default class TransformationsHelper {
 	}
 
 	/*
-	TODO:
-	ideally, we want to encode the fields of interest as the key itsel, allowing for quick map lookup times
-	currently I am using the most convenient method of iterating over the map of groups each time, searching for a match
-	we group based on certain keys
-	then of course in each group, for those keys, all members will have the same values
-	these values could be encoded directly as our key
-	by setting it to an object, then using stringify, and using that object string as a key
-	then this unique object string identifies that group
-	this would speed up search considerably
-	however there may be a learning curve associated with this implementation so I choose to do it the easier way for now
+	Optimization Idea:
+	It would be an interesting challenge to encode the values of the group key fields
+	of each dataObject as the key of the map itself
+	Then when we need to match a new dataObject to a group, we can extract a key
+	from the values of the dataObject and check if it is the key for some existing
+	group in the map; otherwise create a new group based on that key
+
+	At the moment keys are set as integers from 0 to X groups, so we have to waste
+	time traversing the list of the map keys each time
 	*/
 	private processGroup(groupVariablesArray: any[], rawResult: any[]): any {
 		let mapOfGroups = new Map();
