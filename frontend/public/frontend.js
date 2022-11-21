@@ -16,7 +16,7 @@ function submitRooms() {
 	alert("Button submitted");
 	let firstRoomInput = document.getElementById("firstRoom").value;
 	let secondRoomInput = document.getElementById("secondRoom").value;
-	// can use firstRoomInput and secondRoomInput to send http request 
+	// can use firstRoomInput and secondRoomInput to send http request
 }
 
 
