@@ -116,20 +116,23 @@ export class CoursesHelper {
 	// HELPER: Convert JSON to SectionData format
 	private mapToSectionDataFormat(rawSection: any) {
 		let newSection = {} as ISectionData;
-		newSection.audit = rawSection["Audit"];
-		newSection.avg = rawSection["Avg"];
-		newSection.dept = rawSection["Subject"];
-		newSection.fail = rawSection["Fail"];
-		newSection.id = rawSection["Course"];
+
+		newSection.audit      = rawSection["Audit"];
+		newSection.avg        = rawSection["Avg"];
+		newSection.dept       = rawSection["Subject"];
+		newSection.fail       = rawSection["Fail"];
+		newSection.id         = rawSection["Course"];
 		newSection.instructor = rawSection["Professor"];
-		newSection.pass = rawSection["Pass"];
-		newSection.title = rawSection["Title"];
-		newSection.uuid = String(rawSection["id"]);
+		newSection.pass       = rawSection["Pass"];
+		newSection.title      = rawSection["Title"];
+		newSection.uuid       = String(rawSection["id"]);
+
 		if (rawSection["Section"] === "overall") {
-			newSection.year = 1900;
+			newSection.year   = 1900;
 		} else {
-			newSection.year = Number(rawSection["Year"]);
+			newSection.year   = Number(rawSection["Year"]);
 		}
+
 		return newSection;
 	}
 }

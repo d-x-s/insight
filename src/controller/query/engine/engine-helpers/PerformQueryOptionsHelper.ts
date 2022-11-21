@@ -15,14 +15,12 @@ export default class PerformQueryOptionsHelper {
 	}
 
 	private processColumns(columns: any[], rawResult: any[], isTransformed: boolean): any[] {
-		// console.log("enter process columns");
 		let resultFiltered: any[] = [];
 		for (let r of rawResult) {
 			const processedSectionObject: InsightResult = {};
 
 			for (let c of columns) {
 				if (isTransformed) {
-					// console.log(rawResult);
 					return rawResult;
 				} else {
 					let columnPair = c.split("_");
@@ -33,7 +31,6 @@ export default class PerformQueryOptionsHelper {
 			}
 			resultFiltered.push(processedSectionObject);
 		}
-		// console.log(resultFiltered);
 		return resultFiltered;
 	}
 

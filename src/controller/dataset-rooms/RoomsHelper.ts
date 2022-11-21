@@ -1,7 +1,6 @@
-import {InsightDatasetKind, InsightError, InsightResult} from "../IInsightFacade";
+import {InsightDatasetKind, InsightError} from "../IInsightFacade";
 import {IRoomDataset} from "./IRoomDataset";
 import JSZip from "jszip";
-// import parse5 from "parse5";
 import {parse} from "parse5";
 import {IRoomData} from "./IRoomData";
 import {GeoLocation} from "./GeoLocation";
@@ -9,7 +8,6 @@ import path from "path";
 import fs from "fs";
 
 export default class RoomsHelper {
-
 	public indexDirectory: string;
 	public findLocation: GeoLocation;
 	public internalIndex: any;
@@ -37,24 +35,20 @@ export default class RoomsHelper {
 		model: Map<string, IRoomDataset>
 	): Promise<string[]> {
 		let zipped: JSZip = new JSZip();
-		return new Promise<string[]> ((resolve, reject) => {
-			zipped.loadAsync(content, {base64: true})
+		return new Promise<string[]>((resolve, reject) => {
+			zipped
+				.loadAsync(content, {base64: true})
 				.then((loadedZipFiles) => {
 					return this.handleRoomProcessing(loadedZipFiles);
-				}).then((result) => {
-					console.log("entered line 45");
+				})
+				.then((result) => {
 					if (result instanceof InsightError) {
 						reject(new InsightError("InsightError: failed to add" + result));
 					}
-
-					let filteredResult = result.filter((res) => {
+					let filteredResult = result.filter((res) => { // BUGNOTE
 						let length: number = Object.keys(res).length;
 						let lengthString = length.toString();
-						if (lengthString === "11") { // BUGNOTE
-							return true;
-						} else {
-							return false;
-						}
+						return lengthString === "11";
 					});
 					resolve(this.setDataToModelAndDisk(id, filteredResult, kind, content, model));
 				})
@@ -64,72 +58,70 @@ export default class RoomsHelper {
 		});
 	}
 
-	public processResult(result: any[]) {
-		let retArray: any = [];
-
-		result.forEach((room) => {
-			let newRoom: any  = {};
-			let objKeyArray = Object.keys(room);
-
-			objKeyArray.forEach((key) => {
-				let newKey = this.datasetID + "_" + key;
-				newRoom[newKey] = room[key];
-			});
-			retArray.push(newRoom);
-		});
-		return retArray;
-	}
-
 	public handleRoomProcessing(zipped: JSZip): Promise<IRoomData[]> {
-		return new Promise<IRoomData[]> ((resolve, reject) => {
+		return new Promise<IRoomData[]>((resolve, reject) => {
 			let parsedZip: any;
 
 			let indexHtmFile = zipped.file("index.htm");
-			if (indexHtmFile !== null) { // compiler insists on an additional null check
-				parsedZip = indexHtmFile.async("string").then((indexHtmFileContent) => {
-					let parsedFileContentDocument = parse(indexHtmFileContent);
-					for (let contentNode of parsedFileContentDocument.childNodes) {
-						let currNodeName = contentNode.nodeName;
-						if (currNodeName === "html") {
-							this.indexHtmBuildingHelper(contentNode);
+			if (indexHtmFile !== null) {
+				parsedZip = indexHtmFile
+					.async("string")
+					.then((indexHtmFileContent) => {
+						let parsedFileContentDocument = parse(indexHtmFileContent);
+						for (let contentNode of parsedFileContentDocument.childNodes) {
+							let currNodeName = contentNode.nodeName;
+							if (currNodeName === "html") {
+								this.indexHtmBuildingHelper(contentNode);
+							}
 						}
-					}
-					return;
-				}).catch((err) => {
-					reject(new InsightError("unable to async" + err));
-				});
+					})
+					.catch((err) => {
+						reject(new InsightError("unable to async" + err));
+					});
 			} else {
 				reject(new InsightError("file was null")); // BUGNOTE
 			}
 
 			// use square brackets to explicitly pass in parsedZip as object
 			Promise.all([parsedZip]).then(() => {
-				this.findLocation.processLatAndLong(this.buildingListObject)
+				this.findLocation
+					.processLatAndLong(this.buildingListObject)
 					.then(() => {
 						resolve(this.processRooms(zipped));
-					}).catch((err) => {
+					})
+					.catch((err) => {
 						reject(new InsightError("ERROR: unable to process lat" + err));
 					});
 			});
-
 		});
 	}
 
 	public processRooms(zipped: any): Promise<IRoomData[]> {
-		return new Promise<IRoomData[]> ((resolve, reject) => {
+		return new Promise<IRoomData[]>((resolve, reject) => {
 			let dataToPush: Array<Promise<IRoomData>> = [];
 			let fileFolder = zipped.folder("campus/discover/buildings-and-classrooms"); // BUGNOTE
 			if (fileFolder == null) {
 				return new InsightError("InsightError: null file folder, could not load");
 			}
+			// for each building file
+			// lookup the building in the buildingListObject (which is derived from Index.htm and is an Object of Objects)
+			// then for that building Object, look up the associated building htm file (which is in buildings-and-classrooms directory)
+			// traverse through that htm file, grabbing data for each room of the building and putting it into a newRoom object
+			// combine the building Object (which contains general info) with the newRoom object
+			// the result is a new result Object containing all 11 fields, representing a single room
+			//
+			// if you do this for all buildings and all their rooms, then you will end up with 364 entries in your dataset, each being a unique room
 			fileFolder.forEach((buildingPath: any, file: any) => {
-				dataToPush.push(file.async("string")
-					.then((result: any) => {
-						let buildingPathNoHTM = buildingPath.split(".")[0];
-						this.processRoomsHelper(this.buildingListObject[buildingPathNoHTM], parse(result));
-					}).catch((err: any) => {
-						reject(new InsightError("Unable to process room" + err));
-					}));
+				dataToPush.push(
+					file.async("string")
+						.then((result: any) => {
+							let buildingPathNoHTM = buildingPath.split(".")[0]; // BUGNOTE
+							this.processRoomsHelper(this.buildingListObject[buildingPathNoHTM], parse(result));
+						})
+						.catch((err: any) => {
+							reject(new InsightError("Unable to process room" + err));
+						})
+				);
 			});
 			Promise.all(dataToPush).then(() => {
 				resolve(this.internalIndex);
@@ -186,7 +178,6 @@ export default class RoomsHelper {
 					newRoom.name = newRoom.shortname + "_" + roomFullName;
 					newRoom.number = roomFullName;
 					newRoom.href = retrieveAttrs["href"];
-
 				} else if (currAttrs === "views-field views-field-field-room-capacity") {
 					newRoom.seats = Number(this.trimText(param)); // BUGNOTE
 				} else if (currAttrs === "views-field views-field-field-room-type") {
@@ -209,10 +200,12 @@ export default class RoomsHelper {
 							this.convertIntoBuilding(tr);
 						}
 					}
-				} else if (currName === "body"  ||
-					       currName === "div"   ||
-						   currName === "table" ||
-						   currName === "section") {
+				} else if (
+					currName === "body" ||
+					currName === "div" ||
+					currName === "table" ||
+					currName === "section"
+				) {
 					this.indexHtmBuildingHelper(contentNodeChild);
 				}
 			}
@@ -227,11 +220,10 @@ export default class RoomsHelper {
 				if (tempAttrs === "views-field views-field-title") {
 					for (let searchName of childNode.childNodes) {
 						if (searchName.nodeName === "a") {
-							if(searchName.attrs[1]["value"] === "Building Details and Map") {
+							if (searchName.attrs[1]["value"] === "Building Details and Map") {
 								for (let searchNameChild of searchName.childNodes) {
 									if (searchNameChild.nodeName === "#text") {
 										let text = searchNameChild.value;
-										// console.log("searchNameChild value be " + text);
 										newRoom.fullname = text;
 									}
 								}
@@ -240,7 +232,6 @@ export default class RoomsHelper {
 					}
 				} else if (tempAttrs === "views-field views-field-field-building-code") {
 					if (typeof this.trimText(childNode) === "string") {
-						// console.log(this.trimText(childNode));
 						newRoom.shortname = this.trimText(childNode);
 					}
 				} else if (tempAttrs === "views-field views-field-field-building-address") {
@@ -251,13 +242,13 @@ export default class RoomsHelper {
 		if (newRoom.shortname != null) {
 			this.internalBuildings.push(newRoom);
 			this.buildingListObject[newRoom.shortname] = newRoom;
-		};
+		}
 	}
 
 	private trimText(paramToTrim: any) {
 		for (let paramChild of paramToTrim.childNodes) {
 			if (paramChild.nodeName === "#text") {
-				let trimmed = (paramChild).value.replace("\n", "").trim();
+				let trimmed = paramChild.value.replace("\n", "").trim();
 				return trimmed as string;
 			}
 		}

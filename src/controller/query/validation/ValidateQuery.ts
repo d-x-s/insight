@@ -63,9 +63,7 @@ export default class ValidateQueryHelper {
 
 		// look for the first valid id in columns
 		for (const columnKey of columnsValueArray) {
-			// console.log("look at column key");
 			if (columnKey.includes("_")) {
-				// console.log(columnKey);
 				return columnKey.split("_")[0];
 			}
 		}
@@ -96,16 +94,11 @@ export default class ValidateQueryHelper {
 				this.isTransformed = true;
 			}
 		}
-		console.log("Before validating where");
-		console.log(this.isValid);
+
 		let validateWhereHelper = new ValidateWhereHelper(kind);
 		validateWhereHelper.validateFilter(query["WHERE"], id);
 		this.isValid = validateWhereHelper.getValidStatus();
-		console.log("After validating where");
-		console.log(this.isValid);
-		// if (!this.validateWhereHelper.getValidStatus) {
-		// 	return;
-		// }
+
 		// TODO: TECHINCAL DEBT
 		// validateOptions should also be moved into its own class to respect Single Responsibility Principle
 		// unfortunately right now there is tight coupling between validateOptions and transformations, so I need to separate it out ASAP

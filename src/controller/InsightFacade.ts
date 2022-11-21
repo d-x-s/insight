@@ -35,7 +35,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		if (!this.idChecker.checkId(id)) {
-			return Promise.reject(new InsightError("InsightError: id is invalid"));
+			return Promise.reject(new InsightError("InsightError: " + id + " is invalid"));
 		}
 
 		if (!this.idChecker.checkContent(content)) {
@@ -55,7 +55,6 @@ export default class InsightFacade implements IInsightFacade {
 			let AddCoursesHelper = new CoursesHelper();
 			return Promise.resolve(AddCoursesHelper.addCoursesDatasetToModel(id, content, kind, this.internalModel));
 		} else {
-			console.log("entered line 58");
 			let AddRoomsHelper = new RoomsHelper(id, kind);
 			return Promise.resolve(AddRoomsHelper.addRoomsDatasetToModel(id, content, kind, this.internalModel));
 		}

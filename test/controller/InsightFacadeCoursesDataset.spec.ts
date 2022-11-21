@@ -225,7 +225,6 @@ describe("InsightFacade", function () {
 				await insightFacade.addDataset("empty-id", empty, InsightDatasetKind.Sections);
 				expect.fail("test failed, error should have been thrown");
 			} catch(error: any) {
-				console.log("error", error);
 				expect(error).to.be.an.instanceof(InsightError);
 			};
 		});
@@ -313,10 +312,8 @@ describe("InsightFacade", function () {
 			try {
 				const courses: string = datasetContents.get("dsCourses") ?? "";
 				await insightFacade.addDataset("id", courses, InsightDatasetKind.Sections);
-				console.log("addDataset complete");
 				await insightFacade.removeDataset("id");
 			} catch(error: any) {
-				console.log("error", error);
 				expect.fail("test failed, should pass for simple add/remove");
 			};
 		});
@@ -358,18 +355,13 @@ describe("InsightFacade", function () {
 				expect(insightDatasets1).to.be.an.instanceof(Array);
 				expect(insightDatasets1).to.have.length(2);
 
-				console.log("line 361");
-
 				const insightDatasetCourses1 = insightDatasets1.find((dataset) => dataset.id === "id1");
-				console.log(insightDatasetCourses1);
 				expect(insightDatasetCourses1).to.exist;
 				expect (insightDatasetCourses1).to.deep.equal({
 					id: "id1",
 					kind: InsightDatasetKind.Sections,
 					numRows: 64612,
 				});
-
-				console.log("line 371");
 
 				const insightDatasetCourses2 = insightDatasets1.find((dataset) => dataset.id === "id2");
 				expect(insightDatasetCourses2).to.exist;
@@ -378,8 +370,6 @@ describe("InsightFacade", function () {
 					kind: InsightDatasetKind.Sections,
 					numRows: 64612,
 				});
-
-				console.log("line 381");
 
 				await insightFacade.removeDataset("id1");
 				const insightDatasets2 = await insightFacade.listDatasets();
