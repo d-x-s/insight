@@ -87,9 +87,6 @@ export default class RoomsHelper {
 					.setBuildingCoordinates(this.buildingsMap)
 					.then(() => {
 						resolve(this.processRooms(zipped));
-					})
-					.catch((err) => {
-						reject(new InsightError("ERROR: unable to process lat" + err));
 					});
 			});
 		});

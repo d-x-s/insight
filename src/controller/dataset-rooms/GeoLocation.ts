@@ -5,7 +5,7 @@ export class GeoLocation {
 	protected requestAddress: string = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/";
 
 	public setBuildingCoordinates(buildingsMap: any) {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			let promiseArrayOfHTTP: any = [];
 
 			for (const [buildingName] of buildingsMap) {
@@ -17,13 +17,14 @@ export class GeoLocation {
 				promiseArrayOfHTTP.push(this.retrieveCoordinates(httpAddress, buildingObject));
 			}
 
-			return Promise.all(promiseArrayOfHTTP)
-				.then(() => {
-					resolve(true);
-				})
-				.catch((err) => {
-					reject(new InsightError("unable to process lat and long" + err));
-				});
+			// if you use Promise.all, you reject if any of the promises reject
+			// use Promise.allSettled because we SKIP over buildings we fail to retrieve coordinates for
+			// there is no need to handle the case where an invalid coordinate retrieval causes a (building) promise is rejected, just ignore it and we will filter out the invalid results later
+			// if we fail to retrieve the coordinates for a building, we will not add the coordinate key value pairs to the corresponding rooms
+			// this is how we identify any invalid rooms, as these invalid builindgs will result in rooms without all 11 keys (they will be missing lat and lon keys)
+			return Promise.allSettled(promiseArrayOfHTTP).then(() => {
+				resolve(true);
+			});
 		});
 	}
 
@@ -41,8 +42,6 @@ export class GeoLocation {
 				});
 				resolve(true);
 			});
-		}).catch((err) => {
-			return new InsightError("error processing lat and long" + err);
 		});
 	}
 }
