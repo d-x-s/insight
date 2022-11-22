@@ -10,22 +10,20 @@ import fs from "fs";
 export default class RoomsHelper {
 	public indexDirectory: string;
 	public findLocation: GeoLocation;
-	public internalIndex: any;
-	public internalBuildings: any;
-	public buildingListObject: {[key: string]: IRoomData};
+	public roomsList: any;
 	public fileDirectory: string;
 	public datasetID: string;
 	protected kind: InsightDatasetKind;
+	protected buildingsMap: Map<string, IRoomData>; // map of key:value pairs where the key is the building name and the value is an object with the building information
 
 	constructor(id: string, kind: any) {
-		this.indexDirectory = "index.htm";
-		this.findLocation = new GeoLocation();
-		this.internalIndex = [];
-		this.internalBuildings = [];
-		this.buildingListObject = {};
-		this.fileDirectory = __dirname + "/../../data";
 		this.datasetID = id;
 		this.kind = kind;
+		this.indexDirectory = "index.htm";
+		this.fileDirectory = __dirname + "/../../data";
+		this.findLocation = new GeoLocation();
+		this.roomsList = [];
+		this.buildingsMap = new Map();
 	}
 
 	public addRoomsDatasetToModel(
@@ -45,7 +43,8 @@ export default class RoomsHelper {
 					if (result instanceof InsightError) {
 						reject(new InsightError("InsightError: failed to add" + result));
 					}
-					let filteredResult = result.filter((res) => { // BUGNOTE
+					let filteredResult = result.filter((res) => {
+						// BUGNOTE
 						let length: number = Object.keys(res).length;
 						let lengthString = length.toString();
 						return lengthString === "11";
@@ -85,7 +84,7 @@ export default class RoomsHelper {
 			// use square brackets to explicitly pass in parsedZip as object
 			Promise.all([parsedZip]).then(() => {
 				this.findLocation
-					.processLatAndLong(this.buildingListObject)
+					.setBuildingCoordinates(this.buildingsMap)
 					.then(() => {
 						resolve(this.processRooms(zipped));
 					})
@@ -113,10 +112,11 @@ export default class RoomsHelper {
 			// if you do this for all buildings and all their rooms, then you will end up with 364 entries in your dataset, each being a unique room
 			fileFolder.forEach((buildingPath: any, file: any) => {
 				dataToPush.push(
-					file.async("string")
+					file
+						.async("string")
 						.then((result: any) => {
 							let buildingPathNoHTM = buildingPath.split(".")[0]; // BUGNOTE
-							this.processRoomsHelper(this.buildingListObject[buildingPathNoHTM], parse(result));
+							this.processRoomsHelper(this.buildingsMap.get(buildingPathNoHTM), parse(result));
 						})
 						.catch((err: any) => {
 							reject(new InsightError("Unable to process room" + err));
@@ -124,7 +124,7 @@ export default class RoomsHelper {
 				);
 			});
 			Promise.all(dataToPush).then(() => {
-				resolve(this.internalIndex);
+				resolve(this.roomsList);
 			});
 		});
 	}
@@ -187,7 +187,7 @@ export default class RoomsHelper {
 				}
 			}
 		}
-		this.internalIndex.push(newRoom);
+		this.roomsList.push(newRoom);
 	}
 
 	public indexHtmBuildingHelper(contentNode: any) {
@@ -212,9 +212,9 @@ export default class RoomsHelper {
 		}
 	}
 
-	private convertIntoBuilding(child: any) {
-		let newRoom: IRoomData = {} as IRoomData;
-		for (let childNode of child.childNodes) {
+	private convertIntoBuilding(tr: any) {
+		let newBuilding: IRoomData = {} as IRoomData;
+		for (let childNode of tr.childNodes) {
 			if (childNode.nodeName === "td") {
 				let tempAttrs = childNode.attrs[0]["value"];
 				if (tempAttrs === "views-field views-field-title") {
@@ -224,7 +224,7 @@ export default class RoomsHelper {
 								for (let searchNameChild of searchName.childNodes) {
 									if (searchNameChild.nodeName === "#text") {
 										let text = searchNameChild.value;
-										newRoom.fullname = text;
+										newBuilding.fullname = text;
 									}
 								}
 							}
@@ -232,16 +232,15 @@ export default class RoomsHelper {
 					}
 				} else if (tempAttrs === "views-field views-field-field-building-code") {
 					if (typeof this.trimText(childNode) === "string") {
-						newRoom.shortname = this.trimText(childNode);
+						newBuilding.shortname = this.trimText(childNode);
 					}
 				} else if (tempAttrs === "views-field views-field-field-building-address") {
-					newRoom.address = this.trimText(childNode);
+					newBuilding.address = this.trimText(childNode);
 				}
 			}
 		}
-		if (newRoom.shortname != null) {
-			this.internalBuildings.push(newRoom);
-			this.buildingListObject[newRoom.shortname] = newRoom;
+		if (newBuilding.shortname != null) {
+			this.buildingsMap.set(newBuilding.shortname, newBuilding);
 		}
 	}
 
