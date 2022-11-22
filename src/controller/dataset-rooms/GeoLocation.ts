@@ -1,5 +1,4 @@
 import * as http from "http";
-import {InsightError} from "../IInsightFacade";
 
 export class GeoLocation {
 	protected requestAddress: string = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team132/";
@@ -10,7 +9,7 @@ export class GeoLocation {
 
 			for (const [buildingName] of buildingsMap) {
 				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get#:~:text=The%20get()%20method%20returns,it%20inside%20the%20Map%20object.
-				// very interesting property of Map's get(), you get a reference to the object, any change made to this object will be modified directly in the map!
+				// interesting property of Map's get(), if the value is an object you will receive a reference to it (not a copy of the object), any change made to this object will modify it directly in the map!
 				let buildingObject = buildingsMap.get(buildingName);
 				let buildingAddress = encodeURIComponent(buildingObject.address);
 				let httpAddress = this.requestAddress + buildingAddress;
@@ -19,9 +18,9 @@ export class GeoLocation {
 
 			// if you use Promise.all, you reject if any of the promises reject
 			// use Promise.allSettled because we SKIP over buildings we fail to retrieve coordinates for
-			// there is no need to handle the case where an invalid coordinate retrieval causes a (building) promise is rejected, just ignore it and we will filter out the invalid results later
+			// there is no need to handle the case where an invalid coordinate retrieval causes a (building) promise to be rejected, just ignore it and we will filter out the invalid results later
 			// if we fail to retrieve the coordinates for a building, we will not add the coordinate key value pairs to the corresponding rooms
-			// this is how we identify any invalid rooms, as these invalid builindgs will result in rooms without all 11 keys (they will be missing lat and lon keys)
+			// this is how we identify any invalid rooms, as these invalid builings will result in rooms without all 11 keys (in particular, they will be missing lat and lon keys)
 			return Promise.allSettled(promiseArrayOfHTTP).then(() => {
 				resolve(true);
 			});
