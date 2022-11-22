@@ -28,14 +28,15 @@ export class GeoLocation {
 		});
 	}
 
-	public retrieveCoordinates(address: string, buildingObject: any) {
+	private retrieveCoordinates(address: string, buildingObject: any) {
 		return new Promise((resolve, reject) => {
 			http.get(address, (response: any) => {
+				if (response.statusCode < 200 || response.statusCode >= 300) {
+					return reject(new Error("HTTP error with statusCode=" + response.statusCode));
+				}
 				response.on("data", (result: any) => {
 					let coordinates = JSON.parse(result);
-					if (coordinates.lat === undefined || coordinates.lon === undefined) {
-						reject(new InsightError("invalid lat or lon"));
-					} else {
+					if (coordinates.lat !== undefined && coordinates.lon !== undefined) {
 						buildingObject.lat = coordinates.lat;
 						buildingObject.lon = coordinates.lon;
 					}
