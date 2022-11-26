@@ -1,11 +1,15 @@
-import express, {Application, Request, Response} from "express";
+import express, {Application, NextFunction, Request, Response} from "express";
 import * as http from "http";
 import cors from "cors";
+import InsightFacade from "../controller/InsightFacade";
+import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 
 export default class Server {
 	private readonly port: number;
 	private express: Application;
 	private server: http.Server | undefined;
+	private insightFacade: InsightFacade;
+	private static insightFacade: InsightFacade;
 
 	constructor(port: number) {
 		console.info(`Server::<init>( ${port} )`);
@@ -14,6 +18,8 @@ export default class Server {
 
 		this.registerMiddleware();
 		this.registerRoutes();
+
+		this.insightFacade = new InsightFacade();
 
 		// NOTE: you can serve static frontend files in from your express server
 		// by uncommenting the line below. This makes files in ./frontend/public
@@ -124,51 +130,50 @@ export default class Server {
 		}
 	}
 
-	// The next two methods handle the echo service.
-	// These are almost certainly not the best place to put these, but are here for your reference.
-	// By updating the Server.echo function pointer above, these methods can be easily moved.
-	private static put(req: Request, res: Response) {
+	// refer to: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT#:~:text=The%20HTTP%20PUT%20request%20method,resource%20with%20the%20request%20payload.
+	//
+	private static put(req: Request, res: Response, next: NextFunction) {
 		try {
-			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
-			const response = Server.performEcho(req.params.msg);
-			res.status(200).json({result: response});
+			// console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
+			// const response = Server.performEcho(req.params.msg);
+			// res.status(200).json({result: response});
+			let requestKind: InsightDatasetKind;
+			if (req.params.kind === "sections") {
+				requestKind = InsightDatasetKind.Sections;
+			} else if (req.params.kind === "rooms") {
+				requestKind = InsightDatasetKind.Rooms;
+			} else {
+				throw new InsightError("Error parsing params.kind");
+			}
+			return this.insightFacade.addDataset(req.params.id, req.params.body, requestKind)
+				.then((addDatasetResult) => {
+					res.status(200).json({
+						result: addDatasetResult,
+					});
+					return next();
+				});
 		} catch (err) {
 			res.status(400).json({error: err});
 		}
 	}
 
-	private static performPut(msg: string): string {
-		if (typeof msg !== "undefined" && msg !== null) {
-			return `${msg}...${msg}`;
-		} else {
-			return "Message not provided";
-		}
-	}
-
-	// The next two methods handle the echo service.
-	// These are almost certainly not the best place to put these, but are here for your reference.
-	// By updating the Server.echo function pointer above, these methods can be easily moved.
-	private static del(req: Request, res: Response) {
+	private static del(req: Request, res: Response, next: NextFunction) {
 		try {
-			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
-			const response = Server.performEcho(req.params.msg);
-			res.status(200).json({result: response});
+			// console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
+			// const response = Server.performEcho(req.params.msg);
+			// res.status(200).json({result: response});
+			return this.insightFacade.removeDataset(req.params.id)
+				.then((removeDatasetResult) => {
+					res.status(200).json({
+						result: removeDatasetResult,
+					});
+					return next();
+				});
 		} catch (err) {
 			res.status(400).json({error: err});
 		}
 	}
 
-	private static performDel(msg: string): string {
-		if (typeof msg !== "undefined" && msg !== null) {
-			return `${msg}...${msg}`;
-		} else {
-			return "Message not provided";
-		}
-	}
-
-	// The next two methods handle the echo service.
-	// These are almost certainly not the best place to put these, but are here for your reference.
-	// By updating the Server.echo function pointer above, these methods can be easily moved.
 	private static post(req: Request, res: Response) {
 		try {
 			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
@@ -187,9 +192,6 @@ export default class Server {
 		}
 	}
 
-	// The next two methods handle the echo service.
-	// These are almost certainly not the best place to put these, but are here for your reference.
-	// By updating the Server.echo function pointer above, these methods can be easily moved.
 	private static get(req: Request, res: Response) {
 		try {
 			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
