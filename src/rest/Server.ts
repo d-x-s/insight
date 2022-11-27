@@ -131,7 +131,6 @@ export default class Server {
 	}
 
 	// refer to: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT#:~:text=The%20HTTP%20PUT%20request%20method,resource%20with%20the%20request%20payload.
-	//
 	private static put(req: Request, res: Response, next: NextFunction) {
 		try {
 			// console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
@@ -145,7 +144,12 @@ export default class Server {
 			} else {
 				throw new InsightError("Error parsing params.kind");
 			}
-			return this.insightFacade.addDataset(req.params.id, req.params.body, requestKind)
+			// C2 Spec
+			// PUT /dataset/:id/:kind allows one to submit a zip file that will be parsed and used for future queries.
+			// The zip file content will be sent 'raw' as a buffer in the PUT's body,
+			// and you will need to convert it to base64 server side.
+			let requestContent = req.body.toString("base64");
+			return this.insightFacade.addDataset(req.params.id, requestContent, requestKind)
 				.then((addDatasetResult) => {
 					res.status(200).json({
 						result: addDatasetResult,
