@@ -6,7 +6,6 @@ export class GeoLocation {
 	public setBuildingCoordinates(buildingsMap: any) {
 		return new Promise((resolve) => {
 			let promiseArrayOfHTTP: any = [];
-
 			for (const [buildingName] of buildingsMap) {
 				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get#:~:text=The%20get()%20method%20returns,it%20inside%20the%20Map%20object.
 				// interesting property of Map's get(), if the value is an object you will receive a reference to it (not a copy of the object), any change made to this object will modify it directly in the map!
