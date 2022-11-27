@@ -148,6 +148,11 @@ export default class Server {
 			// PUT /dataset/:id/:kind allows one to submit a zip file that will be parsed and used for future queries.
 			// The zip file content will be sent 'raw' as a buffer in the PUT's body,
 			// and you will need to convert it to base64 server side.
+			//
+			// How to convert buffer to base64?
+			// https://www.google.com/search?q=buffer+to+string&oq=buffer+to+string&aqs=chrome..69i57j0i512l9.2525j0j9&sourceid=chrome&ie=UTF-8
+			// Buffers have a toString() method that you can use to convert the buffer to a string.
+			// By default, toString() converts the buffer to a string using UTF8 encoding.
 			let requestContent = req.body.toString("base64");
 			return this.insightFacade.addDataset(req.params.id, requestContent, requestKind)
 				.then((addDatasetResult) => {
