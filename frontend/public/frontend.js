@@ -1,7 +1,7 @@
 document.getElementById("submit-rooms").addEventListener("click", submitRooms);
 
 function submitRooms() {
-	alert("Button submitted");
+	// alert("Button submitted");
 	let firstRoomInput = document.getElementById("firstRoom").value;
 	let secondRoomInput = document.getElementById("secondRoom").value;
 	// can use firstRoomInput and secondRoomInput to send http request
@@ -11,22 +11,38 @@ function submitRooms() {
 	let secondRoomQuery = constructRoomQuery(secondRoomInput);
 
 	console.log("2");
-	let firstRoomQueryResults = sendQuery(firstRoomQuery);
-	let secondRoomQueryResults = sendQuery(secondRoomQuery);
 
-	console.log("3");
-	// get first of array
-	let firstRoomBuilding = firstRoomQueryResults[0];
-	let secondRoomBuilding = secondRoomQueryResults[0];
+	// console.log("2.4", firstRoomQueryResults);
 
-	console.log("4");
-	let distanceBetweenBuildings = calculateDistance(firstRoomBuilding, secondRoomBuilding);
+	return new Promise((resolve, reject) => {
+		console.log("3");
+		let firstRoomQueryResults = sendQuery(firstRoomQuery);
+		let secondRoomQueryResults = sendQuery(secondRoomQuery);
 
-	// display difference to user
-	console.log("distance between buildings", distanceBetweenBuildings);
+		console.log("4.1", firstRoomQueryResults);
+		resolve([firstRoomQueryResults, secondRoomQueryResults]);
+	}).then((result) => {
+		console.log("4.2", result);
+		let firstRoomBuilding = result[0][0];
+		let secondRoomBuilding = result[1][0];
 
-	const roomOutput = document.querySelector('.input-rooms-result');
-	roomOutput.textContent = `Distance between rooms: ${distanceBetweenBuildings}`;
+		let distanceBetweenBuildings = calculateDistance(firstRoomBuilding, secondRoomBuilding);
+		const roomOutput = document.querySelector('.input-rooms-result');
+		roomOutput.textContent = `Distance between rooms: ${distanceBetweenBuildings}`;
+	});
+
+
+	// console.log("3");
+	// // get first of array
+	// // let firstRoomBuilding = firstRoomQueryResults[0];
+	// // let secondRoomBuilding = secondRoomQueryResults[0];
+	//
+	// console.log("4");
+	// console.log("distance", firstRoomBuilding);
+	// let distanceBetweenBuildings = calculateDistance(firstRoomBuilding, secondRoomBuilding);
+	//
+	// // display difference to user
+	// console.log("distance between buildings", distanceBetweenBuildings);
 }
 
 function constructRoomQuery(roomInput) {
@@ -54,14 +70,18 @@ function constructRoomQuery(roomInput) {
 function sendQuery(query) {
 
 	return new Promise(function (resolve, reject) {
+		console.log("promise reached");
 		let queryRequest = new XMLHttpRequest();
 		queryRequest.onload = function() {
 			if (queryRequest.status === 200) {
+				console.log("4.01");
 				resolve(JSON.parse(queryRequest.responseText));
 			} else {
+				const roomOutput = document.querySelector('.input-rooms-result');
+				roomOutput.textContent = `Error processing your request.`;
 				reject();
 			}
-		}
+		};
 		queryRequest.open("GET", "http:localhost:4321/query", true);
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
 		queryRequest.setRequestHeader("Content-Type", "application/json");
@@ -89,7 +109,6 @@ function calculateDistance(firstLocation, secondLocation) {
 document.getElementById("calculate").addEventListener("click", calculateAverage);
 
 function calculateAverage() {
-	alert("Button submitted");
 	let instructorInput = document.getElementById("instructor").value;
 	let instructorQuery = constructInstructorQuery(instructorInput);
 
