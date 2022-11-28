@@ -1,14 +1,13 @@
-import express, {Application, NextFunction, Request, Response} from "express";
+import express, {Application, Request, Response} from "express";
 import * as http from "http";
 import cors from "cors";
 import InsightFacade from "../controller/InsightFacade";
-import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightError, NotFoundError} from "../controller/IInsightFacade";
 
 export default class Server {
 	private readonly port: number;
 	private express: Application;
 	private server: http.Server | undefined;
-	private insightFacade: InsightFacade;
 	private static insightFacade: InsightFacade;
 
 	constructor(port: number) {
@@ -19,7 +18,7 @@ export default class Server {
 		this.registerMiddleware();
 		this.registerRoutes();
 
-		this.insightFacade = new InsightFacade();
+		Server.insightFacade = new InsightFacade();
 
 		// NOTE: you can serve static frontend files in from your express server
 		// by uncommenting the line below. This makes files in ./frontend/public
@@ -86,137 +85,84 @@ export default class Server {
 
 	// Registers all request handlers to routes
 	private registerRoutes() {
-		// This is an example endpoint this you can invoke by accessing this URL in your browser:
-		// http://localhost:4321/echo/hello
-		this.express.get("/echo/:msg", Server.echo);
-
-		// TODO: your other endpoints should go here
-
-		// addDataset
-		// use put instead of post:
-		// https://stackoverflow.com/questions/107390/whats-the-difference-between-a-post-and-a-put-http-request
-		this.express.put("/dataset/:id/:kind", Server.put);
-
-		// removeDataset
-		this.express.delete("/dataset/:id", Server.del);
-
-		// performQuery
-		this.express.post("/query", Server.post);
-
-		// listDataset
-		// this.express.get("/dataset");
-
-
+		this.express.put(   "/dataset/:id/:kind", Server.add);
+		this.express.delete("/dataset/:id",       Server.remove);
+		this.express.post(  "/query",             Server.query);
+		this.express.get(   "/datasets",          Server.list);
 	}
 
-	// The next two methods handle the echo service.
-	// These are almost certainly not the best place to put these, but are here for your reference.
-	// By updating the Server.echo function pointer above, these methods can be easily moved.
-	private static echo(req: Request, res: Response) {
+	// add dataset
+	private static async add(req: Request, res: Response) {
 		try {
-			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
-			const response = Server.performEcho(req.params.msg);
-			res.status(200).json({result: response});
-		} catch (err) {
-			res.status(400).json({error: err});
-		}
-	}
-
-	private static performEcho(msg: string): string {
-		if (typeof msg !== "undefined" && msg !== null) {
-			return `${msg}...${msg}`;
-		} else {
-			return "Message not provided";
-		}
-	}
-
-	// refer to: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT#:~:text=The%20HTTP%20PUT%20request%20method,resource%20with%20the%20request%20payload.
-	private static put(req: Request, res: Response, next: NextFunction) {
-		try {
-			// console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
-			// const response = Server.performEcho(req.params.msg);
-			// res.status(200).json({result: response});
-			let requestKind: InsightDatasetKind;
-			if (req.params.kind === "sections") {
-				requestKind = InsightDatasetKind.Sections;
-			} else if (req.params.kind === "rooms") {
-				requestKind = InsightDatasetKind.Rooms;
-			} else {
-				throw new InsightError("Error parsing params.kind");
-			}
-			// C2 Spec
-			// PUT /dataset/:id/:kind allows one to submit a zip file that will be parsed and used for future queries.
-			// The zip file content will be sent 'raw' as a buffer in the PUT's body,
-			// and you will need to convert it to base64 server side.
-			//
-			// How to convert buffer to base64?
-			// https://www.google.com/search?q=buffer+to+string&oq=buffer+to+string&aqs=chrome..69i57j0i512l9.2525j0j9&sourceid=chrome&ie=UTF-8
-			// Buffers have a toString() method that you can use to convert the buffer to a string.
-			// By default, toString() converts the buffer to a string using UTF8 encoding.
+			console.log(`Server::add(..) - params: ${JSON.stringify(req.params)}`);
+			let requestID      = req.params.id;
+			let requestKind    = req.params.kind;
 			let requestContent = req.body.toString("base64");
-			return this.insightFacade.addDataset(req.params.id, requestContent, requestKind)
-				.then((addDatasetResult) => {
-					res.status(200).json({
-						result: addDatasetResult,
-					});
-					return next();
-				});
-		} catch (err) {
-			res.status(400).json({error: err});
-		}
-	}
-
-	private static del(req: Request, res: Response, next: NextFunction) {
-		try {
-			// console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
-			// const response = Server.performEcho(req.params.msg);
-			// res.status(200).json({result: response});
-			return this.insightFacade.removeDataset(req.params.id)
-				.then((removeDatasetResult) => {
-					res.status(200).json({
-						result: removeDatasetResult,
-					});
-					return next();
-				});
-		} catch (err) {
-			res.status(400).json({error: err});
-		}
-	}
-
-	private static post(req: Request, res: Response) {
-		try {
-			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
-			const response = Server.performEcho(req.params.msg);
+			const response     = await Server.performAddDataset(requestID, requestContent, requestKind);
 			res.status(200).json({result: response});
 		} catch (err) {
 			res.status(400).json({error: err});
 		}
 	}
 
-	private static performPost(msg: string): string {
-		if (typeof msg !== "undefined" && msg !== null) {
-			return `${msg}...${msg}`;
+	private static performAddDataset(id: any, content: any, kindString: any) {
+		let kind: InsightDatasetKind;
+		if (kindString === "sections") {
+			kind = InsightDatasetKind.Sections;
 		} else {
-			return "Message not provided";
+			kind = InsightDatasetKind.Rooms;
+		}
+		return Server.insightFacade.addDataset(id, content, kind);
+	}
+
+	// remove dataset
+	private static async remove(req: Request, res: Response) {
+		try {
+			console.log(`Server::remove(..) - params: ${JSON.stringify(req.params)}`);
+			let deleteID = req.params.id;
+			const response = await Server.performRemoveDataset(deleteID);
+			res.status(200).json({result: response});
+		} catch (err) {
+			if (err instanceof InsightError) {
+				res.status(400).json({error: err.message});
+			}
+			if (err instanceof NotFoundError) {
+				res.status(404).json({error: err.message});
+			}
 		}
 	}
 
-	private static get(req: Request, res: Response) {
+	private static performRemoveDataset(id: any) {
+		return Server.insightFacade.removeDataset(id);
+	}
+
+	// query dataset
+	private static async query(req: Request, res: Response) {
 		try {
-			console.log(`Server::echo(..) - params: ${JSON.stringify(req.params)}`);
-			const response = Server.performEcho(req.params.msg);
+			console.log(`Server::query(..) - params: ${JSON.stringify(req.params)}`);
+			const response = await Server.performQuery(req.body);
+			res.status(200).json({result: response});
+		} catch (err: any) {
+			res.status(400).json({error: err.message});
+		}
+	}
+
+	private static performQuery(query: any) {
+		return Server.insightFacade.performQuery(query);
+	}
+
+	// list datasets
+	private static async list(req: Request, res: Response) {
+		try {
+			console.log(`Server::list(..) - params: ${JSON.stringify(req.params)}`);
+			const response = await Server.performListDatasets();
 			res.status(200).json({result: response});
 		} catch (err) {
 			res.status(400).json({error: err});
 		}
 	}
 
-	private static performGet(msg: string): string {
-		if (typeof msg !== "undefined" && msg !== null) {
-			return `${msg}...${msg}`;
-		} else {
-			return "Message not provided";
-		}
+	private static performListDatasets() {
+		return Server.insightFacade.listDatasets();
 	}
-
 }
