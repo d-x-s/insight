@@ -100,8 +100,8 @@ export default class Server {
 			let requestContent = req.body.toString("base64");
 			const response     = await Server.performAddDataset(requestID, requestContent, requestKind);
 			res.status(200).json({result: response});
-		} catch (err) {
-			res.status(400).json({error: err});
+		} catch (err: any) {
+			res.status(400).json({error: err.message});
 		}
 	}
 
@@ -122,7 +122,7 @@ export default class Server {
 			let deleteID = req.params.id;
 			const response = await Server.performRemoveDataset(deleteID);
 			res.status(200).json({result: response});
-		} catch (err) {
+		} catch (err: any) {
 			if (err instanceof InsightError) {
 				res.status(400).json({error: err.message});
 			}
@@ -157,8 +157,8 @@ export default class Server {
 			console.log(`Server::list(..) - params: ${JSON.stringify(req.params)}`);
 			const response = await Server.performListDatasets();
 			res.status(200).json({result: response});
-		} catch (err) {
-			res.status(400).json({error: err});
+		} catch (err: any) {
+			res.status(400).json({error: err.message});
 		}
 	}
 
