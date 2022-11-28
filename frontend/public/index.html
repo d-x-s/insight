@@ -6,7 +6,7 @@
 		<link href="/style.css" rel="stylesheet" />
 	</head>
 	<body>
-		<button id="click-me-button" class="button" >Click Me!</button>
+<!--		<button id="click-me-button" class="button" >Click Me!</button>-->
 
 <!--		&lt;!&ndash; Load React &ndash;&gt;-->
 <!--		<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>-->
@@ -16,13 +16,23 @@
 <!--		<script src="handleReact.js"></script>-->
 
 
-
+		<div id="input-rooms-title">
+			<h1>Input short name for your rooms here!</h1>
+		</div>
 		<div id="input-rooms">
 			<label for="firstRoom">First Room:</label>
 			<input type="text" id="firstRoom" name="firstRoom"><br><br>
 			<label for="secondRoom">Second Room:</label>
 			<input type="text" id="secondRoom" name="secondRoom"><br><br>
 			<button id="submit-rooms" class="button" name="submit">Submit</button>
+		</div>
+
+		<div id="input-rooms-result">
+			<h1>The distance between the buildings is: </h1>
+		</div>
+
+		<div id="input-instructor-title">
+			<h1>Input the instructor's name here!</h1>
 		</div>
 
 		<div id="input-instructor">
@@ -32,6 +42,10 @@
 				<label for="calculate">Calculate</label>
 				<input type="button" id="calculate" name="calculate"><br><br>
 			</form>
+		</div>
+
+		<div id="input-instructor-result">
+			<h1>The average for the instructor's courses is: </h1>
 		</div>
 
 
