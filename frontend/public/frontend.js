@@ -1,15 +1,3 @@
-document.getElementById("click-me-button").addEventListener("click", handleClickMe);
-
-function handleClickMe() {
-	alert("Button Clicked!");
-}
-
-//
-
-// let roomSubmission = document.getElementById("room-form").submit();
-//
-// console.log("roomSubmission", roomSubmission);
-
 document.getElementById("submit-rooms").addEventListener("click", submitRooms);
 
 function submitRooms() {
@@ -23,8 +11,8 @@ function submitRooms() {
 	let secondRoomQuery = constructRoomQuery(secondRoomInput);
 
 	console.log("2");
-	let firstRoomQueryResults = sendRoomQuery(firstRoomQuery);
-	let secondRoomQueryResults = sendRoomQuery(secondRoomQuery);
+	let firstRoomQueryResults = sendQuery(firstRoomQuery);
+	let secondRoomQueryResults = sendQuery(secondRoomQuery);
 
 	console.log("3");
 	// get first of array
@@ -36,50 +24,42 @@ function submitRooms() {
 
 	// display difference to user
 	console.log("distance between buildings", distanceBetweenBuildings);
-}
 
+	const roomOutput = document.querySelector('.input-rooms-result');
+	roomOutput.textContent = `Distance between rooms: ${distanceBetweenBuildings}`;
+}
 
 function constructRoomQuery(roomInput) {
 	return {
 		"WHERE": {
-			"IS": {
-				"sections_instructor": roomInput
-			}
-		},
-		"OPTIONS": {
-			"COLUMNS": [
-				"sections_instructor",
-				"AvgOfSectionAverages"
-			],
-			"ORDER": {
-				"dir": "DOWN",
-				"keys": [
-					"AvgOfSectionAverages"
-				]
-			}
-		},
-		"TRANSFORMATIONS": {
-			"GROUP": [
-				"sections_instructor"
-			],
-			"APPLY": [
+			"AND": [
 				{
-					"AvgOfSectionAverages": {
-						"AVG": "sections_avg"
+					"IS": {
+						"rooms_fullname": roomInput
 					}
 				}
 			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_fullname",
+				"rooms_lat",
+				"rooms_lon"
+			],
+			"ORDER": "rooms_fullname"
 		}
 	}
 }
 
-function sendRoomQuery(query) {
+function sendQuery(query) {
 
 	return new Promise(function (resolve, reject) {
 		let queryRequest = new XMLHttpRequest();
 		queryRequest.onload = function() {
 			if (queryRequest.status === 200) {
 				resolve(JSON.parse(queryRequest.responseText));
+			} else {
+				reject();
 			}
 		}
 		queryRequest.open("GET", "http:localhost:4321/query", true);
@@ -87,7 +67,6 @@ function sendRoomQuery(query) {
 		queryRequest.setRequestHeader("Content-Type", "application/json");
 		queryRequest.send(JSON.stringify(query));
 	});
-
 }
 
 function calculateDistance(firstLocation, secondLocation) {
@@ -107,11 +86,6 @@ function calculateDistance(firstLocation, secondLocation) {
 
 }
 
-
-
-////
-
-
 document.getElementById("calculate").addEventListener("click", calculateAverage);
 
 function calculateAverage() {
@@ -119,10 +93,15 @@ function calculateAverage() {
 	let instructorInput = document.getElementById("instructor").value;
 	let instructorQuery = constructInstructorQuery(instructorInput);
 
+	let allInstructorCourses = sendQuery(instructorQuery);
 
+	let resultArray = allInstructorCourses["result"];
+	let firstRoom = resultArray[0];
+	let average = firstRoom["AvgOfSectionAverages"]
 
+	const instructorOutput = document.querySelector('.input-instructor-result');
+	instructorOutput.textContent = `Average of Instructor: ${average}`;
 }
-
 
 function constructInstructorQuery(instructorInput) {
 	return {
