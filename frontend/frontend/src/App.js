@@ -30,7 +30,7 @@ function App() {
 	}
 
 	function createRoomQuery(input) {
-		return {
+		let x = {
 			"WHERE": {
 				"AND": [
 					{
@@ -49,13 +49,22 @@ function App() {
 				"ORDER": "rooms_fullname"
 			}
 		}
+		// console.log(JSON.parse(JSON.stringify(x)));
+		// return JSON.parse(JSON.stringify(x));
+		return x;
 	}
 
 	function sendQuery(query) {
-		axios.get(`http://localhost:4321/datasets`, query)
+		// axios.post(`http://localhost:4321/query`, query)
+		axios.post(`http://localhost:4321/query`, query)
 			.then((result) => {
-				console.log("result", result.data);
-			return result.data;
+				console.log(result);
+				console.log(result.data.result[0]);
+				
+
+				// console.log("result", result.data);
+			// return result.data;
+			return result[0];
 		}).catch((err) => {
 			console.log("Unable to generate request", err);
 		});
@@ -74,11 +83,11 @@ function App() {
 	}
 
 	const handleInstructorSubmission = () => {
-		let instructorInput = instructorInputField.current.value;
+		// let instructorInput = instructorInputField.current.value;
 
-		let instructorQuery = createInstructorQuery(instructorInput);
+		// let instructorQuery = createInstructorQuery(instructorInput);
 
-		let instructorResult = sendInstructorQuery(instructorQuery);
+		// let instructorResult = sendInstructorQuery(instructorQuery);
 
 		// let instructorAverage = instructorResult.getAverage//
 
@@ -134,7 +143,7 @@ function App() {
 		<input id="first-room-input" ref={firstRoomInputField} />
 	  	<input className="second-room-input" ref={secondRoomInputField} />
 		  <br></br>
-	  	<button id="submit-rooms" onClick={handleRoomSubmission}>Submit Names</button>
+	  	<button id="-rooms" onClick={handleRoomSubmission}>Submit Names</button>
 	  	<p></p>
 
 	  	<p>
