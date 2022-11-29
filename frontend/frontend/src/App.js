@@ -60,11 +60,11 @@ function App() {
 					return calculateDistance(firstResultValue, secondResultValue);
 				}).catch((err) => {
 					setCount("Error sending query (Room not found)  " + err);
-					console.log("Unable to generate second request", err);
+					console.log("Unable to generate second request. Please resubmit the second room. ", err);
 				});
 			}).catch((err) => {
 				setCount("Error sending query (Room not found)  " + err);
-				console.log("Unable to generate first request", err);
+				console.log("Unable to generate first request. Please resubmit the first room. ", err);
 		});
 	}
 
@@ -138,7 +138,7 @@ function App() {
 				console.log("result from sendQuery", result.data.result[0]["AvgOfSectionAverages"]);
 				setInstructorAvg("Instructor's average: " + result.data.result[0]["AvgOfSectionAverages"]);
 			}).catch((err) => {
-				setInstructorAvg("Instructor not found, Error: " + err);
+				setInstructorAvg("Instructor not found. Please resubmit the instructor's name. Error: " + err);
 				console.log("Unable to generate request", err);
 		});
 	}
