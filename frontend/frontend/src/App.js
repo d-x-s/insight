@@ -10,7 +10,7 @@ function App() {
 	const instructorInputField = useRef(null);
 
 	// let distanceResult = useState("");
-	const [distanceResult, setCount] = useState(0);
+	const [distanceResult, setCount] = useState(null);
 	const [instructorAvg, setInstructorAvg] = useState(null);
 
 	const handleRoomSubmission = () => {
@@ -58,20 +58,22 @@ function App() {
 					let secondResultValue = secondResult.data.result[0];
 					console.log("result from sendQuery2", secondResult.data.result[0]);
 					return calculateDistance(firstResultValue, secondResultValue);
+				}).catch((err) => {
+					setCount("Error sending query (Room not found)  " + err);
+					console.log("Unable to generate second request", err);
 				});
 			}).catch((err) => {
-				console.log("Unable to generate request", err);
+				setCount("Error sending query (Room not found)  " + err);
+				console.log("Unable to generate first request", err);
 		});
 	}
 
 	function calculateDistance(firstLocation, secondLocation) {
-		console.log("firstLocation", firstLocation);
-		console.log("secondLoacation", secondLocation);
 		let latDifference = (firstLocation["rooms_lat"] - secondLocation["rooms_lat"]) * (Math.PI/180);
 		let lonDifference = (firstLocation["rooms_lon"] - secondLocation["rooms_lon"]) * (Math.PI/180);
 
-		console.log(latDifference);
-		console.log(lonDifference);
+		// console.log(latDifference);
+		// console.log(lonDifference);
 
 		let a = Math.sin(latDifference/2) * Math.sin(latDifference/2) +
 			Math.cos((Math.PI/180)*(firstLocation["rooms_lat"])) * Math.cos((Math.PI/180)*(secondLocation["rooms_lat"])) *
@@ -79,7 +81,7 @@ function App() {
 		let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 		let earthRadius = 6371;
 		console.log("earth", earthRadius * c);
-		setCount(earthRadius*c);
+		setCount("Distance between Rooms: " + earthRadius*c + "km");
 		return earthRadius * c; // Distance in km
 	}
 
@@ -134,9 +136,10 @@ function App() {
 		axios.post(`http://localhost:4321/query`, query)
 			.then((result) => {
 				console.log("result from sendQuery", result.data.result[0]["AvgOfSectionAverages"]);
-				setInstructorAvg(result.data.result[0]["AvgOfSectionAverages"]);
+				setInstructorAvg("Instructor's average: " + result.data.result[0]["AvgOfSectionAverages"]);
 			}).catch((err) => {
-			console.log("Unable to generate request", err);
+				setInstructorAvg("Instructor not found, Error: " + err);
+				console.log("Unable to generate request", err);
 		});
 	}
 
@@ -151,7 +154,7 @@ function App() {
 				<input className="second-room-input" ref={secondRoomInputField} />
 				<br></br>
 				<button id="-rooms" onClick={handleRoomSubmission}>Submit Names</button>
-				<p>Distance between Rooms: {distanceResult} km</p>
+				<p>{distanceResult}</p>
 
 				<p>
 					Input instructor here:
@@ -159,7 +162,7 @@ function App() {
 				<input className="instructor-input" ref={instructorInputField} />
 				<br></br>
 				<button id="submit-instructors" onClick={handleInstructorSubmission}>Submit Instructor</button>
-				<p>Instructor's average: {instructorAvg}</p>
+				<p>{instructorAvg}</p>
 
 			</header>
 		</div>
